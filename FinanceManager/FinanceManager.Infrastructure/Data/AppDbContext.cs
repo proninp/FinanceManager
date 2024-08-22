@@ -11,7 +11,7 @@ namespace FinanceManager.Infrastructure.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("User ID=postgres;Password=postgres;Host=localhost;Port=5432;Database=postgres;Pooling=true;");
+                optionsBuilder.UseNpgsql("User ID=admin;Password=root;Host=localhost;Port=5432;Database=finance_manager;");
             }
         }
 

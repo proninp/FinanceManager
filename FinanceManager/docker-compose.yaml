@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  db_finance_manager:
+    container_name: db_finance_manager
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=finance_manager
+    image: postgres:14.13-alpine

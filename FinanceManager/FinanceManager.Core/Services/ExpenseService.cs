@@ -1,20 +1,14 @@
 ﻿using FinanceManager.Core.DataTransferObjects;
-using FinanceManager.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FinanceManager.Core.Services.Abstractions;
 
 namespace FinanceManager.Core.Services
 {
-    public class ExpenseService(AppDbContext dbContext)
+    public class ExpenseService(IExpenseRepository expenseRepository)
     {
         public async Task PutExpense(
             PutExpenseRequestDto command)
         {
-            // TODO: добавить сохранение расхода в БД (dbContext)
-            throw new NotImplementedException();
+            await expenseRepository.Add(command.ToModel());
         }
     }
 }

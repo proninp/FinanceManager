@@ -1,5 +1,7 @@
 using FinanceManager.Core.Services;
+using FinanceManager.Core.Services.Abstractions;
 using FinanceManager.Infrastructure.Data;
+using FinanceManager.Infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>();
 
 builder.Services.AddScoped<ExpenseService>();
+builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 #endregion
 
 var app = builder.Build();
