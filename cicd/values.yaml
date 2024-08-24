@@ -5,3 +5,13 @@ service:
 ingress:
   create: true
   host: financemanager.ivanin-kv.ru
+
+env:
+  - name: "DB_HOST"
+    value: "192.168.2.113"
+  - name: "DB_NAME"
+    valuse: "financemanager"
+  - name: "DB_USER"
+    value: "finmgruser"  
+  - name: "DB_PASS"
+    value: "finmgruser"
