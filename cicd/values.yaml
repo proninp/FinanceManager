@@ -1,0 +1,7 @@
+service:
+  create: true
+  port: 8080
+
+ingress:
+  create: true
+  host: financemanager.ivanin-kv.ru
