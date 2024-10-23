@@ -1,3 +1,4 @@
+using FinanceManager.Core.Options;
 using FinanceManager.Core.Services;
 using FinanceManager.Core.Services.Abstractions;
 using FinanceManager.Infrastructure.Data;
@@ -12,15 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
  * Controller
 */
 
+builder.Services.Configure<DbOptions>(builder.Configuration.GetSection(nameof(DbOptions)));
+
 #region Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDbContext<IUnitOfWork, AppDbContext>();
 
-builder.Services.AddScoped<ExpenseService>();
+builder.Services.AddScoped<ExpenseManager>();
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
+builder.Services.AddScoped<FinanceService>();
 #endregion
 
 var app = builder.Build();

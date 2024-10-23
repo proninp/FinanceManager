@@ -2,18 +2,21 @@
 
 namespace FinanceManager.Core.DataTransferObjects
 {
-    public class PutExpenseRequestDto
+    public class PatchExpenseRequestDto
     {
-        public long Id { get; init; }
-        
+        public long? Id { get; init; }
+
         public required decimal Amount { get; init; }
+
+        public required DateOnly Date {  get; init; }
 
         public Expense ToModel()
         {
             return new Expense 
-            { 
-                Id = Id,
-                Amount = Amount
+            {
+                Id = Id ?? 0,
+                Amount = Amount,
+                Date = Date
             };
         }
     }
