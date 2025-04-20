@@ -9,4 +9,6 @@ A web application for personal finance management implemented with C#
 ## Участники
 
 [Пронин Павел](https://github.com/proninp)
+
+
 [Белан Владислав](https://github.com/smakki)
