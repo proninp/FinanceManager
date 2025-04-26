@@ -1,0 +1,116 @@
+Table users {
+  id uuid [pk]
+  name varchar [not null]
+  email varchar [not null]
+  password_hash varchar [not null]
+  default_time_zone_id uuid [ref: > time_zones.id, null]
+  telegram_id bigint [null]
+  registered_at timestamp [not null]
+  indexes {
+    (email) [unique]
+  }
+}
+
+Table refresh_tokens {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  token varchar [not null]
+  expires_at timestamp [not null]
+  revoked boolean [not null]
+  indexes {
+    (user_id) [unique]
+  }
+}
+
+Table time_zones {
+  id uuid [pk]
+  name varchar [not null]
+}
+
+Table currencies {
+  id uuid [pk]
+  name varchar [not null]
+  code varchar [not null]
+  sign varchar [null]
+  emoji varchar [null]
+  deleted bool [not null]
+  indexes {
+    (code) [unique]
+  }
+}
+
+Table countries {
+  id uuid [pk]
+  name varchar [unique, not null]
+}
+
+Table banks {
+  id uuid [pk]
+  country_id uuid [ref: > countries.id, not null]
+  name varchar [not null]
+  indexes {
+    (country_id)
+  }
+}
+
+Table account_types {
+  id uuid [pk]
+  code varchar [not null]
+  description varchar [not null]
+  deleted bool [not null]
+  indexes {
+    (code) [unique]
+  }
+}
+
+Table accounts {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  account_type_id uuid [ref: > account_types.id, not null]
+  currency_id uuid [ref: > currencies.id, not null]
+  bank_id uuid [ref: > banks.id, not null]
+  name varchar [not null]
+  credit_limit decimal [null]
+  include_in_balance boolean [not null]
+  default bool [not null]
+  archived bool [not null]
+  deleted bool [not null]
+  indexes {
+    (account_type_id)
+    (user_id, currency_id)
+  }
+}
+
+Table categories {
+  id uuid [pk]
+  parent_id uuid [ref: > categories.id, null]
+  user_id uuid [ref: > users.id, not null]
+  name varchar [null]
+  income boolean [not null]
+  expense boolean [not null]
+  emoji varchar [null]
+  icon bytea [null]
+  indexes {
+    (user_id, income)
+    (user_id, expense)
+  }
+}
+
+Table transactions {
+  id uuid [pk]
+  account_id uuid [ref: > accounts.id, not null]
+  category_id uuid [ref: > categories.id, not null]
+  amount decimal [not null]
+  description varchar [null]
+  timestamp timestamp [not null]
+}
+
+Table transfers {
+  id uuid [pk]
+  from_account_id uuid [ref: > accounts.id, not null]
+  to_account_id uuid [ref: > accounts.id, not null]
+  from_amount decimal [not null]
+  to_amount decimal [not null, note: "When the from-account and the to-account have a different currencies"]
+  description varchar [null]
+  timestamp timestamp [not null]
+}
