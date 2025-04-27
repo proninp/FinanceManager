@@ -114,3 +114,10 @@ Table transfers {
   description varchar [null]
   timestamp timestamp [not null]
 }
+
+Table exchange_rates{
+  id uuid [pk]
+  rate_date datetime [not null]
+  currency_id uuid [ref: > currencies.id, not null]
+  rate decimal [not null]
+}
