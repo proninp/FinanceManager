@@ -1,5 +1,6 @@
 Table users {
   id uuid [pk]
+  role int [not null]
   name varchar [not null]
   email varchar [not null]
   password_hash varchar [not null]
