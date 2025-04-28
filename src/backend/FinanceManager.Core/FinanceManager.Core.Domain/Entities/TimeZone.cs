@@ -1,7 +1,8 @@
+using FinanceManager.Core.Domain.Abstractions;
+
 namespace FinanceManager.Core.Domain.Entities;
 
-public class TimeZone
+public class TimeZone(string name) :IdentityEntity
 {
-    public Guid Id { get; init; }
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 }

@@ -1,9 +1,10 @@
+using FinanceManager.Core.Domain.Abstractions;
+
 namespace FinanceManager.Core.Domain.Entities;
 
-public class Bank
+public class Bank(string name, Guid countryId) : IdentityEntity
 {
-    public Guid Id { get; init; }
-    public string Name { get; set; }
-    public Guid CountryId { get; set; }
-    public Country Country { get; set; }
+    public string Name { get; set; } = name;
+    public Guid CountryId { get; set; } = countryId;
+    public Country Country { get; set; } = null!;
 }

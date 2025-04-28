@@ -1,20 +1,16 @@
+using FinanceManager.Core.Domain.Abstractions;
+using FinanceManager.Core.Domain.Enums;
+
 namespace FinanceManager.Core.Domain.Entities;
 
-public class User
+public class User(string name, string email, string passwordHash, Guid defaultTimeZoneId, long telegramId) : IdentityEntity
 {
-    public Guid Id { get; init; }
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string PasswordHash { get; set; }
-    public Guid DefaultTimeZoneId { get; set; }
-    public TimeZone DefaultTimeZone { get; set; }
-    public DateTime RegisteredAt { get; set; }
-    public long TelegramId { get; set; }
+    public string Name { get; set; } = name;
+    public string Email { get; set; } = email;
+    public string PasswordHash { get; set; } = passwordHash;
+    public Guid DefaultTimeZoneId { get; set; } = defaultTimeZoneId;
+    public TimeZone DefaultTimeZone { get; set; } = null!;
+    public long TelegramId { get; set; } = telegramId;
     public UserRole Role { get; set; } = UserRole.User;
 }
 
-public enum UserRole
-{
-    Admin,
-    User
-}
