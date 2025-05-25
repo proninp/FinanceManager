@@ -184,12 +184,7 @@ Table transactions_accounts {
   account_type_id uuid [ref: > transactions_account_types.id, not null]
   currency_id uuid [ref: > transactions_currencies.id, not null]
   holder_id uuid [ref: > transaction_holders.id, not null]
-  name varchar [not null]
   credit_limit decimal [null]
-  is_include_in_balance boolean [not null]
-  is_default bool [not null]
-  is_archived bool [not null]
-  created_at timestamp [not null]
   indexes {
     (account_type_id)
     (holder_id, currency_id)
@@ -198,16 +193,33 @@ Table transactions_accounts {
 
 Table transactions_categories {
   id uuid [pk]
-  parent_id uuid [ref: > transactions_categories.id, null]
+  "*parent_id*" uuid [ref: > transactions_categories.id, null]
   holder_id uuid [ref: > transaction_holders.id, not null]
-  name varchar [null]
+  "*name*" varchar [null]
   income boolean [not null]
   expense boolean [not null]
-  emoji varchar [null]
-  icon bytea [null]
-  created_at timestamp [not null]
+  "*emoji*" varchar [null]
+  "*icon*" bytea [null]
   indexes {
     (holder_id, income)
     (holder_id, expense)
   }
+}
+
+Table tg_users {
+  telegram_id bigint [not null, pk]
+  user_id uuid
+  role int [not null]
+  last_active_timestamp timestamp [not null]
+}
+
+Table tg_user_state {
+  telegram_user_id bigint [not null, pk, ref: > tg_users.telegram_id]
+  state_id uuid [not null, pk, ref: > tg_states.id]
+  context json
+}
+
+Table tg_states {
+  id uuid [pk]
+  name text
 }
