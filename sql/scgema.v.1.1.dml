@@ -1,0 +1,213 @@
+Table users {
+  id uuid [pk]
+  role int [not null]
+  name varchar [not null]
+  email varchar [not null]
+  password_hash varchar [not null]
+  default_time_zone_id uuid [ref: > time_zones.id, null]
+  telegram_id bigint [null]
+  created_at timestamp [not null]
+  indexes {
+    (email) [unique]
+    (telegram_id) [unique]
+  }
+}
+
+Table refresh_tokens {
+  id uuid [pk]
+  user_id uuid [ref: > users.id, not null]
+  token varchar [not null]
+  expires_at timestamp [not null]
+  is_revoked boolean [not null]
+  created_at timestamp [not null]
+  indexes {
+    (user_id) [unique]
+  }
+}
+
+Table time_zones {
+  id uuid [pk]
+  name varchar [not null]
+  created_at timestamp [not null]
+}
+
+Table registry_holder {
+  id uuid [pk]
+  role int [not null]
+  telegram_id bigint [null]
+  created_at timestamp [not null]
+  indexes {
+    (telegram_id) [unique]
+  }
+}
+
+Table currencies {
+  id uuid [pk]
+  name varchar [not null]
+  char_code varchar [not null]
+  num_code varchar [not null]
+  sign varchar [null]
+  emoji varchar [null]
+  is_deleted bool [not null]
+  created_at timestamp [not null]
+  indexes {
+    (char_code) [unique]
+    (num_code) [unique]
+  }
+}
+
+Table exchange_rates{
+  id uuid [pk]
+  rate_date datetime [not null]
+  currency_id uuid [ref: > currencies.id, not null]
+  rate decimal [not null]
+  created_at timestamp [not null]
+}
+
+Table countries {
+  id uuid [pk]
+  name varchar [unique, not null]
+  created_at timestamp [not null]
+}
+
+Table banks {
+  id uuid [pk]
+  country_id uuid [ref: > countries.id, not null]
+  name varchar [not null]
+  created_at timestamp [not null]
+  indexes {
+    (country_id)
+  }
+}
+
+Table account_types {
+  id uuid [pk]
+  code varchar [not null]
+  description varchar [not null]
+  is_deleted bool [not null]
+  created_at timestamp [not null]
+  indexes {
+    (code) [unique]
+  }
+}
+
+Table accounts {
+  id uuid [pk]
+  holder_id uuid [ref: > registry_holder.id, not null]
+  account_type_id uuid [ref: > account_types.id, not null]
+  currency_id uuid [ref: > currencies.id, not null]
+  bank_id uuid [ref: > banks.id, not null]
+  name varchar [not null]
+  credit_limit decimal [null]
+  is_include_in_balance boolean [not null]
+  is_default bool [not null]
+  is_archived bool [not null]
+  is_deleted bool [not null]
+  created_at timestamp [not null]
+  indexes {
+    (account_type_id)
+    (holder_id, currency_id)
+  }
+}
+
+Table categories {
+  id uuid [pk]
+  parent_id uuid [ref: > categories.id, null]
+  holder_id uuid [ref: > registry_holder.id, not null]
+  name varchar [null]
+  income boolean [not null]
+  expense boolean [not null]
+  emoji varchar [null]
+  icon bytea [null]
+  created_at timestamp [not null]
+  indexes {
+    (holder_id, income)
+    (holder_id, expense)
+  }
+}
+
+Table transaction_holders {
+  id uuid [pk]
+  role int [not null]
+  telegram_id bigint [null]
+  created_at timestamp [not null]
+  indexes {
+    (telegram_id) [unique]
+  }
+}
+
+Table transactions {
+  id uuid [pk]
+  account_id uuid [ref: > transactions_accounts.id, not null]
+  category_id uuid [ref: > transactions_categories.id, not null]
+  amount decimal [not null]
+  description varchar [null]
+  created_at timestamp [not null]
+}
+
+Table transfers {
+  id uuid [pk]
+  from_account_id uuid [ref: > transactions_accounts.id, not null]
+  to_account_id uuid [ref: > transactions_accounts.id, not null]
+  from_amount decimal [not null]
+  to_amount decimal [not null, note: "When the from-account and the to-account have a different currencies"]
+  description varchar [null]
+  created_at timestamp [not null]
+}
+
+Table transactions_currencies {
+  id uuid [pk]
+  name varchar [not null]
+  char_code varchar [not null]
+  num_code varchar [not null]
+  sign varchar [null]
+  emoji varchar [null]
+  created_at timestamp [not null]
+  indexes {
+    (char_code) [unique]
+    (num_code) [unique]
+  }
+}
+
+Table transactions_account_types {
+  id uuid [pk]
+  code varchar [not null]
+  description varchar [not null]
+  created_at timestamp [not null]
+  indexes {
+    (code) [unique]
+  }
+}
+
+Table transactions_accounts {
+  id uuid [pk]
+  account_type_id uuid [ref: > transactions_account_types.id, not null]
+  currency_id uuid [ref: > transactions_currencies.id, not null]
+  holder_id uuid [ref: > transaction_holders.id, not null]
+  name varchar [not null]
+  credit_limit decimal [null]
+  is_include_in_balance boolean [not null]
+  is_default bool [not null]
+  is_archived bool [not null]
+  created_at timestamp [not null]
+  indexes {
+    (account_type_id)
+    (holder_id, currency_id)
+  }
+}
+
+Table transactions_categories {
+  id uuid [pk]
+  parent_id uuid [ref: > transactions_categories.id, null]
+  holder_id uuid [ref: > transaction_holders.id, not null]
+  name varchar [null]
+  income boolean [not null]
+  expense boolean [not null]
+  emoji varchar [null]
+  icon bytea [null]
+  created_at timestamp [not null]
+  indexes {
+    (holder_id, income)
+    (holder_id, expense)
+  }
+}
