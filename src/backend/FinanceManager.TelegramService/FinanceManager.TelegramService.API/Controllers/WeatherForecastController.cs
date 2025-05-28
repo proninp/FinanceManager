@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace FinanceManager.FinanceManager.API.Controllers;
+namespace FinanceManager.TelegramService.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]

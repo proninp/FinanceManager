@@ -1,0 +1,6 @@
+@FinanceManager.TelegramService.API_HostAddress = http://localhost:5294
+
+GET {{FinanceManager.TelegramService.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

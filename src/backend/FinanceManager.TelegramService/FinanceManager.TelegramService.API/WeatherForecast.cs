@@ -1,4 +1,4 @@
-namespace FinanceManager.FinanceManager.API;
+namespace FinanceManager.TelegramService.API;
 
 public class WeatherForecast
 {
