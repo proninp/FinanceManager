@@ -1,0 +1,6 @@
+@FinanceManager.FinanceManager.API_HostAddress = http://localhost:5098
+
+GET {{FinanceManager.FinanceManager.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
