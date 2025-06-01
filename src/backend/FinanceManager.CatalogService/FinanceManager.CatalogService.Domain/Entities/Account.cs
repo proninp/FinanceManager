@@ -1,0 +1,100 @@
+﻿using FinanceManager.CatalogService.Domain.Abstractions;
+
+namespace FinanceManager.CatalogService.Domain.Entities;
+
+/// <summary>
+/// Банковский счет пользователя
+/// </summary>
+/// <param name="registryHolderId">Идентификатор владельца счета</param>
+/// <param name="accountTypeId">Идентификатор типа счета</param>
+/// <param name="currencyId">Идентификатор валюты</param>
+/// <param name="bankId">Идентификатор банка</param>
+/// <param name="name">Название счета</param>
+/// <param name="isIncludeInBalance">Включать ли счет в общий баланс</param>
+/// <param name="isDefault">Является ли счет по умолчанию</param>
+/// <param name="isArchived">Архивирован ли счет</param>
+/// <param name="isDeleted">Удален ли счет</param>
+/// <param name="creditLimit">Кредитный лимит счета</param>
+public class Account(
+    Guid registryHolderId,
+    Guid accountTypeId,
+    Guid currencyId,
+    Guid bankId,
+    string name,
+    bool isIncludeInBalance,
+    bool isDefault,
+    bool isArchived = false,
+    bool isDeleted = false,
+    decimal? creditLimit = null) : IdentityModel
+{
+    /// <summary>
+    /// Идентификатор владельца счета
+    /// </summary>
+    public Guid RegistryHolderId { get; set; } = registryHolderId;
+    
+    /// <summary>
+    /// Владелец счета
+    /// </summary>
+    public RegistryHolder RegistryHolder { get; set; } = null!;
+
+    /// <summary>
+    /// Идентификатор типа счета
+    /// </summary>
+    public Guid AccountTypeId { get; set; } = accountTypeId;
+    
+    /// <summary>
+    /// Тип счета
+    /// </summary>
+    public AccountType AccountType { get; set; } = null!;
+
+    /// <summary>
+    /// Идентификатор валюты счета
+    /// </summary>
+    
+    public Guid CurrencyId { get; set; } = currencyId;
+    
+    /// <summary>
+    /// Валюта счета
+    /// </summary>
+    public Currency Currency { get; set; } = null!;
+
+    /// <summary>
+    /// Идентификатор банка
+    /// </summary>
+    public Guid BankId { get; set; } = bankId;
+    
+    /// <summary>
+    /// Банк, в котором открыт счет
+    /// </summary>
+    public Bank Bank { get; set; } = null!;
+
+    /// <summary>
+    /// Название счета
+    /// </summary>
+    public string Name { get; set; } = name;
+
+    /// <summary>
+    /// Флаг, указывающий, включать ли данный счет в расчет общего баланса
+    /// </summary>
+    public bool IsIncludeInBalance { get; set; } = isIncludeInBalance;
+
+    /// <summary>
+    /// Флаг, указывающий, является ли счет счетом по умолчанию
+    /// </summary>
+    public bool IsDefault { get; set; } = isDefault;
+
+    /// <summary>
+    /// Флаг архивирования счета
+    /// </summary>
+    public bool IsArchived { get; set; } = isArchived;
+
+    /// <summary>
+    /// Флаг мягкого удаления счета
+    /// </summary>
+    public bool IsDeleted { get; set; } = isDeleted;
+
+    /// <summary>
+    /// Кредитный лимит счета (если применимо)
+    /// </summary>
+    public decimal? CreditLimit { get; set; } = creditLimit;
+}
