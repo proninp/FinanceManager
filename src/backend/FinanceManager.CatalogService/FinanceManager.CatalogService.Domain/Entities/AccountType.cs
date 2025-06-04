@@ -7,8 +7,7 @@ namespace FinanceManager.CatalogService.Domain.Entities;
 /// </summary>
 /// <param name="code">Код типа счета</param>
 /// <param name="description">Описание типа счета</param>
-/// <param name="isDeleted">Удален ли тип счета</param>
-public class AccountType(string code, string description, bool isDeleted = false) : IdentityModel
+public class AccountType(string code, string description) : SoftDeletableEntity
 {
     /// <summary>
     /// Уникальный код типа счета
@@ -19,9 +18,4 @@ public class AccountType(string code, string description, bool isDeleted = false
     /// Описание типа счета
     /// </summary>
     public string Description { get; set; } = description;
-
-    /// <summary>
-    /// Флаг мягкого удаления типа счета
-    /// </summary>
-    public bool IsDeleted { get; set; } = isDeleted;
 }

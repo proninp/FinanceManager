@@ -13,7 +13,6 @@ namespace FinanceManager.CatalogService.Domain.Entities;
 /// <param name="isIncludeInBalance">Включать ли счет в общий баланс</param>
 /// <param name="isDefault">Является ли счет по умолчанию</param>
 /// <param name="isArchived">Архивирован ли счет</param>
-/// <param name="isDeleted">Удален ли счет</param>
 /// <param name="creditLimit">Кредитный лимит счета</param>
 public class Account(
     Guid registryHolderId,
@@ -24,8 +23,7 @@ public class Account(
     bool isIncludeInBalance,
     bool isDefault,
     bool isArchived = false,
-    bool isDeleted = false,
-    decimal? creditLimit = null) : IdentityModel
+    decimal? creditLimit = null) : SoftDeletableEntity
 {
     /// <summary>
     /// Идентификатор владельца счета
@@ -87,11 +85,6 @@ public class Account(
     /// Флаг архивирования счета
     /// </summary>
     public bool IsArchived { get; set; } = isArchived;
-
-    /// <summary>
-    /// Флаг мягкого удаления счета
-    /// </summary>
-    public bool IsDeleted { get; set; } = isDeleted;
 
     /// <summary>
     /// Кредитный лимит счета (если применимо)
