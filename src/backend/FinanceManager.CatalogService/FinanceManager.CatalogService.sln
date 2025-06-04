@@ -8,6 +8,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{F198B8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.CatalogService.Domain", "FinanceManager.CatalogService.Domain\FinanceManager.CatalogService.Domain.csproj", "{E4EE9A98-B732-4022-891B-5AE92AB3F85C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{BBC38B0F-7698-43F9-B047-13B6CC2FFE66}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.CatalogService.Contracts", "FinanceManager.CatalogService.Contracts\FinanceManager.CatalogService.Contracts.csproj", "{A0D279E5-3D74-4CF4-AB31-007CF566E600}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,9 +26,14 @@ Global
 		{E4EE9A98-B732-4022-891B-5AE92AB3F85C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4EE9A98-B732-4022-891B-5AE92AB3F85C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4EE9A98-B732-4022-891B-5AE92AB3F85C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0D279E5-3D74-4CF4-AB31-007CF566E600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0D279E5-3D74-4CF4-AB31-007CF566E600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0D279E5-3D74-4CF4-AB31-007CF566E600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0D279E5-3D74-4CF4-AB31-007CF566E600}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{CC569748-107D-4D50-A2B5-E52ED549EE3F} = {31862AF6-6CEF-47EB-8D41-03938FD15C4F}
 		{E4EE9A98-B732-4022-891B-5AE92AB3F85C} = {F198B861-A801-4805-ACEE-7445B93BBC4C}
+		{A0D279E5-3D74-4CF4-AB31-007CF566E600} = {BBC38B0F-7698-43F9-B047-13B6CC2FFE66}
 	EndGlobalSection
 EndGlobal
