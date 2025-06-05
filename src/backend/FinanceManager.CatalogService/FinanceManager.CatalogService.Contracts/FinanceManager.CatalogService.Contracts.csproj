@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Categories\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\FinanceManager.CatalogService.Domain\FinanceManager.CatalogService.Domain.csproj" />
     </ItemGroup>
 
