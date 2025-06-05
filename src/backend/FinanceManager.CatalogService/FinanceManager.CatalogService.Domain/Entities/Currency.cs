@@ -10,9 +10,8 @@ namespace FinanceManager.CatalogService.Domain.Entities;
 /// <param name="numCode">Числовой код валюты</param>
 /// <param name="sign">Символ валюты</param>
 /// <param name="emoji">Эмодзи валюты</param>
-/// <param name="isDeleted">Удалена ли валюта</param>
-public class Currency(string name, string charCode, string numCode, string? sign, string? emoji, bool isDeleted)
-    : IdentityModel
+public class Currency(string name, string charCode, string numCode, string? sign, string? emoji)
+    : SoftDeletableEntity
 {
     /// <summary>
     /// Полное название валюты
@@ -38,9 +37,4 @@ public class Currency(string name, string charCode, string numCode, string? sign
     /// Эмодзи для представления валюты
     /// </summary>
     public string? Emoji { get; set; } = emoji;
-
-    /// <summary>
-    /// Флаг мягкого удаления валюты
-    /// </summary>
-    public bool IsDeleted { get; set; } = isDeleted;
 }
