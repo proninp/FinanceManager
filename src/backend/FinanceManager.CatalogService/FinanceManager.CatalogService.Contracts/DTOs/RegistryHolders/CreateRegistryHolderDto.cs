@@ -9,5 +9,5 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
 /// <param name="Role">Роль пользователя в системе</param>
 public record CreateRegistryHolderDto(
     long TelegramId,
-    Role Role
+    Role Role = Role.User
 );

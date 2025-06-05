@@ -1,4 +1,7 @@
-﻿namespace FinanceManager.CatalogService.Contracts.DTOs.Banks;
+﻿using FinanceManager.CatalogService.Contracts.Common;
+using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
+
+namespace FinanceManager.CatalogService.Contracts.DTOs.Banks;
 
 /// <summary>
 /// DTO для фильтрации и пагинации банков
@@ -6,10 +9,10 @@
 /// <param name="ItemsPerPage">Количество элементов на странице</param>
 /// <param name="Page">Номер страницы</param>
 /// <param name="CountryId">Идентификатор страны</param>
-/// <param name="Name">Название банка</param>
+/// <param name="NameContains">Содержит название банка</param>
 public record BankFilterDto(
-    int ItemsPerPage,
-    int Page,
-    Guid? CountryId,
-    string? Name
-);
+    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
+    int Page = PaginationDefaults.DefaultPage,
+    Guid? CountryId = null,
+    string? NameContains = null
+) : BasePaginationDto(ItemsPerPage, Page);

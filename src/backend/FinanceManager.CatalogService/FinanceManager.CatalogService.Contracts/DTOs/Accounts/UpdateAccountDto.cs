@@ -4,7 +4,6 @@
 /// DTO для обновления банковского счета пользователя
 /// </summary>
 /// <param name="Id">Идентификатор счета</param>
-/// <param name="RegistryHolderId">Идентификатор владельца счета</param>
 /// <param name="AccountTypeId">Идентификатор типа счета</param>
 /// <param name="CurrencyId">Идентификатор валюты счета</param>
 /// <param name="BankId">Идентификатор банка</param>
@@ -15,7 +14,6 @@
 /// <param name="CreditLimit">Кредитный лимит счета</param>
 public record UpdateAccountDto(
     Guid Id,
-    Guid? RegistryHolderId,
     Guid? AccountTypeId,
     Guid? CurrencyId,
     Guid? BankId,

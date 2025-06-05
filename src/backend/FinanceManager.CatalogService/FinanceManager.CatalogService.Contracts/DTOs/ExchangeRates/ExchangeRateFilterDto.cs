@@ -6,12 +6,16 @@
 /// <param name="ItemsPerPage">Количество элементов на странице</param>
 /// <param name="Page">Номер страницы</param>
 /// <param name="CurrencyId">Идентификатор валюты</param>
-/// <param name="RateDate">Дата курса</param>
-/// <param name="Rate">Значение курса</param>
+/// <param name="DateFrom">Дата начала курса</param>
+/// <param name="DateTo">Дата конца курса</param>
+/// <param name="RateFrom">Значение курса от</param>
+/// <param name="RateTo">Значение курса до</param>
 public record ExchangeRateFilterDto(
     int ItemsPerPage,
     int Page,
     Guid? CurrencyId,
-    DateTime? RateDate,
-    decimal? Rate
+    DateTime? DateFrom,
+    DateTime? DateTo,
+    decimal? RateFrom,
+    decimal? RateTo
 );

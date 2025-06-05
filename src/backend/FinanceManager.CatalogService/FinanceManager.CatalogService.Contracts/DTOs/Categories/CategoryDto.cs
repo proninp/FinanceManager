@@ -12,7 +12,8 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Categories;
 /// <param name="Expense">Является ли категория расходной</param>
 /// <param name="Emoji">Эмодзи категории</param>
 /// <param name="Icon">Иконка категории</param>
-/// <param name="ParentCategory">Родительская категория</param>
+/// <param name="ParentId">Идентификатор родительской категории</param>
+/// <param name="ParentName">Наименование родительской категории</param>
 public record CategoryDto(
     Guid Id,
     RegistryHolderDto RegistryHolder,
@@ -21,5 +22,6 @@ public record CategoryDto(
     bool Expense,
     string? Emoji,
     byte[]? Icon,
-    CategoryDto? ParentCategory
+    Guid? ParentId,
+    string? ParentName
 );

@@ -4,7 +4,6 @@
 /// DTO для обновления категории
 /// </summary>
 /// <param name="Id">Идентификатор категории</param>
-/// <param name="RegistryHolderId">Идентификатор владельца категории</param>
 /// <param name="Name">Название категории</param>
 /// <param name="Income">Является ли категория доходной</param>
 /// <param name="Expense">Является ли категория расходной</param>
@@ -13,7 +12,6 @@
 /// <param name="ParentId">Идентификатор родительской категории</param>
 public record UpdateCategoryDto(
     Guid Id,
-    Guid? RegistryHolderId,
     string? Name,
     bool? Income,
     bool? Expense,
