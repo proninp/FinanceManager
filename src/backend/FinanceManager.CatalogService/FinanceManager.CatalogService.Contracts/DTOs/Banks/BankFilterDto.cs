@@ -1,0 +1,15 @@
+﻿namespace FinanceManager.CatalogService.Contracts.DTOs.Banks;
+
+/// <summary>
+/// DTO для фильтрации и пагинации банков
+/// </summary>
+/// <param name="ItemsPerPage">Количество элементов на странице</param>
+/// <param name="Page">Номер страницы</param>
+/// <param name="CountryId">Идентификатор страны</param>
+/// <param name="Name">Название банка</param>
+public record BankFilterDto(
+    int ItemsPerPage,
+    int Page,
+    Guid? CountryId,
+    string? Name
+);
