@@ -17,7 +17,7 @@ namespace FinanceManager.UserService.Domain.Entities;
 /// <param name="passwordHash">Хэш пароля для безопасного хранения.</param>
 /// <param name="defaultTimeZoneId">Идентификатор часового пояса по умолчанию для пользователя.</param>
 /// <param name="telegramId">Уникальный идентификатор пользователя в Telegram.</param>
-public class User(Role role, string name, string email, string passwordHash, Guid defaultTimeZoneId, long telegramId)
+public class User(Role role, string name, string passwordHash, Guid defaultTimeZoneId, long telegramId, string? email = null)
     : IdentityModel
 {
     /// <summary>
@@ -33,7 +33,7 @@ public class User(Role role, string name, string email, string passwordHash, Gui
     /// <summary>
     /// Адрес электронной почты
     /// </summary>
-    public string Email { get; set; } = email;
+    public string? Email { get; set; } = email;
     
     /// <summary>
     /// Хэшсумма пароля пользователя

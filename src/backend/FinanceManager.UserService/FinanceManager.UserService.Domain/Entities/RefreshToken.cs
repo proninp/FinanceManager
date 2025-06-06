@@ -9,7 +9,7 @@ namespace FinanceManager.UserService.Domain.Entities;
 /// <param name="token">Строковое значение токена.</param>
 /// <param name="expiresAt">Дата и время истечения срока действия токена.</param>
 /// <param name="isRevoked">Указывает, был ли токен отозван.</param>
-public class RefreshToken(Guid userId, string token, DateTime expiresAt, bool isRevoked) : IdentityModel
+public class RefreshToken(Guid userId, string token, DateTime expiresAt, bool isRevoked = false) : IdentityModel
 {
     /// <summary>
     /// Идентификатор пользователя - владельца токена
