@@ -7,7 +7,7 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 /// <summary>
 /// Интерфейс репозитория для работы с банками
 /// </summary>
-public interface IBankRepository : IBaseRepository<Bank, BankFilterDto>
+public interface IBankRepository : IBaseRepository<Bank, BankFilterDto>, IInitializerRepository<Bank>
 {
     /// <summary>
     /// Получает все банки

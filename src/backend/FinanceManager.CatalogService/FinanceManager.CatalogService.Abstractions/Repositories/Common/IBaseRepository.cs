@@ -32,13 +32,11 @@ public interface IBaseRepository<T, in TFilterDto> where T : IdentityModel
     /// </summary>
     /// <param name="filter">Параметры фильтрации и пагинации</param>
     /// <param name="includeRelated">Включать ли связанные сущности</param>
-    /// <param name="includeDeleted">Включать ли удаленные записи (для сущностей с мягким удалением)</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список сущностей и общее количество</returns>
     Task<IEnumerable<T>> GetPagedAsync(
         TFilterDto filter, 
         bool includeRelated = true,
-        bool includeDeleted = false, 
         CancellationToken cancellationToken = default);
 
     /// <summary>
