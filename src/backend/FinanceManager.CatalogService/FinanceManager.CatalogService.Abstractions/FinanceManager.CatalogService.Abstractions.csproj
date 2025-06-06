@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FinanceManager.CatalogService.Contracts\FinanceManager.CatalogService.Contracts.csproj" />
+      <ProjectReference Include="..\FinanceManager.CatalogService.Domain\FinanceManager.CatalogService.Domain.csproj" />
+    </ItemGroup>
+
+</Project>
