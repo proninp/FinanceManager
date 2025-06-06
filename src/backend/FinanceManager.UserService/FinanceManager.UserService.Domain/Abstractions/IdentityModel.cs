@@ -3,7 +3,7 @@
 /// <summary>
 /// Базовый абстрактный класс для всех доменных сущностей с идентификацией
 /// </summary>
-public class IdentityModel
+public abstract class IdentityModel
 {
     /// <summary>
     /// Уникальный идентификатор сущности
