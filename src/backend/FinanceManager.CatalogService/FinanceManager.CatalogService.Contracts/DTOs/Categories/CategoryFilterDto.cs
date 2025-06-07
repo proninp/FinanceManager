@@ -17,8 +17,8 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Categories;
 /// <param name="HasTransactions">Существуют ли зарегистрированные транзакции по данной категории</param>
 /// <param name="ParentId">Идентификатор родительской категории</param>
 public record CategoryFilterDto(
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
-    int Page = PaginationDefaults.DefaultPage,
+    int ItemsPerPage,
+    int Page,
     Guid? RegistryHolderId = null,
     string? NameContains = null,
     bool? Income = null,
