@@ -1,4 +1,5 @@
-﻿using FinanceManager.CatalogService.Domain.Enums;
+﻿using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
+using FinanceManager.CatalogService.Domain.Enums;
 
 namespace FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
 
@@ -12,6 +13,6 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
 public record RegistryHolderFilterDto(
     int ItemsPerPage,
     int Page,
-    long? TelegramId,
-    Role? Role
-);
+    long? TelegramId = null,
+    Role? Role = null
+) : BasePaginationDto(ItemsPerPage, Page);

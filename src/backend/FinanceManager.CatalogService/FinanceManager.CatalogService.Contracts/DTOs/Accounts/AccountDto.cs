@@ -28,5 +28,5 @@ public record AccountDto(
     bool IsIncludeInBalance,
     bool IsDefault,
     bool IsArchived,
-    decimal? CreditLimit
+    decimal? CreditLimit = null
 );

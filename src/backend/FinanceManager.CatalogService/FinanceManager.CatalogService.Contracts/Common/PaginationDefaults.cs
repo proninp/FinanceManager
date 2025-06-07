@@ -6,11 +6,6 @@
 public static class PaginationDefaults
 {
     /// <summary>
-    /// Количество элементов на странице по умолчанию
-    /// </summary>
-    public const int DefaultItemsPerPage = 20;
-    
-    /// <summary>
     /// Номер страницы по умолчанию
     /// </summary>
     public const int DefaultPage = 1;
@@ -19,9 +14,4 @@ public static class PaginationDefaults
     /// Минимальное количество элементов на странице
     /// </summary>
     public const int MinItemsPerPage = 1;
-    
-    /// <summary>
-    /// Максимальное количество элементов на странице
-    /// </summary>
-    public const int MaxItemsPerPage = 100;
 }

@@ -17,7 +17,7 @@ public record CreateAccountDto(
     Guid CurrencyId,
     Guid BankId,
     string Name,
-    bool IsIncludeInBalance,
-    bool IsDefault,
-    decimal? CreditLimit
+    bool IsIncludeInBalance = false,
+    bool IsDefault = false,
+    decimal? CreditLimit = null
 );

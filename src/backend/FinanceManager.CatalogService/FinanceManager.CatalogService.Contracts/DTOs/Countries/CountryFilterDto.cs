@@ -10,7 +10,7 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Countries;
 /// <param name="Page">Номер страницы</param>
 /// <param name="NameContains">Содержит название страны</param>
 public record CountryFilterDto(
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
-    int Page = PaginationDefaults.DefaultPage,
+    int ItemsPerPage,
+    int Page,
     string? NameContains = null
 ) : BasePaginationDto(ItemsPerPage, Page);

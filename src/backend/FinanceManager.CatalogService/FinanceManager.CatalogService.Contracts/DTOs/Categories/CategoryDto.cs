@@ -20,8 +20,8 @@ public record CategoryDto(
     string Name,
     bool Income,
     bool Expense,
-    string? Emoji,
-    byte[]? Icon,
-    Guid? ParentId,
-    string? ParentName
+    string? Emoji = null,
+    byte[]? Icon = null,
+    Guid? ParentId = null,
+    string? ParentName = null
 );

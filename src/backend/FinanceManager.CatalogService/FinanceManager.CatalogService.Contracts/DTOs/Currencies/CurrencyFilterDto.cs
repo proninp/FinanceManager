@@ -15,8 +15,8 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Currencies;
 /// <param name="Emoji">Эмодзи валюты</param>
 /// <param name="HasExchangeRates">Есть ли у валюты курсы</param>
 public record CurrencyFilterDto(
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
-    int Page = PaginationDefaults.DefaultPage,
+    int ItemsPerPage,
+    int Page,
     string? NameContains = null,
     string? CharCode = null,
     string? NumCode = null,

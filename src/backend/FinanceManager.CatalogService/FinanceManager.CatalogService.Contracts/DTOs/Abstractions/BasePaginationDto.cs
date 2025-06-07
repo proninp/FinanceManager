@@ -9,13 +9,13 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
 /// <param name="ItemsPerPage">Количество элементов на странице (от 1 до 100)</param>
 /// <param name="Page">Номер страницы (начиная с 1)</param>
 public abstract record BasePaginationDto(
-    [Range(PaginationDefaults.MinItemsPerPage, PaginationDefaults.MaxItemsPerPage, 
-        ErrorMessage = "Количество элементов на странице должно быть от 1 до 100")]
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
+    [Range(PaginationDefaults.MinItemsPerPage, int.MaxValue, 
+        ErrorMessage = "Количество элементов на странице должно быть больше 0")]
+    int ItemsPerPage,
     
     [Range(PaginationDefaults.DefaultPage, int.MaxValue, 
         ErrorMessage = "Номер страницы должен быть больше 0")]
-    int Page = PaginationDefaults.DefaultPage
+    int Page
 )
 {
     /// <summary>

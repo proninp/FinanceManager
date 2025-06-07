@@ -15,7 +15,7 @@ public record CreateCategoryDto(
     string Name,
     bool Income,
     bool Expense,
-    string? Emoji,
-    byte[]? Icon,
-    Guid? ParentId
+    string? Emoji = null,
+    byte[]? Icon = null,
+    Guid? ParentId = null
 );

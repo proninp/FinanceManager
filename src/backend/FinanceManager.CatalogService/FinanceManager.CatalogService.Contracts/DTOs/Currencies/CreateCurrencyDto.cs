@@ -12,6 +12,6 @@ public record CreateCurrencyDto(
     string Name,
     string CharCode,
     string NumCode,
-    string? Sign,
-    string? Emoji
+    string? Sign = null,
+    string? Emoji = null
 );

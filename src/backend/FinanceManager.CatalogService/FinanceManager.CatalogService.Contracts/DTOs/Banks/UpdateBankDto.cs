@@ -8,6 +8,6 @@
 /// <param name="Name">Название банка</param>
 public record UpdateBankDto(
     Guid Id,
-    Guid? CountryId,
-    string? Name
+    Guid? CountryId = null,
+    string? Name = null
 );

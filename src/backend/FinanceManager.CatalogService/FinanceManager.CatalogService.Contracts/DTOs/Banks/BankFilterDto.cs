@@ -11,8 +11,8 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Banks;
 /// <param name="CountryId">Идентификатор страны</param>
 /// <param name="NameContains">Содержит название банка</param>
 public record BankFilterDto(
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
-    int Page = PaginationDefaults.DefaultPage,
+    int ItemsPerPage,
+    int Page,
     Guid? CountryId = null,
     string? NameContains = null
 ) : BasePaginationDto(ItemsPerPage, Page);
