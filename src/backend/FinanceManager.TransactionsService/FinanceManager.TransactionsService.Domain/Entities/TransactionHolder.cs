@@ -5,7 +5,7 @@ namespace FinanceManager.TransactionsService.Domain.Entities;
 
 public class TransactionHolder(Role role, long? telegramId = null):IdentityModel
 {
-    public Role Role { get; set; }
-    
-    public long? TelegramId { get; set; }
+    public Role Role { get; set; } = role;
+
+    public long? TelegramId { get; set; } = telegramId;
 }
