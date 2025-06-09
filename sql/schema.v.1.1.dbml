@@ -1,9 +1,9 @@
 Table users {
   id uuid [pk]
   role int [not null]
-  name varchar [not null]
-  email varchar [not null]
-  password_hash varchar [not null]
+  name varchar
+  email varchar
+  password_hash varchar
   default_time_zone_id uuid [ref: > time_zones.id, null]
   telegram_id bigint [null]
   created_at timestamp [not null]
