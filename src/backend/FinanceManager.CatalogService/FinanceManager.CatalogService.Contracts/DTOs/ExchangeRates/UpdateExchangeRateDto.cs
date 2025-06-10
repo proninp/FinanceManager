@@ -9,7 +9,7 @@
 /// <param name="Rate">Значение курса</param>
 public record UpdateExchangeRateDto(
     Guid Id,
-    DateTime? RateDate,
-    Guid? CurrencyId,
-    decimal? Rate
+    DateTime? RateDate = null,
+    Guid? CurrencyId = null,
+    decimal? Rate = null
 );

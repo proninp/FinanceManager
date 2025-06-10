@@ -10,6 +10,6 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
 /// <param name="Role">Роль пользователя в системе</param>
 public record UpdateRegistryHolderDto(
     Guid Id,
-    long? TelegramId,
-    Role? Role
+    long? TelegramId = null,
+    Role? Role = null
 );

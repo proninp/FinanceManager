@@ -19,8 +19,8 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.Accounts;
 /// <param name="CreditLimitFrom">Начальный диапазон лимита счета</param>
 /// /// <param name="CreditLimitTo">Конечный диапазон лимита счета</param>
 public record AccountFilterDto(
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
-    int Page = PaginationDefaults.DefaultPage,
+    int ItemsPerPage,
+    int Page,
     Guid? RegistryHolderId = null,
     Guid? AccountTypeId = null,
     Guid? CurrencyId = null,

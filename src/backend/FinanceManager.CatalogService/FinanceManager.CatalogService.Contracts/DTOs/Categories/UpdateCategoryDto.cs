@@ -12,10 +12,10 @@
 /// <param name="ParentId">Идентификатор родительской категории</param>
 public record UpdateCategoryDto(
     Guid Id,
-    string? Name,
-    bool? Income,
-    bool? Expense,
-    string? Emoji,
-    byte[]? Icon,
-    Guid? ParentId
+    string? Name = null,
+    bool? Income = null,
+    bool? Expense = null,
+    string? Emoji = null,
+    byte[]? Icon = null,
+    Guid? ParentId = null
 );

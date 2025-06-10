@@ -14,12 +14,12 @@
 /// <param name="CreditLimit">Кредитный лимит счета</param>
 public record UpdateAccountDto(
     Guid Id,
-    Guid? AccountTypeId,
-    Guid? CurrencyId,
-    Guid? BankId,
-    string? Name,
-    bool? IsIncludeInBalance,
-    bool? IsDefault,
-    bool? IsArchived,
-    decimal? CreditLimit
+    Guid? AccountTypeId = null,
+    Guid? CurrencyId = null,
+    Guid? BankId = null,
+    string? Name = null,
+    bool? IsIncludeInBalance = null,
+    bool? IsDefault = null,
+    bool? IsArchived = null,
+    decimal? CreditLimit = null
 );
