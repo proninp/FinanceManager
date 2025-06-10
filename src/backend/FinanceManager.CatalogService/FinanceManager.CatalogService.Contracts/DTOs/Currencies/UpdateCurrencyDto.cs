@@ -11,9 +11,9 @@
 /// <param name="Emoji">Эмодзи валюты</param>
 public record UpdateCurrencyDto(
     Guid Id,
-    string? Name,
-    string? CharCode,
-    string? NumCode,
-    string? Sign,
-    string? Emoji
+    string? Name = null,
+    string? CharCode = null,
+    string? NumCode = null,
+    string? Sign = null,
+    string? Emoji = null
 );

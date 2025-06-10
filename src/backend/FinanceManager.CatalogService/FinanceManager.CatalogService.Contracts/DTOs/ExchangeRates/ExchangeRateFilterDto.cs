@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.CatalogService.Contracts.DTOs.ExchangeRates;
+﻿using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
+
+namespace FinanceManager.CatalogService.Contracts.DTOs.ExchangeRates;
 
 /// <summary>
 /// DTO для фильтрации и пагинации списка обменных курсов
@@ -13,9 +15,9 @@
 public record ExchangeRateFilterDto(
     int ItemsPerPage,
     int Page,
-    Guid? CurrencyId,
-    DateTime? DateFrom,
-    DateTime? DateTo,
-    decimal? RateFrom,
-    decimal? RateTo
-);
+    Guid? CurrencyId = null,
+    DateTime? DateFrom = null,
+    DateTime? DateTo = null,
+    decimal? RateFrom = null,
+    decimal? RateTo = null
+) : BasePaginationDto(ItemsPerPage, Page);

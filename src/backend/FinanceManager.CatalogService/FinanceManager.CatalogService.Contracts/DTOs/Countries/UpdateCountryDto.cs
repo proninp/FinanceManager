@@ -7,5 +7,5 @@
 /// <param name="Name">Название страны</param>
 public record UpdateCountryDto(
     Guid Id,
-    string? Name
+    string? Name = null
 );

@@ -11,8 +11,8 @@ namespace FinanceManager.CatalogService.Contracts.DTOs.AccountTypes;
 /// <param name="Code">Код типа счета</param>
 /// <param name="DescriptionContains">Содержит описание типа счета</param>
 public record AccountTypeFilterDto(
-    int ItemsPerPage = PaginationDefaults.DefaultItemsPerPage,
-    int Page = PaginationDefaults.DefaultPage,
+    int ItemsPerPage,
+    int Page,
     string? Code = null,
     string? DescriptionContains = null
 ) : BasePaginationDto(ItemsPerPage, Page);

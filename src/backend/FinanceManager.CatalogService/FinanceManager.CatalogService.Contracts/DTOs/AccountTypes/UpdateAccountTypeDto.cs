@@ -8,6 +8,6 @@
 /// <param name="Description">Описание типа счета</param>
 public record UpdateAccountTypeDto(
     Guid Id,
-    string? Code,
-    string? Description
+    string? Code = null,
+    string? Description = null
 );
