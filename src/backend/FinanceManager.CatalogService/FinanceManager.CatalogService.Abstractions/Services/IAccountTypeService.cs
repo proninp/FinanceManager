@@ -1,5 +1,4 @@
-﻿using FinanceManager.CatalogService.Contracts.DTOs.Accounts;
-using FinanceManager.CatalogService.Contracts.DTOs.AccountTypes;
+﻿using FinanceManager.CatalogService.Contracts.DTOs.AccountTypes;
 using FluentResults;
 
 namespace FinanceManager.CatalogService.Abstractions.Services;
@@ -14,100 +13,71 @@ public interface IAccountTypeService
     /// </summary>
     /// <param name="id">Идентификатор типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>DTO типа счета или null, если не найден</returns>
-    Task<Result<AccountTypeDto>?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    
+    /// <returns>Результат с данными типа счета или ошибкой</returns>
+    Task<Result<AccountTypeDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
     /// <summary>
-    /// Получает список счетов с фильтрацией и пагинацией
+    /// Получает список типов счетов с фильтрацией и пагинацией
     /// </summary>
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат со списком счетов или ошибкой</returns>
-    Task<Result<IEnumerable<AccountDto>>> GetPagedAsync(
-        AccountFilterDto filter, 
+    /// <returns>Результат со списком типов счетов или ошибкой</returns>
+    Task<Result<IEnumerable<AccountTypeDto>>> GetPagedAsync(
+        AccountTypeFilterDto filter,
         CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Получает счет по умолчанию пользователя
+    /// Получает все типы счетов без пагинации
     /// </summary>
-    /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат со счетом по умолчанию или ошибкой</returns>
-    Task<Result<AccountDto?>> GetDefaultAccountAsync(
-        Guid registryHolderId,
-        CancellationToken cancellationToken = default);
-    
+    /// <returns>Результат со списком всех типов счетов или ошибкой</returns>
+    Task<Result<IEnumerable<AccountTypeDto>>> GetAllAsync(CancellationToken cancellationToken = default);
+
     /// <summary>
-    /// Создает новый счет
+    /// Создает новый тип счета
     /// </summary>
-    /// <param name="createDto">Данные для создания счета</param>
+    /// <param name="createDto">Данные для создания типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат с созданным счетом или ошибкой</returns>
-    Task<Result<AccountDto>> CreateAsync(
-        CreateAccountDto createDto, 
+    /// <returns>Результат с созданным типом счета или ошибкой</returns>
+    Task<Result<AccountTypeDto>> CreateAsync(
+        CreateAccountTypeDto createDto,
         CancellationToken cancellationToken = default);
-    
+
     /// <summary>
-    /// Обновляет существующий счет
+    /// Обновляет существующий тип счета
     /// </summary>
-    /// <param name="updateDto">Данные для обновления счета</param>
+    /// <param name="updateDto">Данные для обновления типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат с обновленным счетом или ошибкой</returns>
-    Task<Result<AccountDto>> UpdateAsync(
-        UpdateAccountDto updateDto, 
+    /// <returns>Результат с обновленным типом счета или ошибкой</returns>
+    Task<Result<AccountTypeDto>> UpdateAsync(
+        UpdateAccountTypeDto updateDto,
         CancellationToken cancellationToken = default);
-    
+
     /// <summary>
-    /// Удаляет счет
+    /// Удаляет тип счета
     /// </summary>
-    /// <param name="id">Идентификатор счета</param>
+    /// <param name="id">Идентификатор типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат операции</returns>
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Архивирует счет
+    /// Проверяет уникальность кода типа счета
     /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат операции</returns>
-    Task<Result> ArchiveAsync(Guid id, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Разархивирует счет
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат операции</returns>
-    Task<Result> UnarchiveAsync(Guid id, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Устанавливает счет как счет по умолчанию
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат операции</returns>
-    Task<Result> SetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Снимает флаг "по умолчанию" со счета
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат операции</returns>
-    Task<Result> UnsetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет уникальность названия счета у пользователя
-    /// </summary>
-    /// <param name="registryHolderId">Идентификатор владельца</param>
-    /// <param name="name">Название счета</param>
-    /// <param name="excludeId">Исключить счет с данным ID (для обновления)</param>
+    /// <param name="code">Код типа счета</param>
+    /// <param name="excludeId">Исключить тип счета с данным ID (для обновления)</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки уникальности</returns>
-    Task<Result<bool>> IsNameUniqueAsync(
-        Guid registryHolderId,
-        string name,
-        Guid? excludeId = null,
+    Task<Result<bool>> IsCodeUniqueAsync(
+        string code, 
+        Guid? excludeId = null, 
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Проверяет существование типа счета по коду
+    /// </summary>
+    /// <param name="code">Код типа счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат проверки существования</returns>
+    Task<Result<bool>> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default);
 }
