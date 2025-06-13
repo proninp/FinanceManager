@@ -64,5 +64,5 @@ public static class AccountDtoExtensions
     /// Преобразует коллекцию Account в коллекцию AccountDto
     /// </summary>
     public static IEnumerable<AccountDto> ToDto(this IEnumerable<Account> accounts) =>
-        accounts.Select(account => account.ToDto());
+        accounts.Select(ToDto);
 }

@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.CatalogService.Contracts.DTOs.Currencies;
+﻿using FinanceManager.CatalogService.Domain.Entities;
+
+namespace FinanceManager.CatalogService.Contracts.DTOs.Currencies;
 
 /// <summary>
 /// DTO для создания валюты
@@ -15,3 +17,17 @@ public record CreateCurrencyDto(
     string? Sign = null,
     string? Emoji = null
 );
+
+/// <summary>
+/// Методы-расширения для преобразования CreateCurrencyDto в Currency
+/// </summary>
+public static class CreateCurrencyDtoExtensions
+{
+    /// <summary>
+    /// Преобразует DTO создания валюты в сущность Currency
+    /// </summary>
+    /// <param name="dto">DTO для создания валюты</param>
+    /// <returns>Экземпляр Currency</returns>
+    public static Currency ToCurrency(this CreateCurrencyDto dto) =>
+        new Currency(dto.Name, dto.CharCode, dto.NumCode, dto.Sign, dto.Emoji);
+}

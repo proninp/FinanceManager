@@ -33,5 +33,5 @@ public static class AccountTypeDtoExtensions
     /// <param name="accountTypes">Коллекция сущностей типов банковских счетов</param>
     /// <returns>Коллекция AccountTypeDto</returns>
     public static IEnumerable<AccountTypeDto> ToDto(this IEnumerable<AccountType> accountTypes) =>
-        accountTypes.Select(accountType => accountType.ToDto());
+        accountTypes.Select(ToDto);
 }

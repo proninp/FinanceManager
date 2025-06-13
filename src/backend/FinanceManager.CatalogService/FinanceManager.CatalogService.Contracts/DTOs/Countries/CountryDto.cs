@@ -31,5 +31,5 @@ public static class CountryDtoExtensions
     /// <param name="countries">Коллекция сущностей стран</param>
     /// <returns>Коллекция CountryDto</returns>
     public static IEnumerable<CountryDto> ToDto(this IEnumerable<Country> countries) =>
-        countries.Select(country => country.ToDto());
+        countries.Select(ToDto);
 }
