@@ -2,6 +2,7 @@
 using FinanceManager.CatalogService.Contracts.DTOs.Banks;
 using FinanceManager.CatalogService.Contracts.DTOs.Currencies;
 using FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
+using FinanceManager.CatalogService.Domain.Entities;
 
 namespace FinanceManager.CatalogService.Contracts.DTOs.Accounts;
 
@@ -28,5 +29,40 @@ public record AccountDto(
     bool IsIncludeInBalance,
     bool IsDefault,
     bool IsArchived,
+    bool IsDeleted = false,
     decimal? CreditLimit = null
 );
+
+/// <summary>
+/// Методы-расширения для преобразования сущности Account в AccountDto
+/// </summary>
+public static class AccountDtoExtensions
+{
+    /// <summary>
+    /// Преобразует сущность Account в DTO AccountDto
+    /// </summary>
+    /// <param name="account">Сущность банковского счета</param>
+    /// <returns>Экземпляр AccountDto</returns>
+    public static AccountDto ToDto(this Account account)
+    {
+        return new AccountDto(
+            account.Id,
+            account.RegistryHolder.ToDto(),
+            account.AccountType.ToDto(),
+            account.Currency.ToDto(),
+            account.Bank.ToDto(),
+            account.Name,
+            account.IsIncludeInBalance,
+            account.IsDefault,
+            account.IsArchived,
+            account.IsDeleted,
+            account.CreditLimit
+        );
+    }
+    
+    /// <summary>
+    /// Преобразует коллекцию Account в коллекцию AccountDto
+    /// </summary>
+    public static IEnumerable<AccountDto> ToDto(this IEnumerable<Account> accounts) =>
+        accounts.Select(account => account.ToDto());
+}

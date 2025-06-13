@@ -1,4 +1,5 @@
 ﻿using FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
+using FinanceManager.CatalogService.Domain.Entities;
 
 namespace FinanceManager.CatalogService.Contracts.DTOs.Categories;
 
@@ -25,3 +26,35 @@ public record CategoryDto(
     Guid? ParentId = null,
     string? ParentName = null
 );
+
+/// <summary>
+/// Методы-расширения для преобразования сущности Category в CategoryDto
+/// </summary>
+public static class CategoryDtoExtensions
+{
+    /// <summary>
+    /// Преобразует сущность Category в DTO CategoryDto
+    /// </summary>
+    /// <param name="category">Сущность категории</param>
+    /// <returns>Экземпляр CategoryDto</returns>
+    public static CategoryDto ToDto(this Category category) =>
+        new CategoryDto(
+            category.Id,
+            category.RegistryHolder.ToDto(),
+            category.Name,
+            category.Income,
+            category.Expense,
+            category.Emoji,
+            category.Icon,
+            category.ParentId,
+            category.Parent?.Name
+        );
+
+    /// <summary>
+    /// Преобразует коллекцию Category в коллекцию CategoryDto
+    /// </summary>
+    /// <param name="categories">Коллекция сущностей категорий</param>
+    /// <returns>Коллекция CategoryDto</returns>
+    public static IEnumerable<CategoryDto> ToDto(this IEnumerable<Category> categories) =>
+        categories.Select(category => category.ToDto());
+}

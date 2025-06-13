@@ -1,4 +1,5 @@
-﻿using FinanceManager.CatalogService.Domain.Enums;
+﻿using FinanceManager.CatalogService.Domain.Entities;
+using FinanceManager.CatalogService.Domain.Enums;
 
 namespace FinanceManager.CatalogService.Contracts.DTOs.RegistryHolders;
 
@@ -13,3 +14,28 @@ public record RegistryHolderDto(
     long TelegramId,
     Role Role
 );
+
+/// <summary>
+/// Методы-расширения для преобразования сущности RegistryHolder в RegistryHolderDto
+/// </summary>
+public static class RegistryHolderDtoExtensions
+{
+    /// <summary>
+    /// Преобразует сущность RegistryHolder в DTO RegistryHolderDto
+    /// </summary>
+    /// <param name="registryHolder">Сущность владельца реестра</param>
+    /// <returns>Экземпляр RegistryHolderDto</returns>
+    public static RegistryHolderDto ToDto(this RegistryHolder registryHolder) =>
+        new RegistryHolderDto(
+            registryHolder.Id,
+            registryHolder.TelegramId,
+            registryHolder.Role);
+    
+    /// <summary>
+    /// Преобразует коллекцию RegistryHolder в коллекцию RegistryHolderDto
+    /// </summary>
+    /// <param name="registryHolders">Коллекция сущностей владельцев реестра</param>
+    /// <returns>Коллекция RegistryHolderDto</returns>
+    public static IEnumerable<RegistryHolderDto> ToDto(this IEnumerable<RegistryHolder> registryHolders) =>
+        registryHolders.Select(holder => holder.ToDto());
+}
