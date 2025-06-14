@@ -4,22 +4,65 @@ using FluentResults;
 
 namespace FinanceManager.CatalogService.Implementations.Errors;
 
+/// <summary>
+/// Фабрика для создания стандартных ошибок приложения с кодами и статусами HTTP
+/// </summary>
 public static class ErrorsFactory
 {
-    public static Error NotFound(string entityName, long id) =>
-        Create($"{entityName.FirstCharToUpper()} with id '{id}' was not found.", HttpStatusCode.NotFound, "Not Found");
+    /// <summary>
+    /// Создает ошибку "Не найдено" для указанной сущности и идентификатора
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="entityName">Имя сущности</param>
+    /// <param name="id">Идентификатор сущности</param>
+    /// <returns>Экземпляр ошибки IError</returns>
+    public static IError NotFound(string errorCode, string entityName, Guid id) =>
+        Create(errorCode, HttpStatusCode.NotFound,
+            $"{entityName} with id '{id}' not found.");
 
-    public static Error AlreadyExists(string entityName, string propertyName, object value) =>
-        Create($"{entityName.FirstCharToUpper()} with {propertyName} '{value}' already exists.",
-            HttpStatusCode.Conflict, "Conflict");
+    /// <summary>
+    /// Создает ошибку "Уже существует" для указанного свойства сущности
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="entityName">Имя сущности</param>
+    /// <param name="propertyName">Имя свойства</param>
+    /// <param name="value">Значение свойства</param>
+    /// <returns>Экземпляр ошибки IError</returns>
+    public static IError AlreadyExists(string errorCode, string entityName, string propertyName, object value) =>
+        Create(errorCode, HttpStatusCode.Conflict, 
+            $"{entityName} with {propertyName} '{value}' already exists.");
 
-    public static Error Required(string entityName, string propertyName) =>
-        Create($"{entityName.FirstCharToUpper()} {propertyName.FirstCharToUpper()} can't be empty.",
-            HttpStatusCode.BadRequest,
-            "Bad Request");
+    /// <summary>
+    /// Создает ошибку обязательного заполнения для указанного свойства сущности
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="entityName">Имя сущности</param>
+    /// <param name="propertyName">Имя обязательного свойства</param>
+    /// <returns>Экземпляр ошибки IError</returns>
+    public static IError Required(string errorCode, string entityName, string propertyName) =>
+        Create(errorCode, HttpStatusCode.BadRequest,
+            $"{entityName} {propertyName.FirstCharToUpper()} can't be empty.");
 
-    private static Error Create(string message, HttpStatusCode status, string title) =>
+    /// <summary>
+    /// Создает ошибку невозможности удаления используемой сущности
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="entityName">Имя сущности</param>
+    /// <param name="id">Идентификатор сущности</param>
+    /// <returns>Экземпляр ошибки IError</returns>
+    public static IError CannotDeleteUsedEntity(string errorCode, string entityName, Guid id) =>
+        Create(errorCode, HttpStatusCode.Conflict,
+            $"Cannot delete {entityName} '{id}' because it is used in other entities");
+
+    /// <summary>
+    /// Вспомогательный метод для создания экземпляра ошибки с метаданными
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="status">HTTP-статус</param>
+    /// <param name="message">Сообщение об ошибке</param>
+    /// <returns>Экземпляр ошибки IError</returns>
+    private static Error Create(string errorCode, HttpStatusCode status, string message) =>
         new Error(message)
             .WithMetadata(nameof(HttpStatusCode), status)
-            .WithMetadata("Title", title);
+            .WithMetadata("Code", errorCode);
 }
