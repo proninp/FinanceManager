@@ -19,14 +19,16 @@ public interface IBaseRepository<T, in TFilterDto> where T : IdentityModel
     Task<bool> AnyAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Получает сущность по идентификатору
+    /// Асинхронно получает сущность по идентификатору
     /// </summary>
     /// <param name="id">Идентификатор сущности</param>
     /// <param name="includeRelated">Включать ли связанные сущности</param>
+    /// <param name="disableTracking">Отключить ли отслеживание изменений</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Сущность или null, если не найдена</returns>
-    Task<T?> GetByIdAsync(Guid id, bool includeRelated = true, CancellationToken cancellationToken = default);
-    
+    Task<T?> GetByIdAsync(Guid id, bool includeRelated = true, bool disableTracking = false,
+        CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Получает список сущностей с фильтрацией и пагинацией
     /// </summary>
@@ -35,7 +37,7 @@ public interface IBaseRepository<T, in TFilterDto> where T : IdentityModel
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список сущностей и общее количество</returns>
     Task<IEnumerable<T>> GetPagedAsync(
-        TFilterDto filter, 
+        TFilterDto filter,
         bool includeRelated = true,
         CancellationToken cancellationToken = default);
 
