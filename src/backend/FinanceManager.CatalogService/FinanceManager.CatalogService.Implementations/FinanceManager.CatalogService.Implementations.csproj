@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Services\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="FluentResults" Version="3.16.0" />
       <PackageReference Include="Serilog" Version="4.3.0" />
     </ItemGroup>
