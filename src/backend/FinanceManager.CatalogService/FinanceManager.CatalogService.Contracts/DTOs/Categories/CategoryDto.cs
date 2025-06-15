@@ -55,6 +55,9 @@ public static class CategoryDtoExtensions
     /// </summary>
     /// <param name="categories">Коллекция сущностей категорий</param>
     /// <returns>Коллекция CategoryDto</returns>
-    public static IEnumerable<CategoryDto> ToDto(this IEnumerable<Category> categories) =>
-        categories.Select(ToDto);
+    public static ICollection<CategoryDto> ToDto(this IEnumerable<Category> categories)
+    {
+        var dtos = categories.Select(ToDto);
+        return dtos as ICollection<CategoryDto> ?? dtos.ToList();
+    }
 }

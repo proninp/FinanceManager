@@ -14,7 +14,7 @@ public interface IAccountTypeRepository : IBaseRepository<AccountType, AccountTy
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список всех типов счетов</returns>
-    Task<IEnumerable<AccountType>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<ICollection<AccountType>> GetAllAsync(CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Проверяет уникальность кода типа счета

@@ -26,12 +26,15 @@ public static class AccountTypeDtoExtensions
     /// <returns>Экземпляр AccountTypeDto</returns>
     public static AccountTypeDto ToDto(this AccountType accountType) =>
         new AccountTypeDto(accountType.Id, accountType.Code, accountType.Description);
-    
+
     /// <summary>
     /// Преобразует коллекцию AccountType в коллекцию AccountTypeDto
     /// </summary>
     /// <param name="accountTypes">Коллекция сущностей типов банковских счетов</param>
     /// <returns>Коллекция AccountTypeDto</returns>
-    public static IEnumerable<AccountTypeDto> ToDto(this IEnumerable<AccountType> accountTypes) =>
-        accountTypes.Select(ToDto);
+    public static ICollection<AccountTypeDto> ToDto(this IEnumerable<AccountType> accountTypes)
+    {
+        var dtos = accountTypes.Select(ToDto);
+        return dtos as ICollection<AccountTypeDto> ?? dtos.ToList();
+    }
 }

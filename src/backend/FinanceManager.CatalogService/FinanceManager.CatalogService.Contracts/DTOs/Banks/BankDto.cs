@@ -33,6 +33,9 @@ public static class BankDtoExtensions
     /// </summary>
     /// <param name="banks">Коллекция сущностей банков</param>
     /// <returns>Коллекция BankDto</returns>
-    public static IEnumerable<BankDto> ToDto(this IEnumerable<Bank> banks) =>
-        banks.Select(ToDto);
+    public static ICollection<BankDto> ToDto(this IEnumerable<Bank> banks)
+    {
+        var dtos = banks.Select(ToDto);
+        return dtos as ICollection<BankDto> ?? dtos.ToList();
+    }
 }

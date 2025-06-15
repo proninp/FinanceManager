@@ -34,12 +34,15 @@ public static class ExchangeRateDtoExtensions
             exchangeRate.Currency.ToDto(),
             exchangeRate.Rate
             );
-    
+
     /// <summary>
     /// Преобразует коллекцию сущностей ExchangeRate в коллекцию DTO ExchangeRateDto
     /// </summary>
     /// <param name="exchangeRates">Коллекция сущностей обменных курсов</param>
     /// <returns>Коллекция ExchangeRateDto</returns>
-    public static IEnumerable<ExchangeRateDto> ToDto(this IEnumerable<ExchangeRate> exchangeRates) =>
-        exchangeRates.Select(ToDto);
+    public static ICollection<ExchangeRateDto> ToDto(this IEnumerable<ExchangeRate> exchangeRates)
+    {
+        var dtos = exchangeRates.Select(ToDto);
+        return dtos as ICollection<ExchangeRateDto> ?? dtos.ToList();
+    }
 }

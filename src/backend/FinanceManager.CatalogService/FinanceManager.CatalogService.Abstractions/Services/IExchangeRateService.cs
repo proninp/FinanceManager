@@ -22,7 +22,7 @@ public interface IExchangeRateService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком курсов или ошибкой</returns>
-    Task<Result<IEnumerable<ExchangeRateDto>>> GetPagedAsync(
+    Task<Result<ICollection<ExchangeRateDto>>> GetPagedAsync(
         ExchangeRateFilterDto filter, 
         CancellationToken cancellationToken = default);
 

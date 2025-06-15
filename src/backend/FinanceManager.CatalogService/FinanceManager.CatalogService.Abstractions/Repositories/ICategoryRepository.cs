@@ -16,7 +16,7 @@ public interface ICategoryRepository : IBaseRepository<Category, CategoryFilterD
     /// <param name="includeRelated">Включать ли связанные сущности</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список категорий пользователя</returns>
-    Task<IEnumerable<Category>> GetByRegistryHolderIdAsync(
+    Task<ICollection<Category>> GetByRegistryHolderIdAsync(
         Guid registryHolderId,
         bool includeRelated = true,
         CancellationToken cancellationToken = default);

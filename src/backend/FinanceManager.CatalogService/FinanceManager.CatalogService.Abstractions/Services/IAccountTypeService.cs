@@ -22,7 +22,7 @@ public interface IAccountTypeService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком типов счетов или ошибкой</returns>
-    Task<Result<IEnumerable<AccountTypeDto>>> GetPagedAsync(
+    Task<Result<ICollection<AccountTypeDto>>> GetPagedAsync(
         AccountTypeFilterDto filter,
         CancellationToken cancellationToken = default);
     

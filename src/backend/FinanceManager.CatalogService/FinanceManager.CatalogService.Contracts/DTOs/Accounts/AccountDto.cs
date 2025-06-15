@@ -59,10 +59,13 @@ public static class AccountDtoExtensions
             account.CreditLimit
         );
     }
-    
+
     /// <summary>
     /// Преобразует коллекцию Account в коллекцию AccountDto
     /// </summary>
-    public static IEnumerable<AccountDto> ToDto(this IEnumerable<Account> accounts) =>
-        accounts.Select(ToDto);
+    public static ICollection<AccountDto> ToDto(this IEnumerable<Account> accounts)
+    {
+        var dtos = accounts.Select(ToDto);
+        return dtos as ICollection<AccountDto> ?? dtos.ToList();
+    }
 }

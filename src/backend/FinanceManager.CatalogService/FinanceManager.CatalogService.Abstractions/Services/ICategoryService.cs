@@ -22,7 +22,7 @@ public interface ICategoryService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком категорий или ошибкой</returns>
-    Task<Result<IEnumerable<CategoryDto>>> GetPagedAsync(
+    Task<Result<ICollection<CategoryDto>>> GetPagedAsync(
         CategoryFilterDto filter,
         CancellationToken cancellationToken = default);
 

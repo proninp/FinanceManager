@@ -38,12 +38,15 @@ public static class CurrencyDtoExtensions
             currency.NumCode,
             currency.Sign,
             currency.Emoji);
-    
+
     /// <summary>
     /// Преобразует коллекцию Currency в коллекцию CurrencyDto
     /// </summary>
     /// <param name="currencies">Коллекция сущностей валют</param>
     /// <returns>Коллекция CurrencyDto</returns>
-    public static IEnumerable<CurrencyDto> ToDto(this IEnumerable<Currency> currencies) =>
-        currencies.Select(cirrency => cirrency.ToDto());
+    public static ICollection<CurrencyDto> ToDto(this IEnumerable<Currency> currencies)
+    {
+        var dtos = currencies.Select(ToDto);
+        return dtos as ICollection<CurrencyDto> ?? dtos.ToList();
+    }
 }

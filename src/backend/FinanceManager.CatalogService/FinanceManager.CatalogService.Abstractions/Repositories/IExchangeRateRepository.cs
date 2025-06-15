@@ -41,7 +41,7 @@ public interface IExchangeRateRepository : IBaseRepository<ExchangeRate, Exchang
     /// <param name="exchangeRates">Список курсов для добавления</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список добавленных курсов</returns>
-    Task<IEnumerable<ExchangeRate>> AddRangeAsync(IEnumerable<ExchangeRate> exchangeRates,
+    Task<ICollection<ExchangeRate>> AddRangeAsync(IEnumerable<ExchangeRate> exchangeRates,
         CancellationToken cancellationToken = default);
 
     /// <summary>

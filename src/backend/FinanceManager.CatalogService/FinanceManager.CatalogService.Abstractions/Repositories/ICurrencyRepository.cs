@@ -17,7 +17,7 @@ public interface ICurrencyRepository : IBaseRepository<Currency, CurrencyFilterD
     /// <param name="ascending">Направление сортировки</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список валют, отсортированный по названию</returns>
-    Task<IEnumerable<Currency>> GetAllOrderedByNameAsync(bool includeDeleted = false, bool ascending = true,
+    Task<ICollection<Currency>> GetAllOrderedByNameAsync(bool includeDeleted = false, bool ascending = true,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -27,7 +27,7 @@ public interface ICurrencyRepository : IBaseRepository<Currency, CurrencyFilterD
     /// <param name="ascending">Направление сортировки</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список валют, отсортированный по коду</returns>
-    Task<IEnumerable<Currency>> GetAllOrderedByCharCodeAsync(bool includeDeleted = false, bool ascending = true,
+    Task<ICollection<Currency>> GetAllOrderedByCharCodeAsync(bool includeDeleted = false, bool ascending = true,
         CancellationToken cancellationToken = default);
 
     /// <summary>

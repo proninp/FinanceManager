@@ -30,12 +30,15 @@ public static class RegistryHolderDtoExtensions
             registryHolder.Id,
             registryHolder.TelegramId,
             registryHolder.Role);
-    
+
     /// <summary>
     /// Преобразует коллекцию RegistryHolder в коллекцию RegistryHolderDto
     /// </summary>
     /// <param name="registryHolders">Коллекция сущностей владельцев реестра</param>
     /// <returns>Коллекция RegistryHolderDto</returns>
-    public static IEnumerable<RegistryHolderDto> ToDto(this IEnumerable<RegistryHolder> registryHolders) =>
-        registryHolders.Select(holder => holder.ToDto());
+    public static ICollection<RegistryHolderDto> ToDto(this IEnumerable<RegistryHolder> registryHolders)
+    {
+        var dtos = registryHolders.Select(ToDto);
+        return dtos as ICollection<RegistryHolderDto> ?? dtos.ToList();
+    }
 }

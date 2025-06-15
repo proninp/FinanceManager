@@ -36,7 +36,7 @@ public interface IBaseRepository<T, in TFilterDto> where T : IdentityModel
     /// <param name="includeRelated">Включать ли связанные сущности</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список сущностей и общее количество</returns>
-    Task<IEnumerable<T>> GetPagedAsync(
+    Task<ICollection<T>> GetPagedAsync(
         TFilterDto filter,
         bool includeRelated = true,
         CancellationToken cancellationToken = default);
