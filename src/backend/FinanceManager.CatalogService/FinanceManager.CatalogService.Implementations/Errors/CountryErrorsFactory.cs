@@ -11,4 +11,7 @@ public static class CountryErrorsFactory
 
     public static IError NameAlreadyExists(string name) =>
         ErrorsFactory.AlreadyExists("COUNTRY_NAME_EXISTS", EntityName, "Name", name);
+    
+    public static IError NameIsRequired() =>
+        ErrorsFactory.Required("COUNTRY_NAME_REQUIRED", EntityName, "Name");
 }
