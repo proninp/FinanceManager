@@ -1,17 +1,30 @@
-﻿using FluentResults;
+﻿using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
+using FluentResults;
 
 namespace FinanceManager.CatalogService.Implementations.Errors;
 
-public static class CountryErrorsFactory
+/// <summary>
+/// Фабрика ошибок для сущности "Country"
+/// </summary>
+public class CountryErrorsFactory(IErrorsFactory errorsFactory) : ICountryErrorsFactory
 {
     private const string EntityName = "Country";
     
-    public static IError NotFound(Guid id) =>
-        ErrorsFactory.NotFound("COUNTRY_NOT_FOUND", EntityName, id);
+    /// <summary>
+    /// Создаёт ошибку, если страна с указанным идентификатором не найдена
+    /// </summary>
+    public IError NotFound(Guid id) =>
+        errorsFactory.NotFound("COUNTRY_NOT_FOUND", EntityName, id);
 
-    public static IError NameAlreadyExists(string name) =>
-        ErrorsFactory.AlreadyExists("COUNTRY_NAME_EXISTS", EntityName, "Name", name);
+    /// <summary>
+    /// Создаёт ошибку, если страна с указанным именем уже существует
+    /// </summary>
+    public IError NameAlreadyExists(string name) =>
+        errorsFactory.AlreadyExists("COUNTRY_NAME_EXISTS", EntityName, "Name", name);
     
-    public static IError NameIsRequired() =>
-        ErrorsFactory.Required("COUNTRY_NAME_REQUIRED", EntityName, "Name");
+    /// <summary>
+    /// Создаёт ошибку, если имя страны не указано
+    /// </summary>
+    public IError NameIsRequired() =>
+        errorsFactory.Required("COUNTRY_NAME_REQUIRED", EntityName, "Name");
 }

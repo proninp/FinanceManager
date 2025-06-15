@@ -5,6 +5,7 @@ using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.Contracts.DTOs.Countries;
 using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.Implementations.Errors;
+using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;
 
@@ -13,13 +14,13 @@ namespace FinanceManager.CatalogService.Implementations.Services;
 /// <summary>
 /// Сервис для управления справочником стран, реализующий основные CRUD-операции
 /// </summary>
-public class CountryService(IUnitOfWork unitOfWork, ICountryRepository countryRepository, ILogger logger)
+public class CountryService(
+    IUnitOfWork unitOfWork,
+    ICountryRepository countryRepository,
+    ICountryErrorsFactory countryErrorsFactory,
+    ILogger logger)
     : ICountryService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly ICountryRepository _countryRepository = countryRepository;
-    private readonly ILogger _logger = logger;
-
     /// <summary>
     /// Получает страну по идентификатору
     /// </summary>
@@ -28,17 +29,17 @@ public class CountryService(IUnitOfWork unitOfWork, ICountryRepository countryRe
     /// <returns>Результат с DTO страны или ошибкой, если не найдена</returns>
     public async Task<Result<CountryDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _logger.Information("Getting country by id: {CountryId}", id);
+        logger.Information("Getting country by id: {CountryId}", id);
 
         var country =
-            await _countryRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
+            await countryRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (country is null)
         {
-            _logger.Warning("Country not found: {CountryId}", id);
-            return Result.Fail(CountryErrorsFactory.NotFound(id));
+            logger.Warning("Country not found: {CountryId}", id);
+            return Result.Fail(countryErrorsFactory.NotFound(id));
         }
 
-        _logger.Information("Successfully retrieved country: {CountryId}", id);
+        logger.Information("Successfully retrieved country: {CountryId}", id);
         return Result.Ok(country.ToDto());
     }
 
@@ -51,13 +52,13 @@ public class CountryService(IUnitOfWork unitOfWork, ICountryRepository countryRe
     public async Task<Result<ICollection<CountryDto>>> GetPagedAsync(CountryFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information("Getting paged countries with filter: {@Filter}", filter);
+        logger.Information("Getting paged countries with filter: {@Filter}", filter);
         var countries =
-            await _countryRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
+            await countryRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
         var countriesDto = countries.ToDto();
 
-        _logger.Information("Successfully retrieved {Count} countries", countriesDto.Count);
+        logger.Information("Successfully retrieved {Count} countries", countriesDto.Count);
         return Result.Ok(countriesDto);
     }
 
@@ -70,26 +71,26 @@ public class CountryService(IUnitOfWork unitOfWork, ICountryRepository countryRe
     public async Task<Result<CountryDto>> CreateAsync(CreateCountryDto createDto,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information("Creating country: {@CreateDto}", createDto);
+        logger.Information("Creating country: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
-            _logger.Warning("Country name is required");
-            return Result.Fail(CountryErrorsFactory.NameIsRequired());
+            logger.Warning("Country name is required");
+            return Result.Fail(countryErrorsFactory.NameIsRequired());
         }
 
         var isNameUnique =
-            await _countryRepository.IsNameUniqueAsync(createDto.Name, cancellationToken: cancellationToken);
+            await countryRepository.IsNameUniqueAsync(createDto.Name, cancellationToken: cancellationToken);
         if (!isNameUnique)
         {
-            _logger.Warning("Country name already exists: {Name}", createDto.Name);
-            return Result.Fail(CountryErrorsFactory.NameAlreadyExists(createDto.Name));
+            logger.Warning("Country name already exists: {Name}", createDto.Name);
+            return Result.Fail(countryErrorsFactory.NameAlreadyExists(createDto.Name));
         }
 
-        var country = await _countryRepository.AddAsync(createDto.ToCountry(), cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        var country = await countryRepository.AddAsync(createDto.ToCountry(), cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
-        _logger.Information("Successfully created country: {CountryId} with name: {Name}",
+        logger.Information("Successfully created country: {CountryId} with name: {Name}",
             country.Id, createDto.Name);
 
         return Result.Ok(country.ToDto());
@@ -104,41 +105,42 @@ public class CountryService(IUnitOfWork unitOfWork, ICountryRepository countryRe
     public async Task<Result<CountryDto>> UpdateAsync(UpdateCountryDto updateDto,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information("Updating country: {@UpdateDto}", updateDto);
+        logger.Information("Updating country: {@UpdateDto}", updateDto);
 
         var country =
-            await _countryRepository.GetByIdAsync(updateDto.Id, true, cancellationToken: cancellationToken);
+            await countryRepository.GetByIdAsync(updateDto.Id, true, cancellationToken: cancellationToken);
         if (country is null)
         {
-            _logger.Warning("Country not found for update: {CountryId}", updateDto.Id);
-            return Result.Fail(CountryErrorsFactory.NotFound(updateDto.Id));
+            logger.Warning("Country not found for update: {CountryId}", updateDto.Id);
+            return Result.Fail(countryErrorsFactory.NotFound(updateDto.Id));
         }
 
         var isNeedUpdate = false;
-        
+
         if (!string.Equals(country.Name, updateDto.Name))
         {
             var isNameUnique =
-                await _countryRepository.IsNameUniqueAsync(updateDto.Name, updateDto.Id, cancellationToken: cancellationToken);
+                await countryRepository.IsNameUniqueAsync(updateDto.Name, updateDto.Id,
+                    cancellationToken: cancellationToken);
             if (!isNameUnique)
             {
-                _logger.Warning("Country name already exists: {Name}", updateDto.Name);
-                return Result.Fail(CountryErrorsFactory.NameAlreadyExists(updateDto.Name));
+                logger.Warning("Country name already exists: {Name}", updateDto.Name);
+                return Result.Fail(countryErrorsFactory.NameAlreadyExists(updateDto.Name));
             }
-            
+
             country.Name = updateDto.Name;
             isNeedUpdate = true;
         }
-        
+
         if (isNeedUpdate)
         {
-            _countryRepository.Update(country);
-            await _unitOfWork.CommitAsync(cancellationToken);
-            _logger.Information("Successfully updated country: {CountryId}", updateDto.Id);
+            countryRepository.Update(country);
+            await unitOfWork.CommitAsync(cancellationToken);
+            logger.Information("Successfully updated country: {CountryId}", updateDto.Id);
         }
         else
         {
-            _logger.Information("No changes detected for country: {CountryId}", updateDto.Id);
+            logger.Information("No changes detected for country: {CountryId}", updateDto.Id);
         }
         return Result.Ok(country.ToDto());
     }
@@ -151,12 +153,12 @@ public class CountryService(IUnitOfWork unitOfWork, ICountryRepository countryRe
     /// <returns>Результат выполнения операции</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _logger.Information("Deleting country: {CountryId}", id);
-        await _countryRepository.DeleteAsync(id, cancellationToken);
-        var affectedRows = await _unitOfWork.CommitAsync(cancellationToken);
+        logger.Information("Deleting country: {CountryId}", id);
+        await countryRepository.DeleteAsync(id, cancellationToken);
+        var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            _logger.Warning("No country was deleted for id: {CountryId}", id);
+            logger.Warning("No country was deleted for id: {CountryId}", id);
         }
         return Result.Ok();
     }

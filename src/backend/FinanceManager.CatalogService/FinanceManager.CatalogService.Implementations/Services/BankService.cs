@@ -4,7 +4,7 @@ using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.Contracts.DTOs.Banks;
 using FinanceManager.CatalogService.Domain.Entities;
-using FinanceManager.CatalogService.Implementations.Errors;
+using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;
 
@@ -17,14 +17,11 @@ public class BankService(
     IUnitOfWork unitOfWork,
     IBankRepository bankRepository,
     ICountryRepository countryRepository,
+    IBankErrorsFactory bankErrorsFactory,
+    ICountryErrorsFactory countryErrorsFactory,
     ILogger logger)
     : IBankService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-    private readonly IBankRepository _bankRepository = bankRepository;
-    private readonly ICountryRepository _countryRepository = countryRepository;
-    private readonly ILogger _logger = logger;
-
     /// <summary>
     /// Получает банк по идентификатору.
     /// </summary>
@@ -33,16 +30,16 @@ public class BankService(
     /// <returns>Результат с DTO банка или ошибкой, если не найден.</returns>
     public async Task<Result<BankDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _logger.Information("Getting bank by id: {BankId}", id);
+        logger.Information("Getting bank by id: {BankId}", id);
 
         var bank =
-            await _bankRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
+            await bankRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (bank is null)
         {
             return GetBankNotFoundResult(id);
         }
 
-        _logger.Information("Successfully retrieved bank: {BankId}", id);
+        logger.Information("Successfully retrieved bank: {BankId}", id);
         return Result.Ok(bank.ToDto());
     }
 
@@ -55,13 +52,13 @@ public class BankService(
     public async Task<Result<ICollection<BankDto>>> GetPagedAsync(BankFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information("Getting paged banks with filter: {@Filter}", filter);
+        logger.Information("Getting paged banks with filter: {@Filter}", filter);
         var banks =
-            await _bankRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
+            await bankRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
         var banksDto = banks.ToDto();
 
-        _logger.Information("Successfully retrieved {Count} banks", banksDto.Count);
+        logger.Information("Successfully retrieved {Count} banks", banksDto.Count);
         return Result.Ok(banksDto);
     }
 
@@ -74,13 +71,13 @@ public class BankService(
     public async Task<Result<ICollection<BankDto>>> GetAllAsync(bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information("Getting all banks");
+        logger.Information("Getting all banks");
         var banks =
-            await _bankRepository.GetAllAsync(cancellationToken: cancellationToken);
+            await bankRepository.GetAllAsync(cancellationToken: cancellationToken);
 
         var banksDto = banks.ToDto();
 
-        _logger.Information("Successfully retrieved {Count} banks", banksDto.Count);
+        logger.Information("Successfully retrieved {Count} banks", banksDto.Count);
         return Result.Ok(banksDto);
     }
 
@@ -93,15 +90,15 @@ public class BankService(
     public async Task<Result<BankDto>> CreateAsync(CreateBankDto createDto,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information("Creating bank: {@CreateDto}", createDto);
+        logger.Information("Creating bank: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
-            _logger.Warning("Bank name is required");
-            return Result.Fail(BankErrorsFactory.NameIsRequired());
+            logger.Warning("Bank name is required");
+            return Result.Fail(bankErrorsFactory.NameIsRequired());
         }
 
-        var country = await _countryRepository.GetByIdAsync(createDto.CountryId, disableTracking: true,
+        var country = await countryRepository.GetByIdAsync(createDto.CountryId, disableTracking: true,
             cancellationToken: cancellationToken);
 
         if (country is null)
@@ -114,10 +111,10 @@ public class BankService(
             return GetBankNameAlreadyExistsResult(createDto.Name, country.Id, country.Name);
         }
 
-        var bank = await _bankRepository.AddAsync(createDto.ToBank(), cancellationToken);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        var bank = await bankRepository.AddAsync(createDto.ToBank(), cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
 
-        _logger.Information("Successfully created bank: {BankId} with name: {Name}",
+        logger.Information("Successfully created bank: {BankId} with name: {Name}",
             bank.Id, createDto.Name);
 
         return Result.Ok(bank.ToDto());
@@ -131,10 +128,10 @@ public class BankService(
     /// <returns>Результат с DTO обновленного банка или ошибкой.</returns>
     public async Task<Result<BankDto>> UpdateAsync(UpdateBankDto updateDto, CancellationToken cancellationToken = default)
     {
-        _logger.Information("Updating bank: {@UpdateDto}", updateDto);
+        logger.Information("Updating bank: {@UpdateDto}", updateDto);
 
         var bank =
-            await _bankRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
+            await bankRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (bank is null)
         {
             return GetBankNotFoundResult(updateDto.Id);
@@ -145,7 +142,7 @@ public class BankService(
         Country? country = null;
         if (updateDto.CountryId is not null && updateDto.CountryId.Value != bank.CountryId)
         {
-            country = await _countryRepository.GetByIdAsync(updateDto.CountryId.Value, disableTracking: true,
+            country = await countryRepository.GetByIdAsync(updateDto.CountryId.Value, disableTracking: true,
                 cancellationToken: cancellationToken);
 
             if (country is null)
@@ -161,7 +158,7 @@ public class BankService(
         if (updateDto.Name is not null && !string.Equals(updateDto.Name, bank.Name))
         {
             var isNameUnique =
-                await _bankRepository.IsNameUniqueByCountryAsync(
+                await bankRepository.IsNameUniqueByCountryAsync(
                     updateDto.Name, country.Id, cancellationToken: cancellationToken);
             if (!isNameUnique)
             {
@@ -174,13 +171,13 @@ public class BankService(
         
         if (isNeedUpdate)
         {
-            _bankRepository.Update(bank);
-            await _unitOfWork.CommitAsync(cancellationToken);
-            _logger.Information("Successfully updated bank: {BankId}", updateDto.Id);
+            bankRepository.Update(bank);
+            await unitOfWork.CommitAsync(cancellationToken);
+            logger.Information("Successfully updated bank: {BankId}", updateDto.Id);
         }
         else
         {
-            _logger.Information("No changes detected for bank: {BankId}", updateDto.Id);
+            logger.Information("No changes detected for bank: {BankId}", updateDto.Id);
         }
 
         return Result.Ok(bank.ToDto());
@@ -194,19 +191,19 @@ public class BankService(
     /// <returns>Результат выполнения операции.</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        _logger.Information("Deleting bank: {BankId}", id);
+        logger.Information("Deleting bank: {BankId}", id);
 
-        if (!await _bankRepository.CanBeDeletedAsync(id, cancellationToken))
+        if (!await bankRepository.CanBeDeletedAsync(id, cancellationToken))
         {
-            _logger.Warning("Cannot delete bank '{BankId}' because it is using in other entities", id);
-            return Result.Fail(BankErrorsFactory.CannotDeleteUsedBank(id));
+            logger.Warning("Cannot delete bank '{BankId}' because it is using in other entities", id);
+            return Result.Fail(bankErrorsFactory.CannotDeleteUsedBank(id));
         }
 
-        await _bankRepository.DeleteAsync(id, cancellationToken);
-        var affectedRows = await _unitOfWork.CommitAsync(cancellationToken);
+        await bankRepository.DeleteAsync(id, cancellationToken);
+        var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            _logger.Warning("No bank was deleted for id: {BankId}", id);
+            logger.Warning("No bank was deleted for id: {BankId}", id);
         }
 
         return Result.Ok();
@@ -224,24 +221,24 @@ public class BankService(
         bool includeDeletedAccounts = false,
         CancellationToken cancellationToken = default)
     {
-        _logger.Information(
+        logger.Information(
             "Getting accounts count for bank: {BankId} (includeArchived: {IncludeArchived}, includeDeleted: {IncludeDeleted})",
             bankId, includeArchivedAccounts, includeDeletedAccounts);
 
-        var bank = await _bankRepository.GetByIdAsync(bankId, disableTracking: true,
+        var bank = await bankRepository.GetByIdAsync(bankId, disableTracking: true,
             cancellationToken: cancellationToken);
         if (bank is null)
         {
             return GetBankNotFoundResult(bankId);
         }
 
-        var count = await _bankRepository.GetAccountsCountAsync(
+        var count = await bankRepository.GetAccountsCountAsync(
             bankId,
             includeArchivedAccounts,
             includeDeletedAccounts,
             cancellationToken);
 
-        _logger.Information("Accounts count for bank {BankId}: {Count}", bankId, count);
+        logger.Information("Accounts count for bank {BankId}: {Count}", bankId, count);
         return Result.Ok(count);
     }
 
@@ -252,8 +249,8 @@ public class BankService(
     /// <returns>Результат с ошибкой о ненайденном банке.</returns>
     private Result GetBankNotFoundResult(Guid id)
     {
-        _logger.Warning("Bank not found: {BankId}", id);
-        return Result.Fail(BankErrorsFactory.NotFound(id));
+        logger.Warning("Bank not found: {BankId}", id);
+        return Result.Fail(bankErrorsFactory.NotFound(id));
     }
 
     /// <summary>
@@ -264,9 +261,9 @@ public class BankService(
     /// <returns>Результат с ошибкой о ненайденной стране.</returns>
     private Result GetCountryNotFoundResult(Guid countryId, string bankName)
     {
-        _logger.Warning("For bank '{BankName}' country not found: '{CountryId}'.", countryId,
+        logger.Warning("For bank '{BankName}' country not found: '{CountryId}'.", countryId,
             bankName);
-        return Result.Fail(CountryErrorsFactory.NotFound(countryId));
+        return Result.Fail(countryErrorsFactory.NotFound(countryId));
     }
 
     /// <summary>
@@ -281,7 +278,7 @@ public class BankService(
         CancellationToken cancellationToken = default)
     {
         var isNameUnique =
-            await _bankRepository.IsNameUniqueByCountryAsync(name, countryId,
+            await bankRepository.IsNameUniqueByCountryAsync(name, countryId,
                 cancellationToken: cancellationToken);
         return isNameUnique;
     }
@@ -295,8 +292,8 @@ public class BankService(
     /// <returns>Результат с ошибкой о неуникальном названии банка.</returns>
     private Result GetBankNameAlreadyExistsResult(string bankName, Guid countryId, string countryName)
     {
-        _logger.Warning("Bank name already exists: {Name} for country with id '{CountryId}'", bankName,
+        logger.Warning("Bank name already exists: {Name} for country with id '{CountryId}'", bankName,
             countryId);
-        return Result.Fail(BankErrorsFactory.NameAlreadyExists(bankName, countryName));
+        return Result.Fail(bankErrorsFactory.NameAlreadyExists(bankName, countryName));
     }
 }
