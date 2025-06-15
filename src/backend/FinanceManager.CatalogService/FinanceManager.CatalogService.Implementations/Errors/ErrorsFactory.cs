@@ -31,6 +31,16 @@ public static class ErrorsFactory
     public static IError AlreadyExists(string errorCode, string entityName, string propertyName, object value) =>
         Create(errorCode, HttpStatusCode.Conflict, 
             $"{entityName} with {propertyName} '{value}' already exists.");
+    
+    /// <summary>
+    /// Создает ошибку "Уже существует" с пользовательским сообщением
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="customMessage">Пользовательское сообщение об ошибке</param>
+    /// <returns>Экземпляр ошибки IError</returns>
+    public static IError AlreadyExists(string errorCode, string customMessage) =>
+        Create(errorCode, HttpStatusCode.Conflict, 
+            $"{customMessage}' already exists.");
 
     /// <summary>
     /// Создает ошибку обязательного заполнения для указанного свойства сущности
