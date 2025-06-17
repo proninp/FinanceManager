@@ -60,18 +60,10 @@ public interface ICurrencyRepository : IBaseRepository<Currency, CurrencyFilterD
     Task<bool> IsNameUniqueAsync(string name, Guid? excludeId = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Проверяет, используется ли валюта в счетах
+    /// Проверяет, может ли валюта быть удалена (нет ли связанных зависимостей)
     /// </summary>
-    /// <param name="currencyId">Идентификатор валюты</param>
+    /// <param name="id">Идентификатор валюты</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если валюта используется в счетах</returns>
-    Task<bool> IsUsedInAccountsAsync(Guid currencyId, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, есть ли для валюты обменные курсы
-    /// </summary>
-    /// <param name="currencyId">Идентификатор валюты</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если для валюты есть курсы</returns>
-    Task<bool> HasExchangeRatesAsync(Guid currencyId, CancellationToken cancellationToken = default);
+    /// <returns>True, если валюту можно удалить</returns>
+    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 }

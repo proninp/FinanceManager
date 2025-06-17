@@ -26,4 +26,11 @@ public interface ICountryErrorsFactory
     /// </summary>
     /// <returns>Экземпляр ошибки</returns>
     IError NameIsRequired();
+
+    /// <summary>
+    /// Создаёт ошибку, указывающую на невозможность удаления страны, если она используется в других сущностях
+    /// </summary>
+    /// <param name="id">Идентификатор страны</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError CannotDeleteUsedCountry(Guid id);
 }

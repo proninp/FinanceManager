@@ -32,7 +32,6 @@ public class CountryService(
             await countryRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (country is null)
         {
-            logger.Warning("Country not found: {CountryId}", id);
             return Result.Fail(countryErrorsFactory.NotFound(id));
         }
 
@@ -72,7 +71,6 @@ public class CountryService(
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
-            logger.Warning("Country name is required");
             return Result.Fail(countryErrorsFactory.NameIsRequired());
         }
 
@@ -80,7 +78,6 @@ public class CountryService(
             await countryRepository.IsNameUniqueAsync(createDto.Name, cancellationToken: cancellationToken);
         if (!isNameUnique)
         {
-            logger.Warning("Country name already exists: {Name}", createDto.Name);
             return Result.Fail(countryErrorsFactory.NameAlreadyExists(createDto.Name));
         }
 
@@ -108,7 +105,6 @@ public class CountryService(
             await countryRepository.GetByIdAsync(updateDto.Id, true, cancellationToken: cancellationToken);
         if (country is null)
         {
-            logger.Warning("Country not found for update: {CountryId}", updateDto.Id);
             return Result.Fail(countryErrorsFactory.NotFound(updateDto.Id));
         }
 
@@ -121,7 +117,6 @@ public class CountryService(
                     cancellationToken: cancellationToken);
             if (!isNameUnique)
             {
-                logger.Warning("Country name already exists: {Name}", updateDto.Name);
                 return Result.Fail(countryErrorsFactory.NameAlreadyExists(updateDto.Name));
             }
 
@@ -151,6 +146,12 @@ public class CountryService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Deleting country: {CountryId}", id);
+
+        if (!await countryRepository.CanBeDeletedAsync(id, cancellationToken))
+        {
+            return Result.Fail(countryErrorsFactory.CannotDeleteUsedCountry(id));
+        }
+        
         await countryRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)

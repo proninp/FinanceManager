@@ -28,7 +28,6 @@ public class CurrencyService(
             await currencyRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (currency is null)
         {
-            logger.Warning("Currency not found: {CurrencyId}", id);
             return Result.Fail(currencyErrorsFactory.NotFound(id));
         }
 
@@ -67,31 +66,26 @@ public class CurrencyService(
 
         if (string.IsNullOrWhiteSpace(createDto.CharCode))
         {
-            logger.Warning("Currency char code is required");
             return Result.Fail(currencyErrorsFactory.CharCodeIsRequired());
         }
 
         if (string.IsNullOrWhiteSpace(createDto.NumCode))
         {
-            logger.Warning("Currency num code is required");
             return Result.Fail(currencyErrorsFactory.NumCodeIsRequired());
         }
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
-            logger.Warning("Currency name is required");
             return Result.Fail(currencyErrorsFactory.NameIsRequired());
         }
 
         if (!await currencyRepository.IsCharCodeUniqueAsync(createDto.CharCode, cancellationToken: cancellationToken))
         {
-            logger.Warning("Currency char code already exists: {CharCode}", createDto.CharCode);
             return Result.Fail(currencyErrorsFactory.CharCodeAlreadyExists(createDto.CharCode));
         }
 
         if (!await currencyRepository.IsNumCodeUniqueAsync(createDto.NumCode, cancellationToken: cancellationToken))
         {
-            logger.Warning("Currency num code already exists: {NumCode}", createDto.NumCode);
             return Result.Fail(currencyErrorsFactory.NumCodeAlreadyExists(createDto.NumCode));
         }
 
@@ -118,7 +112,6 @@ public class CurrencyService(
         var currency = await currencyRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (currency is null)
         {
-            logger.Warning("Currency not found for update: {CurrencyId}", updateDto.Id);
             return Result.Fail(currencyErrorsFactory.NotFound(updateDto.Id));
         }
 
@@ -134,7 +127,6 @@ public class CurrencyService(
         {
             if (!await currencyRepository.IsCharCodeUniqueAsync(updateDto.CharCode, updateDto.Id, cancellationToken))
             {
-                logger.Warning("Currency char code already exists: {CharCode}", updateDto.CharCode);
                 return Result.Fail(currencyErrorsFactory.CharCodeAlreadyExists(updateDto.CharCode));
             }
 
@@ -146,7 +138,6 @@ public class CurrencyService(
         {
             if (!await currencyRepository.IsNumCodeUniqueAsync(updateDto.NumCode, updateDto.Id, cancellationToken))
             {
-                logger.Warning("Currency num code already exists: {NumCode}", updateDto.NumCode);
                 return Result.Fail(currencyErrorsFactory.NumCodeAlreadyExists(updateDto.NumCode));
             }
 
@@ -194,7 +185,6 @@ public class CurrencyService(
             await currencyRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (currency is null)
         {
-            logger.Warning("Currency not found for soft delete: {CurrencyId}", id);
             return Result.Fail(currencyErrorsFactory.NotFound(id));
         }
 
@@ -219,7 +209,6 @@ public class CurrencyService(
         var currency = await currencyRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (currency is null)
         {
-            logger.Warning("Currency not found for restore: {CurrencyId}", id);
             return Result.Fail(currencyErrorsFactory.NotFound(id));
         }
 
@@ -246,6 +235,12 @@ public class CurrencyService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Deleting currency: {CurrencyId}", id);
+        
+        if (!await currencyRepository.CanBeDeletedAsync(id, cancellationToken))
+        {
+            return Result.Fail(currencyErrorsFactory.CannotDeleteUsedCurrency(id));
+        }
+        
         await currencyRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)

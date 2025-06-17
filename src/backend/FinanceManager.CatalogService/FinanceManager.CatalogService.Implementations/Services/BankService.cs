@@ -35,7 +35,7 @@ public class BankService(
             await bankRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (bank is null)
         {
-            return GetBankNotFoundResult(id);
+            return Result.Fail(bankErrorsFactory.NotFound(id));
         }
 
         logger.Information("Successfully retrieved bank: {BankId}", id);
@@ -93,7 +93,6 @@ public class BankService(
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
-            logger.Warning("Bank name is required");
             return Result.Fail(bankErrorsFactory.NameIsRequired());
         }
 
@@ -102,12 +101,12 @@ public class BankService(
 
         if (country is null)
         {
-            return GetCountryNotFoundResult(createDto.CountryId, createDto.Name);
+            return Result.Fail(countryErrorsFactory.NotFound(createDto.CountryId));
         }
 
         if (!await CheckBankNameUniq(createDto.Name, createDto.CountryId, cancellationToken: cancellationToken))
         {
-            return GetBankNameAlreadyExistsResult(createDto.Name, country.Id, country.Name);
+            return Result.Fail(bankErrorsFactory.NameAlreadyExists(createDto.Name, country.Id, country.Name));
         }
 
         var bank = await bankRepository.AddAsync(createDto.ToBank(), cancellationToken);
@@ -133,7 +132,7 @@ public class BankService(
             await bankRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (bank is null)
         {
-            return GetBankNotFoundResult(updateDto.Id);
+            return Result.Fail(bankErrorsFactory.NotFound(updateDto.Id));
         }
         
         var isNeedUpdate = false;
@@ -146,7 +145,7 @@ public class BankService(
 
             if (country is null)
             {
-                return GetCountryNotFoundResult(updateDto.CountryId.Value, bank.Name);
+                return Result.Fail(countryErrorsFactory.NotFound(updateDto.CountryId.Value));
             }
             bank.CountryId = updateDto.CountryId.Value;
             isNeedUpdate = true;
@@ -161,7 +160,7 @@ public class BankService(
                     updateDto.Name, country.Id, cancellationToken: cancellationToken);
             if (!isNameUnique)
             {
-                return GetBankNameAlreadyExistsResult(updateDto.Name, country.Id, country.Name);
+                return Result.Fail(bankErrorsFactory.NameAlreadyExists(updateDto.Name, country.Id, country.Name));
             }
             
             bank.Name = updateDto.Name;
@@ -194,7 +193,6 @@ public class BankService(
 
         if (!await bankRepository.CanBeDeletedAsync(id, cancellationToken))
         {
-            logger.Warning("Cannot delete bank '{BankId}' because it is using in other entities", id);
             return Result.Fail(bankErrorsFactory.CannotDeleteUsedBank(id));
         }
 
@@ -228,7 +226,7 @@ public class BankService(
             cancellationToken: cancellationToken);
         if (bank is null)
         {
-            return GetBankNotFoundResult(bankId);
+            return Result.Fail(bankErrorsFactory.NotFound(bankId));
         }
 
         var count = await bankRepository.GetAccountsCountAsync(
@@ -239,30 +237,6 @@ public class BankService(
 
         logger.Information("Accounts count for bank {BankId}: {Count}", bankId, count);
         return Result.Ok(count);
-    }
-
-    /// <summary>
-    /// Формирует результат ошибки, если банк не найден.
-    /// </summary>
-    /// <param name="id">Идентификатор банка.</param>
-    /// <returns>Результат с ошибкой о ненайденном банке.</returns>
-    private Result GetBankNotFoundResult(Guid id)
-    {
-        logger.Warning("Bank not found: {BankId}", id);
-        return Result.Fail(bankErrorsFactory.NotFound(id));
-    }
-
-    /// <summary>
-    /// Формирует результат ошибки, если страна не найдена для указанного банка.
-    /// </summary>
-    /// <param name="countryId">Идентификатор страны.</param>
-    /// <param name="bankName">Название банка.</param>
-    /// <returns>Результат с ошибкой о ненайденной стране.</returns>
-    private Result GetCountryNotFoundResult(Guid countryId, string bankName)
-    {
-        logger.Warning("For bank '{BankName}' country not found: '{CountryId}'.", countryId,
-            bankName);
-        return Result.Fail(countryErrorsFactory.NotFound(countryId));
     }
 
     /// <summary>
@@ -280,19 +254,5 @@ public class BankService(
             await bankRepository.IsNameUniqueByCountryAsync(name, countryId,
                 cancellationToken: cancellationToken);
         return isNameUnique;
-    }
-
-    /// <summary>
-    /// Формирует результат ошибки, если банк с таким названием уже существует в стране.
-    /// </summary>
-    /// <param name="bankName">Название банка.</param>
-    /// <param name="countryId">Идентификатор страны.</param>
-    /// <param name="countryName">Название страны.</param>
-    /// <returns>Результат с ошибкой о неуникальном названии банка.</returns>
-    private Result GetBankNameAlreadyExistsResult(string bankName, Guid countryId, string countryName)
-    {
-        logger.Warning("Bank name already exists: {Name} for country with id '{CountryId}'", bankName,
-            countryId);
-        return Result.Fail(bankErrorsFactory.NameAlreadyExists(bankName, countryName));
     }
 }

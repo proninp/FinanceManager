@@ -18,9 +18,10 @@ public interface IBankErrorsFactory
     /// Создаёт ошибку, указывающую на то, что банк с указанным именем уже существует в указанной стране
     /// </summary>
     /// <param name="name">Имя банка</param>
+    /// <param name="countryId">Id страны</param>
     /// <param name="countryName">Имя страны</param>
     /// <returns>Экземпляр ошибки</returns>
-    IError NameAlreadyExists(string name, string countryName);
+    IError NameAlreadyExists(string name, Guid countryId, string countryName);
     
     /// <summary>
     /// Создаёт ошибку, указывающую на обязательность заполнения имени банка
