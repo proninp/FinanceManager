@@ -3,7 +3,7 @@ using FluentResults;
 
 namespace FinanceManager.CatalogService.Abstractions.Services;
 
-public interface IRegistryHolder
+public interface IRegistryHolderService
 {
     /// <summary>
     /// Получает владельца реестра по идентификатору
