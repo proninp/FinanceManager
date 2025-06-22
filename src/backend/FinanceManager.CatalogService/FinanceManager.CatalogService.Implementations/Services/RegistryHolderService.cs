@@ -50,13 +50,13 @@ public class RegistryHolderService(
     public async Task<Result<ICollection<RegistryHolderDto>>> GetPagedAsync(RegistryHolderFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged regestry holders with filter: {@Filter}", filter);
+        logger.Information("Getting paged registry holders with filter: {@Filter}", filter);
         var holders = await registryHolderRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
-        var holdersDtos = holders.ToDto();
+        var holdersDto = holders.ToDto();
 
-        logger.Information("Successfully retrieved {Count} registry holders", holdersDtos.Count);
-        return Result.Ok(holdersDtos);
+        logger.Information("Successfully retrieved {Count} registry holders", holdersDto.Count);
+        return Result.Ok(holdersDto);
     }
 
     /// <summary>
