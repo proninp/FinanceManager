@@ -10,8 +10,6 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 public interface IAccountRepository :
     IBaseRepository<Account, AccountFilterDto>
 {
-    #region Специальные запросы по владельцу
-
     /// <summary>
     /// Получает общее количество счетов пользователя
     /// </summary>
@@ -21,27 +19,9 @@ public interface IAccountRepository :
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Количество счетов</returns>
     Task<int> GetCountByRegistryHolderIdAsync(
-        Guid registryHolderId, 
-        bool includeArchived = false, 
-        bool includeDeleted = false, 
-        CancellationToken cancellationToken = default);
-
-    #endregion
-
-    #region Проверки уникальности
-
-    /// <summary>
-    /// Проверяет уникальность названия счета у пользователя
-    /// </summary>
-    /// <param name="registryHolderId">Идентификатор владельца</param>
-    /// <param name="name">Название счета</param>
-    /// <param name="excludeId">Исключить счет с данным ID (для обновления)</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если название уникально</returns>
-    Task<bool> IsNameUniqueAsync(
-        Guid registryHolderId, 
-        string name, 
-        Guid? excludeId = null, 
+        Guid registryHolderId,
+        bool includeArchived = false,
+        bool includeDeleted = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -52,13 +32,27 @@ public interface IAccountRepository :
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>True, если есть счет по умолчанию</returns>
     Task<bool> HasDefaultAccountAsync(
-        Guid registryHolderId, 
-        Guid? excludeId = null, 
+        Guid registryHolderId,
+        Guid? excludeId = null,
         CancellationToken cancellationToken = default);
-
-    #endregion
-
-    #region Операции изменения статуса
+    
+    /// <summary>
+    /// Получает счет по умолчанию для владельца реестра
+    /// </summary>
+    /// <param name="registryHolderId">Идентификатор владельца</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Счет по умолчанию</returns>
+    Task<Account?> GetDefaultAccountAsync(
+        Guid registryHolderId,
+        CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Проверяет, может ли счет быть удален (нет ли связанных зависимостей)
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>True, если счет можно удалить</returns>
+    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Архивирует счет
@@ -81,16 +75,13 @@ public interface IAccountRepository :
     /// </summary>
     /// <param name="id">Идентификатор счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если операция прошла успешно</returns>
-    Task<bool> SetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
+    Task SetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Снимает флаг "по умолчанию" со счета
+    /// Снимает флаг "по умолчанию" с указанного счета и устанавливает другой счет пользователя, как новый счет по умолчанию
     /// </summary>
-    /// <param name="id">Идентификатор счета</param>
+    /// <param name="id">Идентификатор счета, с которого снимается флаг "по умолчанию"</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>True, если операция прошла успешно</returns>
     Task<bool> UnsetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
-
-    #endregion
 }
