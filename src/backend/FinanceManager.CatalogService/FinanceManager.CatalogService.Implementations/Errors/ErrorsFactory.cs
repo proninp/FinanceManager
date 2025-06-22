@@ -63,6 +63,15 @@ public class ErrorsFactory : IErrorsFactory
         Create(errorCode, HttpStatusCode.Conflict, errorDescription);
 
     /// <summary>
+    /// Создаёт ошибку 404 NotFound с произвольным кодом и описанием
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="errorDescription">Описание ошибки</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError CustomNotFound(string errorCode, string errorDescription) =>
+        Create(errorCode, HttpStatusCode.NotFound, errorDescription);
+
+    /// <summary>
     /// Создаёт экземпляр ошибки с заданным кодом, статусом и сообщением
     /// </summary>
     /// <param name="errorCode">Код ошибки</param>

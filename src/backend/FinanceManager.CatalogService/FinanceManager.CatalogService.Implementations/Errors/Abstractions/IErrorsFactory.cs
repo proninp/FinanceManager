@@ -52,4 +52,13 @@ public interface IErrorsFactory
     /// <param name="errorDescription">Описание ошибки</param>
     /// <returns>Экземпляр ошибки</returns>
     IError CustomConflictError(string errorCode, string errorDescription);
+    
+
+    /// <summary>
+    /// Создаёт ошибку с произвольным кодом и описанием для случая "не найдено"
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="errorDescription">Описание ошибки</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError CustomNotFound(string errorCode, string errorDescription);
 }
