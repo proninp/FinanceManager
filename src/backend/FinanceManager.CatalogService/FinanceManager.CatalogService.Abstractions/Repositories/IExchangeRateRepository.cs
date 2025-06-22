@@ -54,4 +54,12 @@ public interface IExchangeRateRepository : IBaseRepository<ExchangeRate, Exchang
     /// <returns>Количество удаленных курсов</returns>
     Task<int> DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
         CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Проверяет, может ли курс валюты быть удален (нет ли связанных зависимостей)
+    /// </summary>
+    /// <param name="id">Идентификатор курса валюты</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>True, если курс валюты можно удалить</returns>
+    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 }
