@@ -31,7 +31,7 @@ public interface IAccountTypeService
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком всех типов счетов или ошибкой</returns>
-    Task<Result<IEnumerable<AccountTypeDto>>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Result<ICollection<AccountTypeDto>>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Создает новый тип счета
@@ -80,4 +80,20 @@ public interface IAccountTypeService
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки существования</returns>
     Task<Result<bool>> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Помечает тип счета как удалённый (мягкое удаление)
+    /// </summary>
+    /// <param name="id">Идентификатор типа счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Восстанавливает ранее мягко удалённый тип счета
+    /// </summary>
+    /// <param name="id">Идентификатор типа счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    Task<Result> RestoreAsync(Guid id, CancellationToken cancellationToken = default);
 }
