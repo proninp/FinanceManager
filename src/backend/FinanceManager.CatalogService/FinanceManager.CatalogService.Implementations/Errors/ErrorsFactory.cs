@@ -52,7 +52,16 @@ public class ErrorsFactory : IErrorsFactory
     public IError CannotDeleteUsedEntity(string errorCode, string entityName, Guid id) =>
         Create(errorCode, HttpStatusCode.Conflict,
             $"Cannot delete {entityName} '{id}' because it is used in other entities");
-    
+
+    /// <summary>
+    /// Создаёт ошибку 409 Conflict с произвольным кодом и описанием для указанной сущности
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="errorDescription">Описание ошибки</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError CustomConflictError(string errorCode, string errorDescription) =>
+        Create(errorCode, HttpStatusCode.Conflict, errorDescription);
+
     /// <summary>
     /// Создаёт экземпляр ошибки с заданным кодом, статусом и сообщением
     /// </summary>

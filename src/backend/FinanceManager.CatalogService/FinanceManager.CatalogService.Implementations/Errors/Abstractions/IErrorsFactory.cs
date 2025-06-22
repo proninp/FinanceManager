@@ -43,4 +43,13 @@ public interface IErrorsFactory
     /// <param name="id">Идентификатор сущности</param>
     /// <returns>Экземпляр ошибки</returns>
     IError CannotDeleteUsedEntity(string errorCode, string entityName, Guid id);
+    
+    
+    /// <summary>
+    /// Создаёт ошибку с произвольным кодом и описанием для указанной сущности
+    /// </summary>
+    /// <param name="errorCode">Код ошибки</param>
+    /// <param name="errorDescription">Описание ошибки</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError CustomConflictError(string errorCode, string errorDescription);
 }
