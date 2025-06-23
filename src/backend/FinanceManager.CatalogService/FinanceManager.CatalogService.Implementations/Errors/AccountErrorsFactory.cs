@@ -62,6 +62,32 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
         return errorsFactory.CannotDeleteUsedEntity(
             "ACCOUNT_IN_USE", EntityName, id);
     }
+    
+    /// <summary>
+    /// Создаёт ошибку, при попытке удалить счет по умолчанию
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError CannotDeleteDefaultAccount(Guid id)
+    {
+        logger.Warning("Cannot delete default account: {AccountId}", id);
+        return errorsFactory.CustomConflictError(
+            "ACCOUNT_CANNOT_DELETE_DEFAULT",
+            $"Cannot delete default account '{id}'");
+    }
+
+    /// <summary>
+    /// Создаёт ошибку, если счет не может быть установлен как счет по умолчанию, потому что он архивирован или удалён
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError AccountCannotBeSetAsDefaultIfArchivedOrDeleted(Guid id)
+    {
+        logger.Warning("Account cannot be set as default because it is archived or deleted: {AccountId}", id);
+        return errorsFactory.CustomConflictError(
+            "ACCOUNT_CANNOT_BE_DEFAULT_IF_ARCHIVED_OR_DELETED",
+            $"Account '{id}' cannot be set as default because it is archived or deleted");
+    }
 
     /// <summary>
     /// Создаёт ошибку, если валюта счета была мягко удалена

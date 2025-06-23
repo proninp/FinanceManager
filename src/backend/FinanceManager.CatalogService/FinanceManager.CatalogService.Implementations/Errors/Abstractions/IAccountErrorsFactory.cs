@@ -47,6 +47,13 @@ public interface IAccountErrorsFactory
     /// <param name="id">Идентификатор счета</param>
     /// <returns>Экземпляр ошибки</returns>
     IError CannotArchiveDefaultAccount(Guid id);
+    
+    /// <summary>
+    /// Создаёт ошибку, если счет не может быть установлен как счет по умолчанию, так как он архивирован или удалён
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError AccountCannotBeSetAsDefaultIfArchivedOrDeleted(Guid id);
 
     /// <summary>
     /// Создаёт ошибку, если при снятии признака "По умолчанию" не найден новый счет по умолчанию по указанному Id
@@ -104,4 +111,11 @@ public interface IAccountErrorsFactory
     /// <param name="replacementDefaultAccountId">Идентификатор нового счета по умолчанию</param>
     /// <returns>Экземпляр ошибки</returns>
     IError RegistryHolderDiffersBetweenReplacedDefaultAccounts(Guid id, Guid replacementDefaultAccountId);
+
+    /// <summary>
+    /// Создаёт ошибку, при попытке удалить счет по умолчанию
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError CannotDeleteDefaultAccount(Guid id);
 }

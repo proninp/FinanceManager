@@ -82,6 +82,5 @@ public interface IAccountRepository :
     /// </summary>
     /// <param name="id">Идентификатор счета, с которого снимается флаг "по умолчанию"</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если операция прошла успешно</returns>
-    Task<bool> UnsetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
+    Task UnsetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
 }

@@ -203,14 +203,9 @@ public class AccountService(
             isNeedUpdate = true;
         }
 
-        if (updateDto.IsArchived is not null && account.IsArchived != updateDto.IsArchived.Value)
-        {
-            account.IsArchived = updateDto.IsArchived.Value;
-            isNeedUpdate = true;
-        }
-
         if (updateDto.CreditLimit is not null && account.CreditLimit != updateDto.CreditLimit.Value)
         {
+            // TODO добавить валидацию > 0 при помощи FluentValidation
             account.CreditLimit = updateDto.CreditLimit.Value;
             isNeedUpdate = true;
         }
@@ -238,6 +233,18 @@ public class AccountService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Deleting account: {AccountId}", id);
+        
+        var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            return Result.Ok();
+        }
+
+        if (account.IsDefault)
+        {
+            return Result.Fail(errorsFactory.CannotDeleteDefaultAccount(id));
+        }
+        
         if (!await accountRepository.CanBeDeletedAsync(id, cancellationToken))
         {
             return Result.Fail(errorsFactory.CannotDeleteUsedAccount(id));
@@ -272,9 +279,8 @@ public class AccountService(
         {
             return Result.Ok();
         }
-
-        account.IsArchived = true;
-        accountRepository.Update(account);
+        
+        await accountRepository.ArchiveAsync(id, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
         logger.Information("Successfully archived account: {AccountId}", id);
         return Result.Ok();
@@ -297,11 +303,11 @@ public class AccountService(
 
         if (!account.IsArchived)
         {
+            logger.Information("Account with ID {AccountId} is already unarchived. No action taken.", id);
             return Result.Ok();
         }
-
-        account.IsArchived = false;
-        accountRepository.Update(account);
+        
+        await accountRepository.UnarchiveAsync(id, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
         logger.Information("Successfully unarchived account: {AccountId}", id);
         return Result.Ok();
@@ -330,7 +336,7 @@ public class AccountService(
 
         if (account.IsArchived || account.IsDeleted)
         {
-            return Result.Fail(errorsFactory.CannotArchiveDefaultAccount(id));
+            return Result.Fail(errorsFactory.AccountCannotBeSetAsDefaultIfArchivedOrDeleted(id));
         }
 
         await accountRepository.SetAsDefaultAsync(id, cancellationToken);
@@ -365,7 +371,7 @@ public class AccountService(
             await accountRepository.GetByIdAsync(replacementDefaultAccountId, cancellationToken: cancellationToken);
         if (replacementAccount is null)
         {
-            return Result.Fail(errorsFactory.ReplacementDefaultAccountNotFound(id));
+            return Result.Fail(errorsFactory.ReplacementDefaultAccountNotFound(replacementDefaultAccountId));
         }
         
         if (replacementAccount.IsArchived || replacementAccount.IsDeleted)
@@ -393,7 +399,7 @@ public class AccountService(
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    private async Task<Result> CheckRegistryHolderAsync(Guid registryHolderId, CancellationToken cancellationToken)
+    protected async Task<Result> CheckRegistryHolderAsync(Guid registryHolderId, CancellationToken cancellationToken)
     {
         var holder = await registryHolderRepository.GetByIdAsync(registryHolderId, disableTracking: true,
             cancellationToken: cancellationToken);
@@ -406,7 +412,7 @@ public class AccountService(
     /// <param name="accountTypeId">Идентификатор типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    private async Task<Result> CheckAccountTypeAsync(Guid accountTypeId, CancellationToken cancellationToken)
+    protected async Task<Result> CheckAccountTypeAsync(Guid accountTypeId, CancellationToken cancellationToken)
     {
         var accountType = await accountTypeRepository.GetByIdAsync(
             accountTypeId, disableTracking: true, cancellationToken: cancellationToken);
@@ -429,7 +435,7 @@ public class AccountService(
     /// <param name="currencyId">Идентификатор валюты</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    private async Task<Result> CheckCurrencyAsync(Guid currencyId, CancellationToken cancellationToken)
+    protected async Task<Result> CheckCurrencyAsync(Guid currencyId, CancellationToken cancellationToken)
     {
         var currency = await currencyRepository.GetByIdAsync(
             currencyId, disableTracking: true, cancellationToken: cancellationToken);
@@ -447,7 +453,7 @@ public class AccountService(
     /// <param name="bankId">Идентификатор банка</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    private async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
+    protected async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
     {
         var bank = await bankRepository.GetByIdAsync(
             bankId, disableTracking: true, cancellationToken: cancellationToken);
@@ -459,7 +465,7 @@ public class AccountService(
     /// </summary>
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    private async Task UnsetDefaultAccountIfExistsAsync(Guid registryHolderId, CancellationToken cancellationToken)
+    protected async Task UnsetDefaultAccountIfExistsAsync(Guid registryHolderId, CancellationToken cancellationToken)
     {
         var previousDefaultAccount =
             await accountRepository.GetDefaultAccountAsync(registryHolderId, cancellationToken);
