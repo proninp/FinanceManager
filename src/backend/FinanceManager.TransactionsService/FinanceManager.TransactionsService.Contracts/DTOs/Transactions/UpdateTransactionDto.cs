@@ -1,10 +1,7 @@
-using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
-using FinanceManager.TransactionsService.Contracts.DTOs.TransactionsCategories;
-
-namespace FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
+﻿namespace FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
 
 /// <summary>
-/// DTO для транзакции
+/// DTO для обновления транзакции
 /// </summary>
 /// <param name="Id">Идентификатор транзакции</param>
 /// <param name="Date">Дата транзакции</param>
@@ -12,11 +9,11 @@ namespace FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
 /// <param name="Category">Категория на которую относится транзакция</param>
 /// <param name="Amount">Сумма транзакции</param>
 /// <param name="Description">Описание транзакции</param>
-public record TransactionDto(
+public record UpdateTransactionDto(
     Guid Id,
-    DateTime Date,
-    TransactionAccountDto Account,
-    TransactionCategoryDto Category,
-    decimal Amount,
-    string? Description
-    );
+    DateTime? Date = null,
+    Guid? Account  = null,
+    Guid? Category = null,
+    decimal? Amount  = null,
+    string? Description = null 
+);
