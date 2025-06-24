@@ -33,7 +33,7 @@ public interface ICategoryService
     /// <param name="includeRelated">Включать ли связанные сущности</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком категорий пользователя или ошибкой</returns>
-    Task<Result<IEnumerable<CategoryDto>>> GetByRegistryHolderIdAsync(
+    Task<Result<ICollection<CategoryDto>>> GetByRegistryHolderIdAsync(
         Guid registryHolderId,
         bool includeRelated = true,
         CancellationToken cancellationToken = default);
@@ -65,39 +65,4 @@ public interface ICategoryService
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат операции</returns>
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет уникальность названия категории у пользователя
-    /// </summary>
-    /// <param name="registryHolderId">Идентификатор владельца</param>
-    /// <param name="name">Название категории</param>
-    /// <param name="excludeId">Исключить категорию с данным ID (для обновления)</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат проверки уникальности</returns>
-    /*
-     TODO Скорее всего, эту проверку нужно будет перенести в приватную функцию и
-     использовать при создании/изменении записи
-     */
-    Task<Result<bool>> IsNameUniqueInScopeAsync(
-        Guid registryHolderId,
-        string name,
-        Guid? excludeId = null,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, не создает ли изменение родительской категории циклическую зависимость
-    /// </summary>
-    /// <param name="categoryId">Идентификатор категории</param>
-    /// <param name="newParentId">Новый идентификатор родительской категории</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат проверки валидности изменения</returns>
-    /*
-     TODO Скорее всего, эту проверку нужно будет перенести в приватную функцию и
-     использовать при создании/изменении записи
-     */
-    Task<Result<bool>>
-        IsParentChangeValidAsync(
-            Guid categoryId,
-            Guid? newParentId,
-            CancellationToken cancellationToken = default);
 }
