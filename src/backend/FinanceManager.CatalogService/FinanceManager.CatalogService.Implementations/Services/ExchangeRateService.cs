@@ -2,7 +2,6 @@
 using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.Abstractions.Services;
 using FinanceManager.CatalogService.Contracts.DTOs.ExchangeRates;
-using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FluentResults;
 using Serilog;

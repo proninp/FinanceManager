@@ -109,6 +109,11 @@ public class RegistryHolderService(
 
         if (updateDto.TelegramId.HasValue && holder.TelegramId != updateDto.TelegramId.Value)
         {
+            if (updateDto.TelegramId.Value <= 0)
+            {
+                return Result.Fail(registryHolderErrorsFactory.TelegramIdIsRequired());
+            }
+
             if (!await registryHolderRepository.IsTelegramIdUniqueAsync(updateDto.TelegramId.Value, updateDto.Id, cancellationToken))
             {
                 return Result.Fail(registryHolderErrorsFactory.TelegramIdAlreadyExists(updateDto.TelegramId.Value));

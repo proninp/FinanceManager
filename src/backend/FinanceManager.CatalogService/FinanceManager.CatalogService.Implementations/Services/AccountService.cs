@@ -94,6 +94,8 @@ public class AccountService(
         {
             return Result.Fail(errorsFactory.NameIsRequired());
         }
+        
+        // TODO валидация входящих значений createDto при помощи FluentValidation
 
         var checkResult = await CheckRegistryHolderAsync(createDto.RegistryHolderId, cancellationToken);
         if (checkResult.IsFailed)
@@ -205,7 +207,7 @@ public class AccountService(
 
         if (updateDto.CreditLimit is not null && account.CreditLimit != updateDto.CreditLimit.Value)
         {
-            // TODO добавить валидацию > 0 при помощи FluentValidation
+            // TODO добавить валидацию updateDto.CreditLimit > 0 при помощи FluentValidation
             account.CreditLimit = updateDto.CreditLimit.Value;
             isNeedUpdate = true;
         }

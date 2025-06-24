@@ -9,8 +9,8 @@ using Serilog;
 namespace FinanceManager.CatalogService.Implementations.Services;
 
 /// <summary>
-/// Сервис для управления типами банковских счетов
-/// Предоставляет методы для получения, создания, обновления и удаления типов счетов
+/// Сервис для управления типами банковских счетов.
+/// Предоставляет методы для получения, создания, обновления и удаления типов счетов.
 /// </summary>
 public class AccountTypeService(
     IUnitOfWork unitOfWork,
