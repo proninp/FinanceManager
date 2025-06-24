@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.Transactions
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.TransactionsService.Domain", "FinanceManager.TransactionsService.Domain\FinanceManager.TransactionsService.Domain.csproj", "{57EEE920-BDBB-4DA9-BDB2-56EDFDA9D691}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.TransactionsService.Contracts", "FinanceManager.TransactionsService.Contracts\FinanceManager.TransactionsService.Contracts.csproj", "{18FE2C58-15E1-46DF-82BA-FA17653F0063}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{57EEE920-BDBB-4DA9-BDB2-56EDFDA9D691}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57EEE920-BDBB-4DA9-BDB2-56EDFDA9D691}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57EEE920-BDBB-4DA9-BDB2-56EDFDA9D691}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18FE2C58-15E1-46DF-82BA-FA17653F0063}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FE2C58-15E1-46DF-82BA-FA17653F0063}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18FE2C58-15E1-46DF-82BA-FA17653F0063}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18FE2C58-15E1-46DF-82BA-FA17653F0063}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
