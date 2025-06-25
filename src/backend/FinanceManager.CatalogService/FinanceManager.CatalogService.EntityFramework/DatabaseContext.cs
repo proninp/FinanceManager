@@ -1,4 +1,5 @@
 ﻿using FinanceManager.CatalogService.Abstractions.Repositories.Common;
+using FinanceManager.CatalogService.Domain.Abstractions;
 using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
@@ -86,6 +87,27 @@ public class DatabaseContext : DbContext, IUnitOfWork
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
     }
+
+    /// <summary>
+    /// Сохраняет все изменения в контексте базы данных, предварительно устанавливая временные метки для новых сущностей.
+    /// </summary>
+    /// <returns>Количество затронутых записей.</returns>
+    public override int SaveChanges()
+    {
+        SetTimeStamps();
+        return base.SaveChanges();
+    }
+
+    /// <summary>
+    /// Асинхронно сохраняет все изменения в контексте базы данных, предварительно устанавливая временные метки для новых сущностей.
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Задача, возвращающая количество затронутых записей.</returns>
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        SetTimeStamps();
+        return base.SaveChangesAsync(cancellationToken);
+    }
     
     /// <summary>
     /// Сохраняет все изменения в базе данных в рамках текущей транзакции.
@@ -94,4 +116,20 @@ public class DatabaseContext : DbContext, IUnitOfWork
     /// <returns>Количество затронутых записей.</returns>
     public async Task<int> CommitAsync(CancellationToken cancellationToken) =>
         await SaveChangesAsync(cancellationToken);
+
+    /// <summary>
+    /// Устанавливает временные метки создания для новых сущностей.
+    /// </summary>
+    private void SetTimeStamps()
+    {
+        var newEntities = ChangeTracker.Entries<IdentityModel>()
+            .Where(e => e.State == EntityState.Added);
+        foreach (var entity in newEntities)
+        {
+            if (entity.Property(e => e.CreatedAt).CurrentValue == default)
+            {
+                entity.Property(e => e.CreatedAt).CurrentValue = DateTime.UtcNow;
+            }
+        }
+    }
 }
