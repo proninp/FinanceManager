@@ -22,7 +22,7 @@ public interface IBankService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком банков или ошибкой</returns>
-    Task<Result<IEnumerable<BankDto>>> GetPagedAsync(
+    Task<Result<ICollection<BankDto>>> GetPagedAsync(
         BankFilterDto filter, 
         CancellationToken cancellationToken = default);
 
@@ -32,7 +32,7 @@ public interface IBankService
     /// <param name="includeRelated">Включать ли связанные сущности</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком всех банков или ошибкой</returns>
-    Task<Result<IEnumerable<BankDto>>> GetAllAsync(
+    Task<Result<ICollection<BankDto>>> GetAllAsync(
         bool includeRelated = true, 
         CancellationToken cancellationToken = default);
 
@@ -65,18 +65,6 @@ public interface IBankService
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Проверяет глобальную уникальность названия банка
-    /// </summary>
-    /// <param name="name">Название банка</param>
-    /// <param name="excludeId">Исключить банк с данным ID (для обновления)</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат проверки уникальности</returns>
-    Task<Result<bool>> IsNameGloballyUniqueAsync(
-        string name, 
-        Guid? excludeId = null, 
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Получает количество счетов, использующих данный банк
     /// </summary>
     /// <param name="bankId">Идентификатор банка</param>
@@ -89,12 +77,4 @@ public interface IBankService
         bool includeArchivedAccounts = false, 
         bool includeDeletedAccounts = false, 
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, можно ли удалить банк (не используется ли он в активных счетах)
-    /// </summary>
-    /// <param name="bankId">Идентификатор банка</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат проверки возможности удаления</returns>
-    Task<Result<bool>> CanBeDeletedAsync(Guid bankId, CancellationToken cancellationToken = default);
 }

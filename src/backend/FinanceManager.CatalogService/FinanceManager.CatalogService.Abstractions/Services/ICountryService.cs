@@ -22,7 +22,7 @@ public interface ICountryService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком стран или ошибкой</returns>
-    Task<Result<IEnumerable<CountryDto>>> GetPagedAsync(
+    Task<Result<ICollection<CountryDto>>> GetPagedAsync(
         CountryFilterDto filter, 
         CancellationToken cancellationToken = default);
     

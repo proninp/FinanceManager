@@ -22,7 +22,7 @@ public interface ICurrencyService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком валют или ошибкой</returns>
-    Task<Result<IEnumerable<CurrencyDto>>> GetPagedAsync(
+    Task<Result<ICollection<CurrencyDto>>> GetPagedAsync(
         CurrencyFilterDto filter, 
         CancellationToken cancellationToken = default);
     

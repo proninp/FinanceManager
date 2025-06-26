@@ -14,7 +14,7 @@ public interface IAccountService
     /// <param name="id">Идентификатор счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>DTO счета или null, если не найден</returns>
-    Task<Result<AccountDto>?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<Result<AccountDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Получает список счетов с фильтрацией и пагинацией
@@ -22,7 +22,7 @@ public interface IAccountService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком счетов или ошибкой</returns>
-    Task<Result<IEnumerable<AccountDto>>> GetPagedAsync(
+    Task<Result<ICollection<AccountDto>>> GetPagedAsync(
         AccountFilterDto filter, 
         CancellationToken cancellationToken = default);
     
@@ -32,7 +32,7 @@ public interface IAccountService
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со счетом по умолчанию или ошибкой</returns>
-    Task<Result<AccountDto?>> GetDefaultAccountAsync(
+    Task<Result<AccountDto>> GetDefaultAccountAsync(
         Guid registryHolderId,
         CancellationToken cancellationToken = default);
     
@@ -92,21 +92,8 @@ public interface IAccountService
     /// Снимает флаг "по умолчанию" со счета
     /// </summary>
     /// <param name="id">Идентификатор счета</param>
+    /// <param name="replacementDefaultAccountId">Идентификатор счета, который нужно задать, как счет по умолчанию</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат операции</returns>
-    Task<Result> UnsetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет уникальность названия счета у пользователя
-    /// </summary>
-    /// <param name="registryHolderId">Идентификатор владельца</param>
-    /// <param name="name">Название счета</param>
-    /// <param name="excludeId">Исключить счет с данным ID (для обновления)</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат проверки уникальности</returns>
-    Task<Result<bool>> IsNameUniqueAsync(
-        Guid registryHolderId,
-        string name,
-        Guid? excludeId = null,
-        CancellationToken cancellationToken = default);
+    Task<Result> UnsetAsDefaultAsync(Guid id, Guid replacementDefaultAccountId, CancellationToken cancellationToken = default);
 }

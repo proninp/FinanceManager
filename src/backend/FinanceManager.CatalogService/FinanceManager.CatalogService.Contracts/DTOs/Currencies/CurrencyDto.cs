@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.CatalogService.Contracts.DTOs.Currencies;
+﻿using FinanceManager.CatalogService.Domain.Entities;
+
+namespace FinanceManager.CatalogService.Contracts.DTOs.Currencies;
 
 /// <summary>
 /// DTO для валюты
@@ -17,3 +19,34 @@ public record CurrencyDto(
     string? Sign = null,
     string? Emoji = null
 );
+
+/// <summary>
+/// Методы-расширения для преобразования сущности Currency в CurrencyDto
+/// </summary>
+public static class CurrencyDtoExtensions
+{
+    /// <summary>
+    /// Преобразует сущность Currency в DTO CurrencyDto
+    /// </summary>
+    /// <param name="currency">Сущность валюты</param>
+    /// <returns>Экземпляр CurrencyDto</returns>
+    public static CurrencyDto ToDto(this Currency currency) =>
+        new CurrencyDto(
+            currency.Id,
+            currency.Name,
+            currency.CharCode,
+            currency.NumCode,
+            currency.Sign,
+            currency.Emoji);
+
+    /// <summary>
+    /// Преобразует коллекцию Currency в коллекцию CurrencyDto
+    /// </summary>
+    /// <param name="currencies">Коллекция сущностей валют</param>
+    /// <returns>Коллекция CurrencyDto</returns>
+    public static ICollection<CurrencyDto> ToDto(this IEnumerable<Currency> currencies)
+    {
+        var dtos = currencies.Select(ToDto);
+        return dtos as ICollection<CurrencyDto> ?? dtos.ToList();
+    }
+}

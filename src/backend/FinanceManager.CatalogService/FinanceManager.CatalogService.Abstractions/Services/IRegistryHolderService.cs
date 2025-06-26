@@ -19,7 +19,7 @@ public interface IRegistryHolderService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком владельцев реестра или ошибкой</returns>
-    Task<Result<IEnumerable<RegistryHolderDto>>> GetPagedAsync(
+    Task<Result<ICollection<RegistryHolderDto>>> GetPagedAsync(
         RegistryHolderFilterDto filter, 
         CancellationToken cancellationToken = default);
     

@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.CatalogService.Contracts.DTOs.Accounts;
+﻿using FinanceManager.CatalogService.Domain.Entities;
+
+namespace FinanceManager.CatalogService.Contracts.DTOs.Accounts;
 
 /// <summary>
 /// DTO для создания банковского счета
@@ -21,3 +23,27 @@ public record CreateAccountDto(
     bool IsDefault = false,
     decimal? CreditLimit = null
 );
+
+/// <summary>
+/// Методы-расширения для преобразования CreateAccountDto в Account
+/// </summary>
+public static class CreateAccountDtoExtensions
+{
+    /// <summary>
+    /// Преобразует DTO создания счета в сущность Account
+    /// </summary>
+    /// <param name="dto">DTO для создания банковского счета</param>
+    /// <returns>Экземпляр Account</returns>
+    public static Account ToAccount(this CreateAccountDto dto) =>
+        new Account(
+            dto.RegistryHolderId,
+            dto.AccountTypeId,
+            dto.CurrencyId,
+            dto.BankId,
+            dto.Name,
+            dto.IsIncludeInBalance,
+            dto.IsDefault,
+            false,
+            dto.CreditLimit
+        );
+}

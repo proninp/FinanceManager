@@ -12,7 +12,7 @@ public interface ICountryRepository : IBaseRepository<Country, CountryFilterDto>
     /// <param name="ascending">Направление сортировки (по возрастанию по умолчанию)</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список всех стран, отсортированный по названию</returns>
-    Task<IEnumerable<Country>> GetAllOrderedByNameAsync(bool ascending = true,
+    Task<ICollection<Country>> GetAllOrderedByNameAsync(bool ascending = true,
         CancellationToken cancellationToken = default);
 
     /// <summary>

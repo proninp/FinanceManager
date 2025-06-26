@@ -22,7 +22,7 @@ public interface IExchangeRateService
     /// <param name="filter">Параметры фильтрации</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком курсов или ошибкой</returns>
-    Task<Result<IEnumerable<ExchangeRateDto>>> GetPagedAsync(
+    Task<Result<ICollection<ExchangeRateDto>>> GetPagedAsync(
         ExchangeRateFilterDto filter, 
         CancellationToken cancellationToken = default);
 
@@ -57,11 +57,11 @@ public interface IExchangeRateService
     /// <summary>
     /// Добавляет несколько курсов валют за один раз
     /// </summary>
-    /// <param name="createDtos">Список курсов для добавления</param>
+    /// <param name="createExchangeRatesDto">Список курсов для добавления</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат со списком добавленных курсов или ошибкой</returns>
     Task<Result<IEnumerable<ExchangeRateDto>>> AddRangeAsync(
-        IEnumerable<CreateExchangeRateDto> createDtos,
+        IEnumerable<CreateExchangeRateDto> createExchangeRatesDto,
         CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -17,10 +17,10 @@ public interface IRegistryHolderRepository : IBaseRepository<RegistryHolder, Reg
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Проверяет существование владельца по Telegram ID
+    /// Проверяет, может ли владелец реестра с указанным Id быть удалён
     /// </summary>
-    /// <param name="telegramId">Идентификатор пользователя в Telegram</param>
+    /// <param name="id">Идентификатор пользователя</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если владелец с таким Telegram ID существует</returns>
-    Task<bool> ExistsByTelegramIdAsync(long telegramId, CancellationToken cancellationToken = default);
+    /// <returns>True, если владелец может быть удалён</returns>
+    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 }

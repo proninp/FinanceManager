@@ -15,19 +15,21 @@ public interface IBankRepository : IBaseRepository<Bank, BankFilterDto>, IInitia
     /// <param name="includeRelated">Включать ли связанные сущности</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список всех банков</returns>
-    Task<IEnumerable<Bank>> GetAllAsync(
+    Task<ICollection<Bank>> GetAllAsync(
         bool includeRelated = true, 
         CancellationToken cancellationToken = default);
     
     /// <summary>
-    /// Проверяет глобальную уникальность названия банка
+    /// Проверяет уникальность названия банка в рамках страны
     /// </summary>
     /// <param name="name">Название банка</param>
+    /// <param name="countryId">Id страны банка</param>
     /// <param name="excludeId">Исключить банк с данным ID (для обновления)</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>True, если название уникально глобально</returns>
-    Task<bool> IsNameGloballyUniqueAsync(
-        string name, 
+    Task<bool> IsNameUniqueByCountryAsync(
+        string name,
+        Guid countryId,
         Guid? excludeId = null, 
         CancellationToken cancellationToken = default);
     
