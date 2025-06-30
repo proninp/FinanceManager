@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.TransactionsService.Contracts.DTOs.Transfers;
+﻿using FinanceManager.TransactionsService.Domain.Entities;
+
+namespace FinanceManager.TransactionsService.Contracts.DTOs.Transfers;
 
 /// <summary>
 /// DTO для создания перевода между счетами
@@ -17,3 +19,21 @@ public record CreateTransferDto(
     decimal ToAmount,
     string? Description
 );
+
+public static class CreateTransferDtoExtensions
+{
+    /// <summary>
+    /// Преобразует CreateTransferDto в Transfer
+    /// </summary>
+    public static Transfer ToTransfer(this CreateTransferDto dto)
+    {
+        return new Transfer(
+            date: dto.Date,
+            fromAccountId: dto.FromAccountId,
+            toAccountId: dto.ToAccountId,
+            fromAmount: dto.FromAmount,
+            toAmount: dto.ToAmount,
+            description: dto.Description
+        );
+    }
+}

@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
+﻿using FinanceManager.TransactionsService.Domain.Entities;
+
+namespace FinanceManager.TransactionsService.Contracts.DTOs.Transactions;
 
 /// <summary>
 /// DTO для создания транзакции
@@ -15,3 +17,20 @@ public record CreateTransactionDto(
     decimal Amount,
     string? Description
 );
+
+public static class CreateTransactionDtoExtensions
+{
+    /// <summary>
+    /// Преобразует CreateTransactionDto в Transaction
+    /// </summary>
+    public static Transaction ToTransaction(this CreateTransactionDto dto)
+    {
+        return new Transaction(
+            date: dto.Date,
+            accountId: dto.AccountId,
+            categoryId: dto.CategoryId,
+            amount: dto.Amount,
+            description: dto.Description
+        );
+    }
+}

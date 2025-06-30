@@ -1,3 +1,5 @@
+using FinanceManager.TransactionsService.Domain.Entities;
+
 namespace FinanceManager.TransactionsService.Contracts.DTOs.TransactionCurrencies;
 
 /// <summary>
@@ -11,3 +13,18 @@ public record CreateTransactionCurrencyDto(
     string CharCode,
     string NumCode
 );
+
+public static class CreateTransactionCurrencyDtoExtensions
+{
+    /// <summary>
+    /// Преобразует CreateTransactionCurrencyDto в TransactionsCurrency
+    /// </summary>
+    public static TransactionsCurrency ToCurrency(this CreateTransactionCurrencyDto dto)
+    {
+        return new TransactionsCurrency(
+            charCode: dto.CharCode,
+            numCode: dto.NumCode
+        );
+
+    }
+}

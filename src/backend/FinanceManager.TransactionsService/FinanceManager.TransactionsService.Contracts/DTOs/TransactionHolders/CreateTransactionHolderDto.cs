@@ -1,4 +1,5 @@
-﻿using FinanceManager.TransactionsService.Domain.Enums;
+﻿using FinanceManager.TransactionsService.Domain.Entities;
+using FinanceManager.TransactionsService.Domain.Enums;
 
 namespace FinanceManager.TransactionsService.Contracts.DTOs.TransactionHolders;
 
@@ -11,3 +12,17 @@ public record CreateTransactionHolderDto(
     long TelegramId,
     Role Role = Role.User
 );
+
+public static class CreateTransactionHolderDtoExtensions
+{
+    /// <summary>
+    /// Преобразует CreateTransactionHolderDto в TransactionHolder
+    /// </summary>
+    public static TransactionHolder ToHolder(this CreateTransactionHolderDto dto)
+    {
+        return new TransactionHolder(
+            role: dto.Role,
+            telegramId: dto.TelegramId
+        );
+    }
+}

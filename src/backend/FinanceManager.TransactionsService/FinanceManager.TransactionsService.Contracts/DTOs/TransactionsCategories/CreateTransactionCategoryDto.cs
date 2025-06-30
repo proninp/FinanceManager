@@ -1,4 +1,6 @@
-﻿namespace FinanceManager.TransactionsService.Contracts.DTOs.TransactionsCategories;
+﻿using FinanceManager.TransactionsService.Domain.Entities;
+
+namespace FinanceManager.TransactionsService.Contracts.DTOs.TransactionsCategories;
 
 /// <summary>
 /// DTO для создания категории
@@ -11,3 +13,18 @@ public record CreateTransactionCategoryDto(
     bool Income,
     bool Expense
 );
+
+public static class CreateTransactionCategoryDtoExtensions
+{
+    /// <summary>
+    /// Преобразует CreateTransactionCategoryDto в TransactionsCategory
+    /// </summary>
+    public static TransactionsCategory ToCategory(this CreateTransactionCategoryDto dto)
+    {
+        return new TransactionsCategory(
+            holderId: dto.TransactionHolderId,
+            income: dto.Income,
+            expense: dto.Expense
+        );
+    }
+}
