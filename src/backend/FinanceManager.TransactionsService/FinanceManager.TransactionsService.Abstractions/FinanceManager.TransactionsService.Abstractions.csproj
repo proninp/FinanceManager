@@ -7,7 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FinanceManager.TransactionsService.Contracts\FinanceManager.TransactionsService.Contracts.csproj" />
       <ProjectReference Include="..\FinanceManager.TransactionsService.Domain\FinanceManager.TransactionsService.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentResults" Version="4.0.0" />
     </ItemGroup>
 
 </Project>
