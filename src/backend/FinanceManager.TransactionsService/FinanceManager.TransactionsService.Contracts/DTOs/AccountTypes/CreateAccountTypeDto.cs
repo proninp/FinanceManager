@@ -1,3 +1,5 @@
+using FinanceManager.TransactionsService.Domain.Entities;
+
 namespace FinanceManager.TransactionsService.Contracts.DTOs.AccountTypes;
 
 /// <summary>
@@ -9,3 +11,17 @@ public record CreateAccountTypeDto(
     string Code,
     string Description
 );
+
+public static class CreateAccountTypeDtoExtensions
+{
+    /// <summary>
+    /// Преобразует CreateAccountTypeDto в TransactionsAccountType
+    /// </summary>
+    public static TransactionsAccountType ToAccountType(this CreateAccountTypeDto dto)
+    {
+        return new TransactionsAccountType(
+            code: dto.Code,
+            description: dto.Description
+        );
+    }
+}
