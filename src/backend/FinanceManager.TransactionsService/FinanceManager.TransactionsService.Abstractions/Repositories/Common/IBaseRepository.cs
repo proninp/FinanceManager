@@ -55,13 +55,7 @@ public interface IBaseRepository<T, in TFilterDto> where T:IdentityModel
     /// <param name="entity">Сущность для обновления</param>
     /// <returns>Обновленная сущность</returns>
     T Update(T entity);
-
-    /// <summary>
-    /// Частично обновляет сущность (только указанные свойства)
-    /// </summary>
-    /// <param name="entity">Сущность для обновления</param>
-    /// <param name="properties">Свойства для обновления</param>
-    T UpdatePartial(T entity, params Expression<Func<T, object>>[] properties);
+    
 
     /// <summary>
     /// Удаляет сущность
