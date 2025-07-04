@@ -49,7 +49,7 @@ public interface ITransactionAccountService
     /// <summary>
     /// Проверяет, принадлежит ли счёт указанному пользователю
     /// </summary>
-    Task<Result<bool>> BelongsToUserAsync(Guid accountId, Guid userId, CancellationToken ct = default);
+    Task<Result<bool>> BelongsToUserAsync(Guid accountId, Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Проверяет, не превышает ли сумма кредитный лимит счёта
@@ -57,10 +57,10 @@ public interface ITransactionAccountService
     Task<Result<bool>> IsWithinCreditLimitAsync(
         Guid accountId,
         decimal amount,
-        CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получает тип счёта
     /// </summary>
-    Task<Result<string>> GetAccountTypeAsync(Guid accountId, CancellationToken ct = default);
+    Task<Result<AccountTypeDto>> GetAccountTypeAsync(Guid accountId, CancellationToken cancellationToken = default);
 }

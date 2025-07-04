@@ -16,12 +16,12 @@ public interface ITransactionsCurrencyService
     /// <summary>
     /// Получает валюту по буквенному коду (например, USD)
     /// </summary>
-    Task<Result<TransactionCurrencyDto>> GetByCharCodeAsync(string charCode, CancellationToken ct = default);
+    Task<Result<TransactionCurrencyDto>> GetByCharCodeAsync(string charCode, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получает валюту по цифровому коду (например, 840 для USD)
     /// </summary>
-    Task<Result<TransactionCurrencyDto>> GetByNumCodeAsync(string numCode, CancellationToken ct = default);
+    Task<Result<TransactionCurrencyDto>> GetByNumCodeAsync(string numCode, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Получает список валют с фильтрацией и пагинацией
@@ -52,10 +52,10 @@ public interface ITransactionsCurrencyService
     /// <summary>
     /// Проверяет, существует ли валюта с указанным буквенным кодом
     /// </summary>
-    Task<Result<bool>> ExistsByCharCodeAsync(string charCode, CancellationToken ct = default);
+    Task<Result<bool>> ExistsByCharCodeAsync(string charCode, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Проверяет, существует ли валюта с указанным цифровым кодом
     /// </summary>
-    Task<Result<bool>> ExistsByNumCodeAsync(string numCode, CancellationToken ct = default);
+    Task<Result<bool>> ExistsByNumCodeAsync(string numCode, CancellationToken cancellationToken = default);
 }

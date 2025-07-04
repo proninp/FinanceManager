@@ -49,11 +49,11 @@ public interface ITransactionsCategoryService
     /// <summary>
     /// Проверяет, что категория принадлежит указанному пользователю
     /// </summary>
-    Task<Result<bool>> BelongsToUserAsync(Guid categoryId, Guid userId, CancellationToken ct = default);
+    Task<Result<bool>> BelongsToUserAsync(Guid categoryId, Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Проверяет, что категория может использоваться для указанного типа транзакции (доход/расход)
     /// </summary>
-    Task<Result<bool>> IsValidForTransactionTypeAsync(Guid categoryId, bool isIncome, CancellationToken ct = default);
+    Task<Result<bool>> IsValidForTransactionTypeAsync(Guid categoryId, bool isIncome, CancellationToken cancellationToken = default);
 
 }
