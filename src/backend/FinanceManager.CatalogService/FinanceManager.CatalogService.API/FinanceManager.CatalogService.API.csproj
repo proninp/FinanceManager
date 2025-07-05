@@ -10,4 +10,8 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\FinanceManager.CatalogService.EntityFramework\FinanceManager.CatalogService.EntityFramework.csproj" />
+    </ItemGroup>
+
 </Project>
