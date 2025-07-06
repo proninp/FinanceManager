@@ -227,6 +227,39 @@ public class AccountService(
     }
 
     /// <summary>
+    /// Мягкое удаление (soft delete) счета по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        logger.Information("Soft deleting account: {AccountId}", id);
+        
+        var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            return Result.Fail(errorsFactory.NotFound(id));
+        }
+        
+        if (account.IsDeleted)
+        {
+            return Result.Ok();
+        }
+        
+        if (account.IsDefault)
+        {
+            return Result.Fail(errorsFactory.CannotSoftDeleteDefaultAccount(id));
+        }
+        
+        account.MarkAsDeleted();
+        await unitOfWork.CommitAsync(cancellationToken);
+        
+        logger.Information("Successfully soft deleted account: {AccountId}", id);
+        return Result.Ok();
+    }
+
+    /// <summary>
     /// Удаляет счет
     /// </summary>
     /// <param name="id">Идентификатор счета</param>
@@ -245,11 +278,6 @@ public class AccountService(
         if (account.IsDefault)
         {
             return Result.Fail(errorsFactory.CannotDeleteDefaultAccount(id));
-        }
-        
-        if (!await accountRepository.CanBeDeletedAsync(id, cancellationToken))
-        {
-            return Result.Fail(errorsFactory.CannotDeleteUsedAccount(id));
         }
 
         await accountRepository.DeleteAsync(id, cancellationToken);

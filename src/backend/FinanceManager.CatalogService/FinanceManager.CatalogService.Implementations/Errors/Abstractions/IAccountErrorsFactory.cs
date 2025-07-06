@@ -111,6 +111,13 @@ public interface IAccountErrorsFactory
     /// <param name="replacementDefaultAccountId">Идентификатор нового счета по умолчанию</param>
     /// <returns>Экземпляр ошибки</returns>
     IError RegistryHolderDiffersBetweenReplacedDefaultAccounts(Guid id, Guid replacementDefaultAccountId);
+    
+    /// <summary>
+    /// Создаёт ошибку, при попытке безопасного удалить счет по умолчанию
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <returns>Экземпляр ошибки</returns>
+    IError CannotSoftDeleteDefaultAccount(Guid id);
 
     /// <summary>
     /// Создаёт ошибку, при попытке удалить счет по умолчанию
