@@ -97,15 +97,6 @@ public class CategoryService(
             return Result.Fail(errorsFactory.NameAlreadyExistsInScope(createDto.Name));
         }
 
-        // Проверка на валидность смены родителя (нет циклов)
-        if (createDto.ParentId.HasValue)
-        {
-            if (!await categoryRepository.IsParentChangeValidAsync(Guid.Empty, createDto.ParentId, cancellationToken))
-            {
-                return Result.Fail(errorsFactory.RecursiveParentCategoryRelation(Guid.Empty, createDto.ParentId.Value));
-            }
-        }
-
         var category = await categoryRepository.AddAsync(createDto.ToCategory(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
         logger.Information("Successfully created category: {CategoryId}", category.Id);
@@ -186,11 +177,6 @@ public class CategoryService(
         if (category is null)
         {
             return Result.Ok();
-        }
-        
-        if (!await categoryRepository.CanBeDeletedAsync(id, cancellationToken))
-        {
-            return Result.Fail(errorsFactory.CannotDeleteUsedCategory(id));
         }
 
         await categoryRepository.DeleteAsync(id, cancellationToken);
