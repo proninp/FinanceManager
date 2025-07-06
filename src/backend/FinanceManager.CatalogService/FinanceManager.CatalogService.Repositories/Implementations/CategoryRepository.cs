@@ -7,11 +7,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
+/// <summary>
+/// Репозиторий для работы с категориями.
+/// Предоставляет методы фильтрации, проверки уникальности имени, проверки валидности смены родителя и получения категорий по владельцу.
+/// </summary>
 public class CategoryRepository(DatabaseContext context)
     : BaseRepository<Category, CategoryFilterDto>(context), ICategoryRepository
 {
     private readonly DatabaseContext _context = context;
 
+    /// <summary>
+    /// Применяет фильтры к запросу категорий.
+    /// </summary>
+    /// <param name="filter">Фильтр категорий.</param>
+    /// <param name="query">Исходный запрос.</param>
+    /// <returns>Запрос с применёнными фильтрами.</returns>
     private protected override IQueryable<Category> SetFilters(CategoryFilterDto filter, IQueryable<Category> query)
     {
         if (filter.RegistryHolderId.HasValue)
@@ -27,6 +37,13 @@ public class CategoryRepository(DatabaseContext context)
         return query;
     }
 
+    /// <summary>
+    /// Получает коллекцию категорий по идентификатору владельца справочника.
+    /// </summary>
+    /// <param name="registryHolderId">Идентификатор владельца справочника.</param>
+    /// <param name="includeRelated">Включать связанные сущности.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Коллекция категорий.</returns>
     public async Task<ICollection<Category>> GetByRegistryHolderIdAsync(Guid registryHolderId,
         bool includeRelated = true,
         CancellationToken cancellationToken = default)
@@ -41,6 +58,15 @@ public class CategoryRepository(DatabaseContext context)
         return await query.ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Проверяет уникальность имени категории в рамках владельца и родителя.
+    /// </summary>
+    /// <param name="registryHolderId">Идентификатор владельца справочника.</param>
+    /// <param name="name">Имя категории.</param>
+    /// <param name="parentId">Идентификатор родительской категории.</param>
+    /// <param name="excludeId">Идентификатор категории, которую нужно исключить из проверки (опционально).</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>True, если имя уникально, иначе false.</returns>
     public async Task<bool> IsNameUniqueInScopeAsync(Guid registryHolderId, string name, Guid? parentId,
         Guid? excludeId = null,
         CancellationToken cancellationToken = default)
@@ -56,6 +82,13 @@ public class CategoryRepository(DatabaseContext context)
         return isAny;
     }
 
+    /// <summary>
+    /// Проверяет, допустима ли смена родителя для категории (нет циклических зависимостей).
+    /// </summary>
+    /// <param name="categoryId">Идентификатор категории.</param>
+    /// <param name="newParentId">Идентификатор ново��о родителя.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>True, если смена допустима, иначе false.</returns>
     public async Task<bool> IsParentChangeValidAsync(Guid categoryId, Guid? newParentId,
         CancellationToken cancellationToken = default)
     {
@@ -64,6 +97,13 @@ public class CategoryRepository(DatabaseContext context)
         return true;
     }
 
+    /// <summary>
+    /// Проверяет наличие циклической зависимости при смене родителя категории.
+    /// </summary>
+    /// <param name="categoryId">Идентификатор категории.</param>
+    /// <param name="newParentId">Идентификатор нового родителя.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>True, если цикл найден, иначе false.</returns>
     private async Task<bool> CheckCycleAsync(Guid categoryId, Guid newParentId,
         CancellationToken cancellationToken = default)
     {
