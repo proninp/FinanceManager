@@ -90,4 +90,24 @@ public class Account(
     /// Кредитный лимит счета (если применимо)
     /// </summary>
     public decimal? CreditLimit { get; set; } = creditLimit;
+    
+    /// <summary>
+    /// Устанавливает счет как счет по умолчанию, устанавливая флаг <see cref="IsDefault"/> в значение <c>true</c>.
+    /// </summary>
+    public void SetAsDefault() => IsDefault = true;
+    
+    /// <summary>
+    /// Снимает признак счета по умолчанию, устанавливая флаг <see cref="IsDefault"/> в значение <c>false</c>.
+    /// </summary>
+    public void UnsetAsDefault() => IsDefault = false;
+    
+    /// <summary>
+    /// Архивирует счет, устанавливая флаг <see cref="IsArchived"/> в значение <c>true</c>.
+    /// </summary>
+    public void Archive() => IsArchived = true;
+    
+    /// <summary>
+    /// Разархивирует счет, устанавливая флаг <see cref="IsArchived"/> в значение <c>false</c>.
+    /// </summary>
+    public void UnArchive() => IsArchived = false;
 }

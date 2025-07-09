@@ -94,7 +94,7 @@ public class AccountService(
         {
             return Result.Fail(errorsFactory.NameIsRequired());
         }
-        
+
         // TODO валидация входящих значений createDto при помощи FluentValidation
 
         var checkResult = await CheckRegistryHolderAsync(createDto.RegistryHolderId, cancellationToken);
@@ -117,6 +117,7 @@ public class AccountService(
 
         var account = await accountRepository.AddAsync(createDto.ToAccount(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
+        
         logger.Information("Successfully created account: {AccountId}", account.Id);
         return Result.Ok(account.ToDto());
     }
@@ -214,7 +215,7 @@ public class AccountService(
 
         if (isNeedUpdate)
         {
-            accountRepository.Update(account);
+            // нам не нужно вызывать метод accountRepository.UpdateAsync(), так как сущность account уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated account: {AccountId}", updateDto.Id);
         }
@@ -235,6 +236,40 @@ public class AccountService(
     public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Soft deleting account: {AccountId}", id);
+
+        var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
+        if (account is null)
+        {
+            return Result.Fail(errorsFactory.NotFound(id));
+        }
+
+        if (account.IsDeleted)
+        {
+            logger.Information("Account {AccountId} is already soft deleted. No action taken.", id);
+            return Result.Ok();
+        }
+
+        if (account.IsDefault)
+        {
+            return Result.Fail(errorsFactory.CannotSoftDeleteDefaultAccount(id));
+        }
+
+        account.MarkAsDeleted();
+        await unitOfWork.CommitAsync(cancellationToken);
+
+        logger.Information("Successfully soft deleted account: {AccountId}", id);
+        return Result.Ok();
+    }
+
+    /// <summary>
+    /// Восстанавливает ранее удалённый (мягко удалённый) счет
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    public async Task<Result> RestoreDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        logger.Information("Restoring soft deleted account: {AccountId}", id);
         
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
@@ -242,17 +277,13 @@ public class AccountService(
             return Result.Fail(errorsFactory.NotFound(id));
         }
         
-        if (account.IsDeleted)
+        if (!account.IsDeleted)
         {
+            logger.Information("Account {AccountId} is not soft deleted. No action taken.", id);
             return Result.Ok();
         }
         
-        if (account.IsDefault)
-        {
-            return Result.Fail(errorsFactory.CannotSoftDeleteDefaultAccount(id));
-        }
-        
-        account.MarkAsDeleted();
+        account.Restore();
         await unitOfWork.CommitAsync(cancellationToken);
         
         logger.Information("Successfully soft deleted account: {AccountId}", id);
@@ -268,7 +299,7 @@ public class AccountService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Deleting account: {AccountId}", id);
-        
+
         var account = await accountRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (account is null)
         {
@@ -282,6 +313,7 @@ public class AccountService(
 
         await accountRepository.DeleteAsync(id, cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
+        
         return Result.Ok();
     }
 
@@ -309,9 +341,10 @@ public class AccountService(
         {
             return Result.Ok();
         }
-        
-        await accountRepository.ArchiveAsync(id, cancellationToken);
+
+        account.Archive();
         await unitOfWork.CommitAsync(cancellationToken);
+        
         logger.Information("Successfully archived account: {AccountId}", id);
         return Result.Ok();
     }
@@ -336,9 +369,10 @@ public class AccountService(
             logger.Information("Account with ID {AccountId} is already unarchived. No action taken.", id);
             return Result.Ok();
         }
-        
-        await accountRepository.UnarchiveAsync(id, cancellationToken);
+
+        account.UnArchive();
         await unitOfWork.CommitAsync(cancellationToken);
+        
         logger.Information("Successfully unarchived account: {AccountId}", id);
         return Result.Ok();
     }
@@ -369,7 +403,7 @@ public class AccountService(
             return Result.Fail(errorsFactory.AccountCannotBeSetAsDefaultIfArchivedOrDeleted(id));
         }
 
-        await accountRepository.SetAsDefaultAsync(id, cancellationToken);
+        account.SetAsDefault();
         await unitOfWork.CommitAsync(cancellationToken);
         return Result.Ok();
     }
@@ -403,7 +437,7 @@ public class AccountService(
         {
             return Result.Fail(errorsFactory.ReplacementDefaultAccountNotFound(replacementDefaultAccountId));
         }
-        
+
         if (replacementAccount.IsArchived || replacementAccount.IsDeleted)
         {
             return Result.Fail(errorsFactory.ReplacementAccountCannotBeSetAsDefault(replacementDefaultAccountId));
@@ -411,14 +445,14 @@ public class AccountService(
 
         if (replacementAccount.RegistryHolderId != account.RegistryHolderId)
         {
-            return Result.Fail(errorsFactory.RegistryHolderDiffersBetweenReplacedDefaultAccounts(id, replacementDefaultAccountId));
+            return Result.Fail(
+                errorsFactory.RegistryHolderDiffersBetweenReplacedDefaultAccounts(id, replacementDefaultAccountId));
         }
 
-        account.IsDefault = false;
-        replacementAccount.IsDefault = true;
-        
-        accountRepository.Update(account);
+        account.UnsetAsDefault();
+        replacementAccount.SetAsDefault();
         await unitOfWork.CommitAsync(cancellationToken);
+        
         logger.Information("Successfully unset default for account: {AccountId}", id);
         return Result.Ok();
     }
@@ -429,7 +463,7 @@ public class AccountService(
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckRegistryHolderAsync(Guid registryHolderId, CancellationToken cancellationToken)
+    private async Task<Result> CheckRegistryHolderAsync(Guid registryHolderId, CancellationToken cancellationToken)
     {
         var holder = await registryHolderRepository.GetByIdAsync(registryHolderId, disableTracking: true,
             cancellationToken: cancellationToken);
@@ -442,7 +476,7 @@ public class AccountService(
     /// <param name="accountTypeId">Идентификатор типа счета</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckAccountTypeAsync(Guid accountTypeId, CancellationToken cancellationToken)
+    private async Task<Result> CheckAccountTypeAsync(Guid accountTypeId, CancellationToken cancellationToken)
     {
         var accountType = await accountTypeRepository.GetByIdAsync(
             accountTypeId, disableTracking: true, cancellationToken: cancellationToken);
@@ -451,12 +485,9 @@ public class AccountService(
             return Result.Fail(errorsFactory.AccountTypeNotFound(accountTypeId));
         }
 
-        if (accountType.IsDeleted)
-        {
-            return Result.Fail(errorsFactory.AccountTypeIsSoftDeleted(accountType.Id));
-        }
-
-        return Result.Ok();
+        return accountType.IsDeleted
+            ? Result.Fail(errorsFactory.AccountTypeIsSoftDeleted(accountType.Id))
+            : Result.Ok();
     }
 
     /// <summary>
@@ -465,7 +496,7 @@ public class AccountService(
     /// <param name="currencyId">Идентификатор валюты</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckCurrencyAsync(Guid currencyId, CancellationToken cancellationToken)
+    private async Task<Result> CheckCurrencyAsync(Guid currencyId, CancellationToken cancellationToken)
     {
         var currency = await currencyRepository.GetByIdAsync(
             currencyId, disableTracking: true, cancellationToken: cancellationToken);
@@ -483,7 +514,7 @@ public class AccountService(
     /// <param name="bankId">Идентификатор банка</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Результат проверки</returns>
-    protected async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
+    private async Task<Result> CheckBankAsync(Guid bankId, CancellationToken cancellationToken)
     {
         var bank = await bankRepository.GetByIdAsync(
             bankId, disableTracking: true, cancellationToken: cancellationToken);
@@ -495,13 +526,13 @@ public class AccountService(
     /// </summary>
     /// <param name="registryHolderId">Идентификатор владельца</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    protected async Task UnsetDefaultAccountIfExistsAsync(Guid registryHolderId, CancellationToken cancellationToken)
+    private async Task UnsetDefaultAccountIfExistsAsync(Guid registryHolderId, CancellationToken cancellationToken)
     {
         var previousDefaultAccount =
             await accountRepository.GetDefaultAccountAsync(registryHolderId, cancellationToken);
         if (previousDefaultAccount is not null)
         {
-            await accountRepository.UnsetAsDefaultAsync(previousDefaultAccount.Id, cancellationToken);
+            previousDefaultAccount.UnsetAsDefault();
             logger.Information("Unset default property to false for account: {AccountId}",
                 previousDefaultAccount.Id);
         }
