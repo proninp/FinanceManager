@@ -121,7 +121,7 @@ public class AccountTypeService(
 
         if (isNeedUpdate)
         {
-            accountTypeRepository.Update(entity);
+            // нам не нужно вызывать метод accountTypeRepository.UpdateAsync(), так как сущность account уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated account type: {AccountTypeId}", updateDto.Id);
         }
@@ -200,7 +200,6 @@ public class AccountTypeService(
         }
 
         entity.MarkAsDeleted();
-        accountTypeRepository.Update(entity);
         await unitOfWork.CommitAsync(cancellationToken);
 
         logger.Information("Successfully soft deleted account type: {AccountTypeId}", id);
@@ -230,7 +229,6 @@ public class AccountTypeService(
         }
 
         entity.Restore();
-        accountTypeRepository.Update(entity);
         await unitOfWork.CommitAsync(cancellationToken);
 
         logger.Information("Successfully restored account type: {AccountTypeId}", id);
