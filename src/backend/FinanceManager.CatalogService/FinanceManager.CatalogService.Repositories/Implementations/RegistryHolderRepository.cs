@@ -34,7 +34,6 @@ public class RegistryHolderRepository(DatabaseContext context)
         {
             query = query.Where(rh => rh.Role == filter.Role.Value);
         }
-
         return query;
     }
 

@@ -86,7 +86,7 @@ public class CategoryRepository(DatabaseContext context)
     /// Проверяет, допустима ли смена родителя для категории (нет циклических зависимостей).
     /// </summary>
     /// <param name="categoryId">Идентификатор категории.</param>
-    /// <param name="newParentId">Идентификатор ново��о родителя.</param>
+    /// <param name="newParentId">Идентификатор нового родителя.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>True, если смена допустима, иначе false.</returns>
     public async Task<bool> IsParentChangeValidAsync(Guid categoryId, Guid? newParentId,

@@ -45,14 +45,6 @@ public interface IAccountRepository :
     Task<Account?> GetDefaultAccountAsync(
         Guid registryHolderId,
         CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет, может ли счет быть удален (нет ли связанных зависимостей)
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если счет можно удалить</returns>
-    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Архивирует счет
