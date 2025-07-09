@@ -7,11 +7,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
+/// <summary>
+/// Репозиторий для работы со счетами.
+/// Предоставляет методы фильтрации, получения количества счетов по владельцу, проверки наличия и получения счета по умолчанию.
+/// </summary>
 public class AccountRepository(DatabaseContext context)
     : BaseRepository<Account, AccountFilterDto>(context), IAccountRepository
 {
     private readonly DatabaseContext _context = context;
 
+    /// <summary>
+    /// Применяет фильтры к запросу счетов.
+    /// </summary>
+    /// <param name="filter">Фильтр счетов.</param>
+    /// <param name="query">Исходный запрос.</param>
+    /// <returns>Запрос с применёнными фильтрами.</returns>
     private protected override IQueryable<Account> SetFilters(AccountFilterDto filter, IQueryable<Account> query)
     {
         if (filter.RegistryHolderId.HasValue)
@@ -22,8 +32,12 @@ public class AccountRepository(DatabaseContext context)
             query = query.Where(a => a.CurrencyId == filter.CurrencyId.Value);
         if (filter.BankId.HasValue)
             query = query.Where(a => a.BankId == filter.BankId.Value);
-        if (!string.IsNullOrWhiteSpace(filter.NameContains))
-            query = query.Where(a => a.Name.Contains(filter.NameContains));
+        if (filter.NameContains != null)
+        {
+            query = filter.NameContains.Length > 0
+                ? query.Where(a => a.Name.Contains(filter.NameContains))
+                : query.Where(a => string.Equals(a.Name, string.Empty));
+        }
         if (filter.IsIncludeInBalance.HasValue)
             query = query.Where(a => a.IsIncludeInBalance == filter.IsIncludeInBalance.Value);
         if (filter.IsDefault.HasValue)
@@ -37,6 +51,14 @@ public class AccountRepository(DatabaseContext context)
         return query;
     }
 
+    /// <summary>
+    /// Получает количество счетов по идентификатору владельца справочника с учётом архивных и удалённых.
+    /// </summary>
+    /// <param name="registryHolderId">Идентификатор владельца справочника.</param>
+    /// <param name="includeArchived">Включать архивные счета.</param>
+    /// <param name="includeDeleted">Включать удалённые счета.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Количество счетов.</returns>
     public async Task<int> GetCountByRegistryHolderIdAsync(Guid registryHolderId, bool includeArchived = false,
         bool includeDeleted = false,
         CancellationToken cancellationToken = default)
@@ -48,6 +70,13 @@ public class AccountRepository(DatabaseContext context)
             .CountAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Проверяет, существует ли счет по умолчанию для владельца справочника (с возможностью исключения определённого счета).
+    /// </summary>
+    /// <param name="registryHolderId">Идентификатор владельца справочника.</param>
+    /// <param name="excludeId">Идентификатор счета, который нужно исключить из проверки (опционально).</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>True, если счет по умолчанию существует, иначе false.</returns>
     public async Task<bool> HasDefaultAccountAsync(Guid registryHolderId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
@@ -57,6 +86,12 @@ public class AccountRepository(DatabaseContext context)
         return await query.AnyAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault, cancellationToken);
     }
 
+    /// <summary>
+    /// Получает счет по умолчанию для владельца справочника.
+    /// </summary>
+    /// <param name="registryHolderId">Идентификатор владельца справочника.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Счет по умолчанию или null, если не найден.</returns>
     public async Task<Account?> GetDefaultAccountAsync(Guid registryHolderId,
         CancellationToken cancellationToken = default)
     {
