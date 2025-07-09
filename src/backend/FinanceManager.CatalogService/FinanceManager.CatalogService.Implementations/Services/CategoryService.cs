@@ -157,8 +157,9 @@ public class CategoryService(
             category.ParentId = updateDto.ParentId;
         }
 
-        categoryRepository.Update(category);
+        // нам не нужно вызывать метод categoryRepository.UpdateAsync(), так как сущность category уже отслеживается
         await unitOfWork.CommitAsync(cancellationToken);
+        
         logger.Information("Successfully updated category: {CategoryId}", category.Id);
         return Result.Ok(category.ToDto());
     }

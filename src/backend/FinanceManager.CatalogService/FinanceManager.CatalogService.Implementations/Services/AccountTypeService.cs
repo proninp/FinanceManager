@@ -113,7 +113,8 @@ public class AccountTypeService(
             isNeedUpdate = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(updateDto.Description) && !string.Equals(entity.Description, updateDto.Description))
+        if (!string.IsNullOrWhiteSpace(updateDto.Description) &&
+            !string.Equals(entity.Description, updateDto.Description))
         {
             entity.Description = updateDto.Description;
             isNeedUpdate = true;
@@ -121,7 +122,7 @@ public class AccountTypeService(
 
         if (isNeedUpdate)
         {
-            // нам не нужно вызывать метод accountTypeRepository.UpdateAsync(), так как сущность account уже отслеживается
+            // нам не нужно вызывать метод accountTypeRepository.UpdateAsync(), так как сущность accountType уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated account type: {AccountTypeId}", updateDto.Id);
         }

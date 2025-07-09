@@ -154,7 +154,6 @@ public class ExchangeRateService(
 
         if (isNeedUpdate)
         {
-            exchangeRateRepository.Update(rate);
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated exchange rate: {ExchangeRateId}", updateDto.Id);
         }
