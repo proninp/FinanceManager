@@ -26,7 +26,6 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     public async Task<bool> AnyAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await Entities
-            .AsNoTracking()
             .AnyAsync(e => e.Id == id, cancellationToken);
     }
 
