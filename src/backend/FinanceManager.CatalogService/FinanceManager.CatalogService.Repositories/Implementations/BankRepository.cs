@@ -7,16 +7,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
+/// <summary>
+/// Репозиторий для управления сущностями <see cref="Bank"/>.
+/// Предоставляет методы для фильтрации, инициализации, проверки уникальности, получения связанных данных и проверки возможности удаления.
+/// </summary>
 public class BankRepository(DatabaseContext context) : BaseRepository<Bank, BankFilterDto>(context), IBankRepository
 {
     private readonly DatabaseContext _context = context;
 
+    /// <summary>
+    /// Включает связанные сущности для <see cref="Bank"/> (например, страну).
+    /// </summary>
+    /// <param name="query">Исходный запрос.</param>
+    /// <returns>Запрос с включёнными связанными сущностями.</returns>
     private protected override IQueryable<Bank> IncludeRelatedEntities(IQueryable<Bank> query)
     {
         return query
             .Include(b => b.Country);
     }
 
+    /// <summary>
+    /// Применяет фильтры к запросу <see cref="Bank"/> на основе переданного <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="filter">DTO фильтра с критериями фильтрации.</param>
+    /// <param name="query">Исходный запрос для применения фильтров.</param>
+    /// <returns>Отфильтрованный <see cref="IQueryable{Bank}"/>.</returns>
     private protected override IQueryable<Bank> SetFilters(BankFilterDto filter, IQueryable<Bank> query)
     {
         if (filter.CountryId.HasValue)
@@ -31,9 +46,16 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         return query;
     }
 
+    /// <summary>
+    /// Инициализирует репозиторий набором сущностей <see cref="Bank"/>, если они ещё не существуют.
+    /// Добавляет только уникальные банки по имени и стране.
+    /// </summary>
+    /// <param name="entities">Коллекция банков для инициализации.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Количество записей, сохранённых в базе данных.</returns>
     public async Task<int> InitializeAsync(IEnumerable<Bank> entities, CancellationToken cancellationToken = default)
     {
-        if (await Entities.AnyAsync(cancellationToken))
+        if (!await Entities.AnyAsync(cancellationToken))
         {
             await Entities.AddRangeAsync(entities, cancellationToken);
             return await _context.SaveChangesAsync(cancellationToken);
@@ -53,6 +75,12 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         return await _context.SaveChangesAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Получает все сущности <see cref="Bank"/> с возможностью включения связанных данных.
+    /// </summary>
+    /// <param name="includeRelated">Включать ли связанные сущности.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Коллекция банков.</returns>
     public async Task<ICollection<Bank>> GetAllAsync(bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
@@ -62,6 +90,14 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         return await query.ToListAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Проверяет уникальность имени банка в рамках страны.
+    /// </summary>
+    /// <param name="name">Имя банка для проверки.</param>
+    /// <param name="countryId">Идентификатор страны.</param>
+    /// <param name="excludeId">Необязательный идентификатор банка, который нужно исключить из проверки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>True, если имя уникально в рамках страны; иначе — false.</returns>
     public async Task<bool> IsNameUniqueByCountryAsync(string name, Guid countryId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
@@ -73,6 +109,14 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
             cancellationToken: cancellationToken);
     }
 
+    /// <summary>
+    /// Получает количество счетов, связанных с банком.
+    /// </summary>
+    /// <param name="bankId">Идентификатор банка.</param>
+    /// <param name="includeArchivedAccounts">Включать ли архивные счета.</param>
+    /// <param name="includeDeletedAccounts">Включать ли удалённые счета.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Количество счетов.</returns>
     public async Task<int> GetAccountsCountAsync(Guid bankId, bool includeArchivedAccounts = false,
         bool includeDeletedAccounts = false,
         CancellationToken cancellationToken = default)
@@ -86,6 +130,12 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         return await query.CountAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Определяет, может ли банк быть удалён (т.е. не используется ни одним счётом).
+    /// </summary>
+    /// <param name="bankId">Идентификатор банка для проверки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>True, если банк можно удалить; иначе — false.</returns>
     public async Task<bool> CanBeDeletedAsync(Guid bankId, CancellationToken cancellationToken = default)
     {
         return await _context.Accounts.AnyAsync(a => a.BankId == bankId, cancellationToken);
