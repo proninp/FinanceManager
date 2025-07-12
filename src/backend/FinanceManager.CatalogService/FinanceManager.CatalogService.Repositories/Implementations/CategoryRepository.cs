@@ -17,6 +17,16 @@ public class CategoryRepository(DatabaseContext context)
     private readonly DatabaseContext _context = context;
 
     /// <summary>
+    /// Включает связанные сущности RegistryHolder и Parent для категории.
+    /// </summary>
+    private protected override IQueryable<Category> IncludeRelatedEntities(IQueryable<Category> query)
+    {
+        return query
+            .Include(c => c.RegistryHolder)
+            .Include(c => c.Parent);
+    }
+
+    /// <summary>
     /// Применяет фильтры к запросу категорий.
     /// </summary>
     /// <param name="filter">Фильтр категорий.</param>

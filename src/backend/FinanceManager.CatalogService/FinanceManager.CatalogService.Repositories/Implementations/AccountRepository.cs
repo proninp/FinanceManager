@@ -17,6 +17,18 @@ public class AccountRepository(DatabaseContext context)
     private readonly DatabaseContext _context = context;
 
     /// <summary>
+    /// Включает связанные сущности для запроса счетов: владельца справочника, тип счета, валюту и банк.
+    /// </summary>
+    private protected override IQueryable<Account> IncludeRelatedEntities(IQueryable<Account> query)
+    {
+        return query
+            .Include(a => a.RegistryHolder)
+            .Include(a => a.AccountType)
+            .Include(a => a.Currency)
+            .Include(a => a.Bank);
+    }
+
+    /// <summary>
     /// Применяет фильтры к запросу счетов.
     /// </summary>
     /// <param name="filter">Фильтр счетов.</param>
