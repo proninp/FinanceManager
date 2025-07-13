@@ -10,26 +10,26 @@ namespace FinanceManager.UserService.Contracts.DTOs
         /// <summary>
         /// Идентификатор пользователя - владельца токена
         /// </summary>
-        public Guid UserId { get; set; }
+        public Guid UserId { get; init; }
 
         /// <summary>
         /// Пользователь - владелец токена
         /// </summary>
-        public User User { get; set; } 
+        public UserDto User { get; init; } 
 
         /// <summary>
         /// Токен
         /// </summary>
-        public string Token { get; set; }
+        public string Token { get; init; }
 
         /// <summary>
         /// Дата истечения срока годности токена
         /// </summary>
-        public DateTime ExpiresAt { get; set; }
+        public DateTime ExpiresAt { get; init; }
 
         /// <summary>
         /// Флаг отозванности токенв
         /// </summary>
-        public bool IsRevoked { get; set; }
+        public bool IsRevoked { get; init; }
     }
 }

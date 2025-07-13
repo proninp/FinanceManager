@@ -11,36 +11,36 @@ namespace FinanceManager.UserService.Contracts.DTOs
         /// <summary>
         /// Роль пользователя в системе финансового менеджера.
         /// </summary>
-        public Role Role { get; set; }
+        public Role Role { get; init; }
 
         /// <summary>
         /// Имя пользователя.
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; init; }
 
         /// <summary>
         /// Адрес электронной почты.
         /// </summary>
-        public string? Email { get; set; }
+        public string? Email { get; init; }
 
         /// <summary>
         /// Хэшсумма пароля пользователя.
         /// </summary>
-        public string PasswordHash { get; set; }
+        public string? PasswordHash { get; init; }
 
         /// <summary>
         /// Идентификатор пользователя в Telegram.
         /// </summary>
-        public long TelegramId { get; set; }
+        public long TelegramId { get; init; }
 
         /// <summary>
         /// Идентификатор часового пояса пользователя.
         /// </summary>
-        public Guid DefaultTimeZoneId { get; set; } 
+        public Guid DefaultTimeZoneId { get; init; } 
 
         /// <summary>
         /// Часовой пояс пользователя по-умолчанию.
         /// </summary>
-        public TimeZone DefaultTimeZone { get; set; }
+        public TimeZoneDto DefaultTimeZone { get; init; }
     }
 }

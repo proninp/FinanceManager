@@ -15,6 +15,6 @@ namespace FinanceManager.UserService.Contracts.DTOs
         /// <summary>
         /// Название часового пояса
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; init; }
     }
 }

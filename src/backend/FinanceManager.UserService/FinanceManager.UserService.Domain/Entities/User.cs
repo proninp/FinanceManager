@@ -28,7 +28,7 @@ public class User(Role role, string name, string passwordHash, Guid defaultTimeZ
     /// <summary>
     /// Имя пользователя
     /// </summary>
-    public string Name { get; set; } = name;
+    public string? Name { get; set; } = name;
     
     /// <summary>
     /// Адрес электронной почты
@@ -38,7 +38,7 @@ public class User(Role role, string name, string passwordHash, Guid defaultTimeZ
     /// <summary>
     /// Хэшсумма пароля пользователя
     /// </summary>
-    public string PasswordHash { get; set; } = passwordHash;
+    public string? PasswordHash { get; set; } = passwordHash;
     
     /// <summary>
     /// Идентификатор пользователя в Telegram
