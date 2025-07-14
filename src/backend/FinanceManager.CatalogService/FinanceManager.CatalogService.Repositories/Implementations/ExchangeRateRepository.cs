@@ -40,6 +40,28 @@ public class ExchangeRateRepository(DatabaseContext context)
         return await Entities.AnyAsync(er => er.CurrencyId == currencyId && er.RateDate == rateDate,
             cancellationToken: cancellationToken);
     }
+    
+    public async Task<ICollection<ExchangeRate>> AddRangeAsync(ICollection<ExchangeRate> exchangeRates,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await Entities.AnyAsync(cancellationToken))
+        {
+            await Entities.AddRangeAsync(exchangeRates, cancellationToken);
+            return exchangeRates;
+        }
+
+        var addedRates = new List<ExchangeRate>();
+        var query = Entities.AsQueryable();
+        foreach (var entity in exchangeRates)
+        {
+            if (await query.AnyAsync(
+                    er => er.CurrencyId == entity.CurrencyId && er.RateDate == entity.RateDate,
+                    cancellationToken)) continue;
+            await Entities.AddAsync(entity, cancellationToken);
+            addedRates.Add(entity);
+        }
+        return addedRates;
+    }
 
     public async Task<bool> ExistsForDateAsync(DateTime rateDate, CancellationToken cancellationToken = default)
     {
@@ -54,37 +76,11 @@ public class ExchangeRateRepository(DatabaseContext context)
             .Select(er => (DateTime?)er.RateDate)
             .MaxAsync(cancellationToken);
     }
-
-    public async Task<ICollection<ExchangeRate>> AddRangeAsync(IEnumerable<ExchangeRate> exchangeRates,
-        CancellationToken cancellationToken = default)
-    {
-        if (!await Entities.AnyAsync(cancellationToken))
-        {
-            var exchangeRatesCollection = exchangeRates as ICollection<ExchangeRate> ?? exchangeRates.ToList();
-            await Entities.AddRangeAsync(exchangeRatesCollection, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-            return exchangeRatesCollection;
-        }
-
-        var query = Entities.AsQueryable();
-        var addedEntities = new List<ExchangeRate>();
-        foreach (var entity in exchangeRates)
-        {
-            if (await query.AnyAsync(
-                    er => er.CurrencyId == entity.CurrencyId && er.RateDate == entity.RateDate,
-                    cancellationToken)) continue;
-            await Entities.AddAsync(entity, cancellationToken);
-            addedEntities.Add(entity);
-        }
-        await _context.SaveChangesAsync(cancellationToken);
-        return addedEntities;
-    }
-
-    public async Task<int> DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
+    
+    public async Task DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
         CancellationToken cancellationToken = default)
     {
         await Entities.Where(er => er.CurrencyId == currencyId && er.RateDate >= dateFrom && er.RateDate <= dateTo)
             .ExecuteDeleteAsync(cancellationToken);
-        return await _context.SaveChangesAsync(cancellationToken);
     }
 }

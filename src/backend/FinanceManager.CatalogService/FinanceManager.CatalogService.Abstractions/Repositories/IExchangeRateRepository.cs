@@ -41,7 +41,7 @@ public interface IExchangeRateRepository : IBaseRepository<ExchangeRate, Exchang
     /// <param name="exchangeRates">Список курсов для добавления</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Список добавленных курсов</returns>
-    Task<ICollection<ExchangeRate>> AddRangeAsync(IEnumerable<ExchangeRate> exchangeRates,
+    Task<ICollection<ExchangeRate>> AddRangeAsync(ICollection<ExchangeRate> exchangeRates,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -51,7 +51,6 @@ public interface IExchangeRateRepository : IBaseRepository<ExchangeRate, Exchang
     /// <param name="dateFrom">Дата начала периода</param>
     /// <param name="dateTo">Дата окончания периода</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Количество удаленных курсов</returns>
-    Task<int> DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
+    Task DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
         CancellationToken cancellationToken = default);
 }

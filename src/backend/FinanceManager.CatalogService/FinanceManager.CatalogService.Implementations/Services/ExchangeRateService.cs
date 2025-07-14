@@ -71,6 +71,7 @@ public class ExchangeRateService(
         {
             return Result.Fail(exchangeRateErrorsFactory.CurrencyIsRequired());
         }
+
         if (createDto.RateDate == default)
         {
             return Result.Fail(exchangeRateErrorsFactory.RateDateIsRequired());
@@ -94,25 +95,25 @@ public class ExchangeRateService(
 
         return Result.Ok(rate.ToDto());
     }
-    
+
     /// <summary>
     /// Добавляет несколько курсов валют за один раз
     /// </summary>
     /// <param name="createExchangeRatesDto">Список курсов для добавления</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат со списком добавленных курсов или ошибкой</returns>
-    public async Task<Result<IEnumerable<ExchangeRateDto>>> AddRangeAsync(IEnumerable<CreateExchangeRateDto> createExchangeRatesDto,
+    /// <returns>Результат с количеством добавленных курсов или ошибкой</returns>
+    public async Task<Result<int>> AddRangeAsync(IEnumerable<CreateExchangeRateDto> createExchangeRatesDto,
         CancellationToken cancellationToken = default)
     {
         var createDtoList = createExchangeRatesDto as IList<CreateExchangeRateDto> ?? createExchangeRatesDto.ToList();
         logger.Information("Adding range of exchange rates: {@CreateExchangeRatesDto}", createDtoList);
 
         var entities = createDtoList.Select(x => x.ToExchangeRate()).ToList();
-        var added = await exchangeRateRepository.AddRangeAsync(entities, cancellationToken);
-        await unitOfWork.CommitAsync(cancellationToken);
+        await exchangeRateRepository.AddRangeAsync(entities, cancellationToken);
+        var result = await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully added {Count} exchange rates", added.Count);
-        return Result.Ok(added.Select(x => x.ToDto()));
+        logger.Information("Successfully added {Count} exchange rates", result);
+        return Result.Ok(result);
     }
 
     /// <summary>
@@ -174,12 +175,7 @@ public class ExchangeRateService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Deleting exchange rate: {ExchangeRateId}", id);
-        
-        if (!await exchangeRateRepository.CanBeDeletedAsync(id, cancellationToken))
-        {
-            return Result.Fail(exchangeRateErrorsFactory.CannotDeleteUsedExchangeRate(id));
-        }
-        
+
         await exchangeRateRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
@@ -237,9 +233,8 @@ public class ExchangeRateService(
         logger.Information("Deleting exchange rates for currency {CurrencyId} from {DateFrom} to {DateTo}", currencyId,
             dateFrom, dateTo);
 
-        var deletedCount =
-            await exchangeRateRepository.DeleteByPeriodAsync(currencyId, dateFrom, dateTo, cancellationToken);
-        await unitOfWork.CommitAsync(cancellationToken);
+        await exchangeRateRepository.DeleteByPeriodAsync(currencyId, dateFrom, dateTo, cancellationToken);
+        var deletedCount = await unitOfWork.CommitAsync(cancellationToken);
 
         logger.Information("Deleted {Count} exchange rates for currency {CurrencyId}", deletedCount, currencyId);
         return Result.Ok(deletedCount);
