@@ -1,3 +1,5 @@
+using FinanceManager.UserService.API.Profiles;
+
 namespace FinanceManager.UserService.API;
 
 public class Program
@@ -12,6 +14,7 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddAutoMapper(typeof(UserServiceAppMappingProfile));
 
         var app = builder.Build();
 
