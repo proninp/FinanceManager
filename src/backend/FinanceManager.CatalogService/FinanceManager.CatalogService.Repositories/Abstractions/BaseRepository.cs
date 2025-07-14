@@ -1,4 +1,5 @@
-﻿using FinanceManager.CatalogService.Abstractions.Repositories.Common;
+﻿using System.Linq.Expressions;
+using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
 using FinanceManager.CatalogService.Domain.Abstractions;
 using FinanceManager.CatalogService.EntityFramework;
@@ -46,7 +47,7 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
 
         if (includeRelated)
             query = IncludeRelatedEntities(query);
-        
+
         return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
@@ -69,11 +70,11 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
         CancellationToken cancellationToken = default)
     {
         var query = Entities.AsNoTracking();
-        
+
         query = SetFilters(filter, query);
-        
+
         query = query.Skip(filter.Skip).Take(filter.Take);
-        
+
         return await query.ToListAsync(cancellationToken);
     }
 
@@ -119,5 +120,28 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
             .Where(e => e.Id == id)
             .ExecuteDeleteAsync(cancellationToken);
         return result > 0;
+    }
+
+    /// <summary>
+    /// Проверяет, является ли запись уникальной в соответствии с заданным предикатом.
+    /// </summary>
+    /// <param name="query">Запрос, к которому применяется проверка.</param>
+    /// <param name="predicate">Условие, определяющее уникальность записи.</param>
+    /// <param name="excludeId">
+    /// Идентификатор записи, которую нужно исключить из проверки (например, при обновлении записи).
+    /// </param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>
+    /// Возвращает true, если запись уникальна (не существует других записей, удовлетворяющих предикату),
+    /// иначе false.
+    /// </returns>
+    protected async Task<bool> IsUniqueAsync(IQueryable<T> query, Expression<Func<T, bool>> predicate,
+        Guid? excludeId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (excludeId.HasValue)
+            query = query.Where(e => e.Id != excludeId.Value);
+
+        return !await query.AnyAsync(predicate, cancellationToken: cancellationToken);
     }
 }

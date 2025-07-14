@@ -46,7 +46,7 @@ public class CountryRepository(DatabaseContext context)
         if (!await Entities.AnyAsync(cancellationToken))
         {
             await Entities.AddRangeAsync(entities, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken);
+            return await _context.CommitAsync(cancellationToken);
         }
 
         var query = Entities.AsQueryable();
@@ -59,8 +59,7 @@ public class CountryRepository(DatabaseContext context)
                 await Entities.AddAsync(entity, cancellationToken);
             }
         }
-
-        return await _context.SaveChangesAsync(cancellationToken);
+        return await _context.CommitAsync(cancellationToken);
     }
 
     /// <summary>
@@ -88,11 +87,9 @@ public class CountryRepository(DatabaseContext context)
     public async Task<bool> IsNameUniqueAsync(string name, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        var query = Entities.AsQueryable();
-        if (excludeId.HasValue)
-            query = query.Where(c => c.Id != excludeId.Value);
-        return !await query.AnyAsync(c => string.Equals(c.Name, name, StringComparison.InvariantCultureIgnoreCase),
-            cancellationToken: cancellationToken);
+        return await IsUniqueAsync(Entities.AsQueryable(),
+            predicate: c => string.Equals(c.Name, name, StringComparison.InvariantCultureIgnoreCase),
+            excludeId, cancellationToken);
     }
 
     /// <summary>

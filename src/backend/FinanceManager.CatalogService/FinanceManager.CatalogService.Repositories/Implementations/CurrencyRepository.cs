@@ -35,7 +35,6 @@ public class CurrencyRepository(DatabaseContext context)
                 ? query.Where(c => c.NumCode.Contains(filter.NumCode))
                 : query.Where(c => string.Equals(c.NumCode, string.Empty));
         }
-
         return query;
     }
 
@@ -45,7 +44,7 @@ public class CurrencyRepository(DatabaseContext context)
         if (!await Entities.AnyAsync(cancellationToken))
         {
             await Entities.AddRangeAsync(entities, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken);
+            return await _context.CommitAsync(cancellationToken);
         }
 
         var query = Entities.AsQueryable();
@@ -63,8 +62,7 @@ public class CurrencyRepository(DatabaseContext context)
                 await Entities.AddAsync(entity, cancellationToken);
             }
         }
-
-        return await _context.SaveChangesAsync(cancellationToken);
+        return await _context.CommitAsync(cancellationToken);
     }
 
     public async Task<ICollection<Currency>> GetAllOrderedByNameAsync(bool includeDeleted = false,
@@ -96,22 +94,18 @@ public class CurrencyRepository(DatabaseContext context)
         CancellationToken cancellationToken = default)
     {
         var query = Entities.AsQueryable();
-        if (excludeId.HasValue)
-            query = query.Where(c => c.Id != excludeId.Value);
-        return !await query.AnyAsync(
-            c => string.Equals(c.NumCode, numCode, StringComparison.InvariantCultureIgnoreCase),
-            cancellationToken: cancellationToken);
+        return await IsUniqueAsync(query,
+            predicate: c => string.Equals(c.NumCode, numCode, StringComparison.InvariantCultureIgnoreCase),
+            excludeId, cancellationToken);
     }
 
     public async Task<bool> IsNameUniqueAsync(string name, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
         var query = Entities.AsQueryable();
-        if (excludeId.HasValue)
-            query = query.Where(c => c.Id != excludeId.Value);
-        return !await query.AnyAsync(
-            c => string.Equals(c.Name, name, StringComparison.InvariantCultureIgnoreCase),
-            cancellationToken: cancellationToken);
+        return await IsUniqueAsync(query,
+            predicate: c => string.Equals(c.Name, name, StringComparison.InvariantCultureIgnoreCase),
+            excludeId, cancellationToken);
     }
 
     public async Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default)

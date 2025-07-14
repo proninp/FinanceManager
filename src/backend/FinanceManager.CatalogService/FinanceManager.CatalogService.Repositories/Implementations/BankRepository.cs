@@ -58,7 +58,7 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         if (!await Entities.AnyAsync(cancellationToken))
         {
             await Entities.AddRangeAsync(entities, cancellationToken);
-            return await _context.SaveChangesAsync(cancellationToken);
+            return await _context.CommitAsync(cancellationToken);
         }
 
         var query = Entities.AsQueryable();
@@ -72,7 +72,7 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
             }
         }
 
-        return await _context.SaveChangesAsync(cancellationToken);
+        return await _context.CommitAsync(cancellationToken);
     }
 
     /// <summary>
@@ -102,11 +102,9 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         CancellationToken cancellationToken = default)
     {
         var query = Entities.Where(b => b.CountryId == countryId);
-        if (excludeId.HasValue)
-            query = query.Where(b => b.Id != excludeId.Value);
-
-        return await query.AnyAsync(b => string.Equals(b.Name, name, StringComparison.InvariantCultureIgnoreCase),
-            cancellationToken: cancellationToken);
+        return await IsUniqueAsync(query,
+            predicate: b => string.Equals(b.Name, name, StringComparison.InvariantCultureIgnoreCase),
+            excludeId, cancellationToken);
     }
 
     /// <summary>
@@ -126,7 +124,7 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
             query = query.Where(a => a.IsArchived == false);
         if (!includeDeletedAccounts)
             query = query.Where(a => a.IsDeleted == false);
-        
+
         return await query.CountAsync(cancellationToken);
     }
 
@@ -138,6 +136,6 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
     /// <returns>True, если банк можно удалить; иначе — false.</returns>
     public async Task<bool> CanBeDeletedAsync(Guid bankId, CancellationToken cancellationToken = default)
     {
-        return await _context.Accounts.AnyAsync(a => a.BankId == bankId, cancellationToken);
+        return !await _context.Accounts.AnyAsync(a => a.BankId == bankId, cancellationToken);
     }
 }

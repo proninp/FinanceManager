@@ -62,11 +62,9 @@ public class AccountTypeRepository(DatabaseContext context)
     public async Task<bool> IsCodeUniqueAsync(string code, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        var query = 
-            Entities.Where(a => string.Equals(a.Code, code, StringComparison.InvariantCultureIgnoreCase));
-        if (excludeId != null)
-            query = query.Where(a => a.Id != excludeId);
-        return !await query.AnyAsync(cancellationToken);
+        return await IsUniqueAsync(Entities.AsQueryable(),
+            predicate: a => string.Equals(a.Code, code, StringComparison.InvariantCultureIgnoreCase),
+            excludeId, cancellationToken);
     }
 
     /// <summary>

@@ -47,13 +47,9 @@ public class RegistryHolderRepository(DatabaseContext context)
     public async Task<bool> IsTelegramIdUniqueAsync(long telegramId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        var query = Entities.AsNoTracking();
-        if (excludeId.HasValue)
-        {
-            query = query.Where(rh => rh.Id != excludeId.Value);
-        }
-
-        return await query.AnyAsync(rh => rh.TelegramId == telegramId, cancellationToken);
+        return await IsUniqueAsync(Entities.AsQueryable(),
+            predicate: rh => rh.TelegramId == telegramId,
+            excludeId, cancellationToken);
     }
 
     /// <summary>
