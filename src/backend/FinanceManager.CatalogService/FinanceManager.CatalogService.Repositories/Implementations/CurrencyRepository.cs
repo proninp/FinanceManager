@@ -11,7 +11,7 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 public class CurrencyRepository(DatabaseContext context)
     : BaseRepository<Currency, CurrencyFilterDto>(context), ICurrencyRepository
 {
-    private readonly DbContext _context = context;
+    private readonly DatabaseContext _context = context;
 
     private protected override IQueryable<Currency> SetFilters(CurrencyFilterDto filter, IQueryable<Currency> query)
     {
@@ -114,14 +114,20 @@ public class CurrencyRepository(DatabaseContext context)
             cancellationToken: cancellationToken);
     }
 
-    public Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        if (await _context.ExchageRates.AnyAsync(er => er.CurrencyId == id, cancellationToken))
+            return false;
+        return !await _context.Accounts.AnyAsync(a => a.CurrencyId == id, cancellationToken);
     }
 
-    public Task<bool> ExistsAsync(Guid id, bool includeDeleted = false, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(Guid id, bool includeDeleted = false,
+        CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var query = Entities.Where(c => c.Id == id);
+        if (!includeDeleted)
+            query = query.Where(a => !a.IsDeleted);
+        return await query.AnyAsync(cancellationToken);
     }
 
     private async Task<ICollection<Currency>> GetAllOrderedByAsync(Expression<Func<Currency, string>> selector,
