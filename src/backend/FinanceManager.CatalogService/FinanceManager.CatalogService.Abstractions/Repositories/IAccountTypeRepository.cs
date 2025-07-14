@@ -7,7 +7,7 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 /// <summary>
 /// Интерфейс репозитория для работы с типами банковских счетов
 /// </summary>
-public interface IAccountTypeRepository : IBaseRepository<AccountType, AccountTypeFilterDto>
+public interface IAccountTypeRepository : IBaseRepository<AccountType, AccountTypeFilterDto>, IDeletableValidator
 {
     /// <summary>
     /// Получает все типы счетов, включая удаленные
@@ -33,12 +33,4 @@ public interface IAccountTypeRepository : IBaseRepository<AccountType, AccountTy
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>True, если тип счета с таким кодом существует</returns>
     Task<bool> ExistsByCodeAsync(string code, bool includeDeleted = false, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, может ли тип счета быть удален (нет ли связанных зависимостей)
-    /// </summary>
-    /// <param name="id">Идентификатор типа счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если тип счета можно удалить</returns>
-    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 }
