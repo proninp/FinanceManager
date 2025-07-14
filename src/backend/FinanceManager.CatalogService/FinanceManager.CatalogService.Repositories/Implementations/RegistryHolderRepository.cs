@@ -66,8 +66,6 @@ public class RegistryHolderRepository(DatabaseContext context)
     {
         if (await _context.Categories.AnyAsync(c => c.RegistryHolderId == id, cancellationToken))
             return false;
-        if (await _context.Accounts.AnyAsync(a => a.RegistryHolderId == id, cancellationToken))
-            return false;
-        return true;
+        return !await _context.Accounts.AnyAsync(a => a.RegistryHolderId == id, cancellationToken);
     }
 }
