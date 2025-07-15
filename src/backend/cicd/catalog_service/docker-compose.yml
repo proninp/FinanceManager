@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres-catalog:
+    image: postgres:15-alpine
+    container_name: financemanager-catalog-db
+    environment:
+      POSTGRES_DB: catalog_service_db
+      POSTGRES_USER: catalog_user
+      # Для корректной работы с кириллицей
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - catalog_postgres_data:/var/lib/postgresql/data
+    networks:
+      - catalog-network
+    restart: unless-stopped
+    # Проверка здоровья контейнера
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U catalog_user -d catalog_service_db"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  # Именованный volume для сохранения данных PostgreSQL
+  catalog_postgres_data:
+    driver: local
+
+networks:
+  catalog-network:
+    driver: bridge
