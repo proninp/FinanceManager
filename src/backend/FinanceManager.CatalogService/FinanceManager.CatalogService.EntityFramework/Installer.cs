@@ -23,11 +23,11 @@ public static class Installer
     public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration,
         bool enableSensitiveLogging = false)
     {
-        services.Configure<DbSettings>(configuration.GetSection(nameof(DbSettings)));
+        services.Configure<FmcsDbSettings>(configuration.GetSection(nameof(FmcsDbSettings)));
         services.AddDbContext<IUnitOfWork, DatabaseContext>((provider, options) =>
         {
-            var dbSettings = provider.GetRequiredService<IOptions<DbSettings>>().Value;
-            options.UseNpgsql(dbSettings.DbConnectionString);
+            var dbSettings = provider.GetRequiredService<IOptions<FmcsDbSettings>>().Value;
+            options.UseNpgsql(dbSettings.GetConnectionString());
 
             if (enableSensitiveLogging)
             {
