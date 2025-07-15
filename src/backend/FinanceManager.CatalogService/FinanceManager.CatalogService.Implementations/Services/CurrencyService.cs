@@ -159,7 +159,7 @@ public class CurrencyService(
 
         if (isNeedUpdate)
         {
-            currencyRepository.Update(currency);
+            // нам не нужно вызывать метод currencyRepository.UpdateAsync(), так как сущность currency уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated currency: {CurrencyId}", updateDto.Id);
         }
@@ -189,7 +189,6 @@ public class CurrencyService(
         }
 
         currency.MarkAsDeleted();
-        currencyRepository.Update(currency);
         await unitOfWork.CommitAsync(cancellationToken);
 
         logger.Information("Successfully soft deleted currency: {CurrencyId}", id);
@@ -219,7 +218,6 @@ public class CurrencyService(
         }
 
         currency.Restore();
-        currencyRepository.Update(currency);
         await unitOfWork.CommitAsync(cancellationToken);
 
         logger.Information("Successfully restored currency: {CurrencyId}", id);
@@ -235,18 +233,19 @@ public class CurrencyService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Deleting currency: {CurrencyId}", id);
-        
+
         if (!await currencyRepository.CanBeDeletedAsync(id, cancellationToken))
         {
             return Result.Fail(currencyErrorsFactory.CannotDeleteUsedCurrency(id));
         }
-        
+
         await currencyRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
             logger.Warning("No currency was deleted for id: {CurrencyId}", id);
         }
+
         return Result.Ok();
     }
 }

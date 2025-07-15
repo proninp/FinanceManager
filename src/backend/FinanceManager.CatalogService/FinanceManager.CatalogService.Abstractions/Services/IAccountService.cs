@@ -57,6 +57,22 @@ public interface IAccountService
         CancellationToken cancellationToken = default);
     
     /// <summary>
+    /// Помечает счет как удаленный (мягкое удаление)
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Восстанавливает ранее удалённый (мягко удалённый) счет
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <param name="cancellationToken">Токен отмены операции</param>
+    /// <returns>Результат операции</returns>
+    Task<Result> RestoreDeletedAsync(Guid id, CancellationToken cancellationToken = default);
+    
+    /// <summary>
     /// Удаляет счет
     /// </summary>
     /// <param name="id">Идентификатор счета</param>

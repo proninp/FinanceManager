@@ -126,7 +126,7 @@ public class CountryService(
 
         if (isNeedUpdate)
         {
-            countryRepository.Update(country);
+            // нам не нужно вызывать метод countryRepository.UpdateAsync(), так как сущность country уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated country: {CountryId}", updateDto.Id);
         }
