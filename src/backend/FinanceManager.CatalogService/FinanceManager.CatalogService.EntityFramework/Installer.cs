@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Builder;
 
 namespace FinanceManager.CatalogService.EntityFramework;
 
@@ -36,5 +37,22 @@ public static class Installer
         });
 
         return services;
+    }
+
+    /// <summary>
+    /// Применяет все ожидающие миграции Entity Framework Core при запуске приложения.
+    /// </summary>
+    /// <param name="application">Экземпляр <see cref="WebApplication"/>, предоставляющий доступ к сервисам и жизненному циклу приложения.</param>
+    /// <returns>
+    /// Задача, представляющая асинхронную операцию применения миграций.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Выбрасывается, если <see cref="DatabaseContext"/> не зарегистрирован в DI-контейнере.
+    /// </exception>ы
+    public static async Task UseMigrationAsync(this WebApplication application)
+    {
+        using var scope = application.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        await dbContext.Database.MigrateAsync(application.Lifetime.ApplicationStopping);
     }
 }
