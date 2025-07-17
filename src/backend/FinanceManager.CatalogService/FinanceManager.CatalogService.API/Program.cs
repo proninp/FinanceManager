@@ -1,6 +1,9 @@
+using FinanceManager.CatalogService.EntityFramework;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDatabase(builder.Configuration, builder.Environment.IsDevelopment());
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -15,6 +18,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+await app.UseMigrationAsync();
 
 app.UseHttpsRedirection();
 

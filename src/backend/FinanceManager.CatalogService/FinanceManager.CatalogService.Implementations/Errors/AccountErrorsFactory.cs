@@ -64,6 +64,19 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     }
     
     /// <summary>
+    /// Создаёт ошибку, при попытке безопасно удалить счет по умолчанию
+    /// </summary>
+    /// <param name="id">Идентификатор счета</param>
+    /// <returns>Экземпляр ошибки</returns>
+    public IError CannotSoftDeleteDefaultAccount(Guid id)
+    {
+        logger.Warning("Cannot perform soft deleting for default account: {AccountId}", id);
+        return errorsFactory.CustomConflictError(
+            "ACCOUNT_CANNOT_SOFT_DELETE_DEFAULT",
+            $"Cannot perform soft deletion for default account '{id}'");
+    }
+    
+    /// <summary>
     /// Создаёт ошибку, при попытке удалить счет по умолчанию
     /// </summary>
     /// <param name="id">Идентификатор счета</param>

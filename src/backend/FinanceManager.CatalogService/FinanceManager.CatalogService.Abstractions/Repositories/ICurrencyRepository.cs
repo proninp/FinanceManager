@@ -7,8 +7,8 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories;
 /// <summary>
 /// Интерфейс репозитория для работы с валютами
 /// </summary>
-public interface ICurrencyRepository : IBaseRepository<Currency, CurrencyFilterDto>, ISoftDeletableRepository<Currency>,
-    IInitializerRepository<Currency>
+public interface ICurrencyRepository : IBaseRepository<Currency, CurrencyFilterDto>, IInitializerRepository<Currency>,
+    IDeletableValidator
 {
     /// <summary>
     /// Получает все валюты, отсортированные по названию
@@ -60,10 +60,11 @@ public interface ICurrencyRepository : IBaseRepository<Currency, CurrencyFilterD
     Task<bool> IsNameUniqueAsync(string name, Guid? excludeId = null, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Проверяет, может ли валюта быть удалена (нет ли связанных зависимостей)
+    /// Проверяет существование валюты с учетом мягкого удаления
     /// </summary>
     /// <param name="id">Идентификатор валюты</param>
+    /// <param name="includeDeleted">Включать ли удаленные записи</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если валюту можно удалить</returns>
-    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <returns>True, если валюта существует</returns>
+    Task<bool> ExistsAsync(Guid id, bool includeDeleted = false, CancellationToken cancellationToken = default);
 }

@@ -48,32 +48,4 @@ public interface ICategoryRepository : IBaseRepository<Category, CategoryFilterD
         Guid categoryId,
         Guid? newParentId,
         CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет, используется ли категория в активных транзакциях
-    /// </summary>
-    /// <param name="categoryId">Идентификатор категории</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если категория используется в транзакциях</returns>
-    Task<bool> IsUsedInTransactionsAsync(Guid categoryId, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Получает количество транзакций, использующих данную категорию
-    /// </summary>
-    /// <param name="categoryId">Идентификатор категории</param>
-    /// <param name="includeDeletedTransactions">Включать ли удаленные транзакции</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Количество транзакций данной категории</returns>
-    Task<int> GetTransactionsCountAsync(
-        Guid categoryId,
-        bool includeDeletedTransactions = false,
-        CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет, можно ли удалить категорию (не используется ли она в транзакциях и не имеет ли дочерних)
-    /// </summary>
-    /// <param name="categoryId">Идентификатор категории</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если категорию можно удалить</returns>
-    Task<bool> CanBeDeletedAsync(Guid categoryId, CancellationToken cancellationToken = default);
 }

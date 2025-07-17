@@ -23,8 +23,5 @@ public record CategoryFilterDto(
     string? NameContains = null,
     bool? Income = null,
     bool? Expense = null,
-    string? Emoji = null,
-    bool? HasIcon = null,
-    bool? HasTransactions = null,
     Guid? ParentId = null
 ) : BasePaginationDto(ItemsPerPage, Page);

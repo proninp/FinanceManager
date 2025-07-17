@@ -45,42 +45,4 @@ public interface IAccountRepository :
     Task<Account?> GetDefaultAccountAsync(
         Guid registryHolderId,
         CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет, может ли счет быть удален (нет ли связанных зависимостей)
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если счет можно удалить</returns>
-    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Архивирует счет
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если счет был архивирован</returns>
-    Task<bool> ArchiveAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Разархивирует счет
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если счет был разархивирован</returns>
-    Task<bool> UnarchiveAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Устанавливает счет как счет по умолчанию (и снимает флаг с других счетов пользователя)
-    /// </summary>
-    /// <param name="id">Идентификатор счета</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    Task SetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Снимает флаг "по умолчанию" с указанного счета и устанавливает другой счет пользователя, как новый счет по умолчанию
-    /// </summary>
-    /// <param name="id">Идентификатор счета, с которого снимается флаг "по умолчанию"</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    Task UnsetAsDefaultAsync(Guid id, CancellationToken cancellationToken = default);
 }

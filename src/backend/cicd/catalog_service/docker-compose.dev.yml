@@ -1,0 +1,7 @@
+services:
+  postgres-catalog:
+    environment:
+      POSTGRES_PASSWORD: catalog_admin_dev
+    ports:
+      - "5433:5432"
+    restart: "no"

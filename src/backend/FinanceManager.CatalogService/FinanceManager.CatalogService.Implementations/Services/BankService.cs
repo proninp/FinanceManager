@@ -169,7 +169,7 @@ public class BankService(
         
         if (isNeedUpdate)
         {
-            bankRepository.Update(bank);
+            // нам не нужно вызывать метод bankRepository.UpdateAsync(), так как сущность bank уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated bank: {BankId}", updateDto.Id);
         }

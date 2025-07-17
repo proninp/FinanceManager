@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
 using FinanceManager.CatalogService.Domain.Abstractions;
 
 namespace FinanceManager.CatalogService.Abstractions.Repositories.Common;
@@ -8,7 +9,9 @@ namespace FinanceManager.CatalogService.Abstractions.Repositories.Common;
 /// </summary>
 /// <typeparam name="T">Тип сущности</typeparam>
 /// <typeparam name="TFilterDto">Тип DTO для фильтрации</typeparam>
-public interface IBaseRepository<T, in TFilterDto> where T : IdentityModel
+public interface IBaseRepository<T, in TFilterDto>
+    where T : IdentityModel
+    where TFilterDto : BasePaginationDto
 {
     /// <summary>
     /// Проверяет существование сущности по идентификатору
@@ -55,13 +58,6 @@ public interface IBaseRepository<T, in TFilterDto> where T : IdentityModel
     /// <param name="entity">Сущность для обновления</param>
     /// <returns>Обновленная сущность</returns>
     T Update(T entity);
-
-    /// <summary>
-    /// Частично обновляет сущность (только указанные свойства)
-    /// </summary>
-    /// <param name="entity">Сущность для обновления</param>
-    /// <param name="properties">Свойства для обновления</param>
-    T UpdatePartial(T entity, params Expression<Func<T, object>>[] properties);
 
     /// <summary>
     /// Удаляет сущность

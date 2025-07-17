@@ -59,8 +59,8 @@ public interface IExchangeRateService
     /// </summary>
     /// <param name="createExchangeRatesDto">Список курсов для добавления</param>
     /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>Результат со списком добавленных курсов или ошибкой</returns>
-    Task<Result<IEnumerable<ExchangeRateDto>>> AddRangeAsync(
+    /// <returns>Результат с количеством добавленных курсов или ошибкой</returns>
+    Task<Result<int>> AddRangeAsync(
         IEnumerable<CreateExchangeRateDto> createExchangeRatesDto,
         CancellationToken cancellationToken = default);
 

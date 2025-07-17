@@ -130,7 +130,6 @@ public class RegistryHolderService(
 
         if (isNeedUpdate)
         {
-            registryHolderRepository.Update(holder);
             await unitOfWork.CommitAsync(cancellationToken);
             logger.Information("Successfully updated registry holder: {RegistryHolderId}", updateDto.Id);
         }

@@ -4,7 +4,8 @@ using FinanceManager.CatalogService.Domain.Entities;
 
 namespace FinanceManager.CatalogService.Abstractions.Repositories;
 
-public interface ICountryRepository : IBaseRepository<Country, CountryFilterDto>, IInitializerRepository<Country>
+public interface ICountryRepository : IBaseRepository<Country, CountryFilterDto>, IInitializerRepository<Country>,
+    IDeletableValidator
 {
     /// <summary>
     /// Получает все страны, отсортированные по названию
@@ -23,12 +24,4 @@ public interface ICountryRepository : IBaseRepository<Country, CountryFilterDto>
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>True, если название уникально</returns>
     Task<bool> IsNameUniqueAsync(string name, Guid? excludeId = null, CancellationToken cancellationToken = default);
-    
-    /// <summary>
-    /// Проверяет, можно ли удалить страну (не используется ли она в банках или валютах)
-    /// </summary>
-    /// <param name="countryId">Идентификатор страны</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если страну можно удалить</returns>
-    Task<bool> CanBeDeletedAsync(Guid countryId, CancellationToken cancellationToken = default);
 }

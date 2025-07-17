@@ -1,27 +1,14 @@
 ﻿using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.Domain.Entities;
-using FinanceManager.CatalogService.EntityFramework.Options;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FinanceManager.CatalogService.EntityFramework;
 
 /// <summary>
 /// Контекст базы данных для работы с сущностями каталога и управления транзакциями.
 /// </summary>
-public class DatabaseContext : DbContext, IUnitOfWork
+public class DatabaseContext(DbContextOptions<DatabaseContext> options) : DbContext(options), IUnitOfWork
 {
-    private readonly DbSettings _options;
-
-    /// <summary>
-    /// Инициализирует новый экземпляр класса <see cref="DatabaseContext"/>.
-    /// </summary>
-    /// <param name="options">Параметры подключения к базе данных.</param>
-    public DatabaseContext(IOptionsSnapshot<DbSettings> options)
-    {
-        _options = options.Value;
-    }
-
     #region DbSets
 
     /// <summary>
@@ -65,18 +52,6 @@ public class DatabaseContext : DbContext, IUnitOfWork
     public DbSet<RegistryHolder> RegistryHolders { get; set; }
 
     #endregion
-
-    /// <summary>
-    /// Конфигурирует параметры подключения к базе данных.
-    /// </summary>
-    /// <param name="optionsBuilder">Построитель параметров подключения.</param>
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql(_options.DbConnectionString);
-        }
-    }
 
     /// <summary>
     /// Применяет конфигурации моделей при создании схемы базы данных.

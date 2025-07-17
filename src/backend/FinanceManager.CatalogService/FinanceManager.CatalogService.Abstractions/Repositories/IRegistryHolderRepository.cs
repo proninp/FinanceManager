@@ -4,7 +4,8 @@ using FinanceManager.CatalogService.Domain.Entities;
 
 namespace FinanceManager.CatalogService.Abstractions.Repositories;
 
-public interface IRegistryHolderRepository : IBaseRepository<RegistryHolder, RegistryHolderFilterDto>
+public interface IRegistryHolderRepository : IBaseRepository<RegistryHolder, RegistryHolderFilterDto>,
+    IDeletableValidator
 {
     /// <summary>
     /// Проверяет уникальность Telegram ID
@@ -15,12 +16,4 @@ public interface IRegistryHolderRepository : IBaseRepository<RegistryHolder, Reg
     /// <returns>True, если Telegram ID уникален</returns>
     Task<bool> IsTelegramIdUniqueAsync(long telegramId, Guid? excludeId = null,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Проверяет, может ли владелец реестра с указанным Id быть удалён
-    /// </summary>
-    /// <param name="id">Идентификатор пользователя</param>
-    /// <param name="cancellationToken">Токен отмены операции</param>
-    /// <returns>True, если владелец может быть удалён</returns>
-    Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default);
 }
