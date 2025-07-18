@@ -1,4 +1,5 @@
-﻿using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
+﻿using FinanceManager.TransactionsService.Contracts.DTOs.AccountTypes;
+using FinanceManager.TransactionsService.Contracts.DTOs.TransactionAccounts;
 using FluentResults;
 
 namespace FinanceManager.TransactionsService.Abstractions.Services;
@@ -62,5 +63,6 @@ public interface ITransactionAccountService
     /// <summary>
     /// Получает тип счёта
     /// </summary>
+    
     Task<Result<AccountTypeDto>> GetAccountTypeAsync(Guid accountId, CancellationToken cancellationToken = default);
 }

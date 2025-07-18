@@ -8,7 +8,7 @@ namespace FinanceManager.TransactionsService.Domain.Entities;
 /// <param name="holderId">Идентификатор владельца категории</param>
 /// <param name="income">Флаг, указывающий, что категория используется для доходов</param>
 /// <param name="expense">Флаг, указывающий, что категория используется для расходов</param>
-public class TransactionsCategory(Guid holderId,bool income, bool expense):IdentityModel
+public class TransactionsCategory(Guid holderId,bool income, bool expense):SoftDeletableEntity
 {
     /// <summary>
     /// Идентификатор владельца категории — пользователя системы

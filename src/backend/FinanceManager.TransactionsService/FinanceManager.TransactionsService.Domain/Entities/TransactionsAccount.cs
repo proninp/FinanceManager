@@ -8,10 +8,11 @@ namespace FinanceManager.TransactionsService.Domain.Entities;
 /// <param name="accountTypeId">Идентификатор типа счёта</param>
 /// <param name="currencyId">Идентификатор валюты счёта</param>
 /// <param name="holderId">Идентификатор владельца счёта</param>
+/// <param name="isArchived">Архивирован ли счет</param>
 /// <param name="creditLimit">Необязательный кредитный лимит по счёту (например, для кредитных карт)</param>
 
-public class TransactionsAccount(Guid accountTypeId, Guid currencyId, Guid holderId, decimal? creditLimit = null)
-    : IdentityModel
+public class TransactionsAccount(Guid accountTypeId, Guid currencyId, Guid holderId, bool isArchived = false, decimal? creditLimit = null)
+    : SoftDeletableEntity
 {
     /// <summary>
     /// Идентификатор типа счёта (например, расчётный, кредитный и т.д.)
@@ -47,4 +48,9 @@ public class TransactionsAccount(Guid accountTypeId, Guid currencyId, Guid holde
     /// Кредитный лимит по счёту (если применимо, например, для кредитных карт)
     /// </summary>
     public decimal? CreditLimit { get; set; } = creditLimit;
+    
+    /// <summary>
+    /// Флаг архивирования счета
+    /// </summary>
+    public bool IsArchived { get; set; } = isArchived;
 }
