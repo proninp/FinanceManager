@@ -14,4 +14,6 @@ public interface IInitializerRepository<in T> where T : IdentityModel
     /// <param name="cancellationToken">Токен отмены операции</param>
     /// <returns>Количество добавленных валют</returns>
     Task<int> InitializeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
+
+    Task<bool> IsEmptyAsync(CancellationToken cancellationToken = default);
 }
