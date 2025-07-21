@@ -33,4 +33,10 @@
       </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="Seeding\Data\*.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
 </Project>
