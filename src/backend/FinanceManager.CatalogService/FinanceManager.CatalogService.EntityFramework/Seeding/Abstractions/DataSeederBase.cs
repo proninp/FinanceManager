@@ -78,7 +78,8 @@ public abstract class DataSeederBase<T>(ILogger logger)
     private async Task<IEnumerable<T>> LoadEntitiesFromFileAsync(string seedingDataFile,
         CancellationToken cancellationToken = default)
     {
-        var jsonPath = Path.Combine("Seeding", "Data", seedingDataFile);
+        var basePath = AppContext.BaseDirectory;
+        var jsonPath = Path.Combine(basePath, "Seeding", "Data", seedingDataFile);
         if (!File.Exists(jsonPath))
         {
             logger.Warning("Файл сидинга не найден: {FilePath}", jsonPath);
@@ -86,7 +87,8 @@ public abstract class DataSeederBase<T>(ILogger logger)
         }
 
         var json = await File.ReadAllTextAsync(jsonPath, cancellationToken);
-        var models = JsonSerializer.Deserialize<T[]>(json);
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var models = JsonSerializer.Deserialize<T[]>(json, options);
         logger.Debug("Файл сидинга успешно десериализован. Количество сущностей: {EntitiesCount}",
             models?.Length ?? 0);
         return models ?? [];

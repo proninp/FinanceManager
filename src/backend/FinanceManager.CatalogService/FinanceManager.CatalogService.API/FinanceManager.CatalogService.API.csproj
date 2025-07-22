@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\FinanceManager.CatalogService.EntityFramework\FinanceManager.CatalogService.EntityFramework.csproj" />
+      <ProjectReference Include="..\FinanceManager.CatalogService.Implementations\FinanceManager.CatalogService.Implementations.csproj" />
       <ProjectReference Include="..\FinanceManager.CatalogService.Repositories\FinanceManager.CatalogService.Repositories.csproj" />
     </ItemGroup>
 

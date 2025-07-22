@@ -1,4 +1,6 @@
 ﻿using FinanceManager.CatalogService.Abstractions.Repositories;
+using FinanceManager.CatalogService.Abstractions.Services;
+using FinanceManager.CatalogService.Implementations.Services;
 using FinanceManager.CatalogService.Repositories.Implementations;
 using Serilog;
 
@@ -26,7 +28,24 @@ public static class Installer
                 .Enrich.WithThreadId());
     }
 
+    /// <summary>
+    /// Регистрирует зависимости приложения, включая репозитории и сервисы.
+    /// </summary>
+    /// <param name="services">Коллекция сервисов для внедрения зависимостей.</param>
+    /// <returns>Обновленная коллекция сервисов.</returns>
     public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        return services
+            .AddRepositories()
+            .AddServices();
+    }
+    
+    /// <summary>
+    /// Регистрирует репозитории в контейнер зависимостей со временем жизни Scoped.
+    /// </summary>
+    /// <param name="services">Коллекция сервисов для внедрения зависимостей.</param>
+    /// <returns>Обновленная коллекция сервисов.</returns>
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services
             .AddScoped<ICurrencyRepository, CurrencyRepository>()
@@ -37,6 +56,25 @@ public static class Installer
             .AddScoped<ICategoryRepository, CategoryRepository>()
             .AddScoped<IExchangeRateRepository, ExchangeRateRepository>()
             .AddScoped<IRegistryHolderRepository, RegistryHolderRepository>();
+        return services;
+    }
+    
+    /// <summary>
+    /// Регистрирует бизнес-сервисы в контейнер зависимостей со временем жизни Scoped.
+    /// </summary>
+    /// <param name="services">Коллекция сервисов для внедрения зависимостей.</param>
+    /// <returns>Обновленная коллекция сервисов.</returns>
+    private static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services
+            .AddScoped<IAccountService, AccountService>()
+            .AddScoped<IAccountTypeService, AccountTypeService>()
+            .AddScoped<IBankService, BankService>()
+            .AddScoped<ICategoryService, CategoryService>()
+            .AddScoped<ICountryService, CountryService>()
+            .AddScoped<ICurrencyService, CurrencyService>()
+            .AddScoped<IExchangeRateService, ExchangeRateService>()
+            .AddScoped<IRegistryHolderService, RegistryHolderService>();
         return services;
     }
 }
