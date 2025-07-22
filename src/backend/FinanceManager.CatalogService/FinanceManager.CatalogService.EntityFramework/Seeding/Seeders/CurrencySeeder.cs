@@ -6,19 +6,18 @@ using Serilog;
 namespace FinanceManager.CatalogService.EntityFramework.Seeding.Seeders;
 
 /// <summary>
-/// Сидер стран. Загружает данные стран из JSON-файла в репозиторий.
+/// Сидер валют. Загружает данные валют из JSON-файла в репозиторий.
 /// </summary>
-public class CountrySeeder(ICountryRepository countryRepository, ILogger logger)
-    : DataSeederBase<Country>(logger), IDataSeeder
+public class CurrencySeeder(ICurrencyRepository currencyRepository, ILogger logger) : DataSeederBase<Currency>(logger), IDataSeeder
 {
-    private const string CountriesSeedingJsonFileName = "countries.json";
+    private const string CurrencySeedingJsonFileName = "currencies.json";
 
     /// <summary>
-    /// Выполняет загрузку данных стран.
+    /// Выполняет загрузку данных валют.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        await SeedDataAsync(countryRepository, CountriesSeedingJsonFileName, cancellationToken);
+        await SeedDataAsync(currencyRepository, CurrencySeedingJsonFileName, cancellationToken);
     }
 }

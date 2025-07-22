@@ -5,77 +5,90 @@ using Serilog;
 
 namespace FinanceManager.CatalogService.EntityFramework.Seeding.Abstractions;
 
-public abstract class DataSeederBase<T, TCreateDto>(ILogger logger)
+/// <summary>
+/// Базовый класс для сидеров данных.
+/// Загружает и сохраняет данные сущностей в соответствующий репозиторий.
+/// </summary>
+/// <typeparam name="T">Тип сущности, которая будет загружена.</typeparam>
+public abstract class DataSeederBase<T>(ILogger logger)
     where T : IdentityModel
 {
+    /// <summary>
+    /// Загружает данные из JSON-файла и сохраняет их в репозиторий.
+    /// </summary>
+    /// <param name="repository">Репозиторий для инициализации данных.</param>
+    /// <param name="seedingDataFile">Имя JSON-файла с данными.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
     protected async Task SeedDataAsync(IInitializerRepository<T> repository, string seedingDataFile,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Starting seeding for {EntityType} from {FileName}",
+        logger.Information("Запуск сидинга для {EntityType} из файла {FileName}",
             typeof(T).Name, seedingDataFile);
 
         if (!await repository.IsEmptyAsync(cancellationToken))
         {
-            logger.Information("{EntityType} already has data, skipping seeding", typeof(T).Name);
+            logger.Information("Данные {EntityType} уже существуют. Сидинг пропущен", typeof(T).Name);
             return;
         }
 
         try
         {
-            var entities = await LoadEntitiesFromFileAsync(
-                MapFromDto(), seedingDataFile, cancellationToken);
+            var entities = await LoadEntitiesFromFileAsync(seedingDataFile, cancellationToken);
             var entitiesCollection = entities as ICollection<T> ?? entities.ToList();
             if (entitiesCollection.Count == 0)
             {
-                logger.Warning("No entities with {EntityType} loaded from {FileName}",
-                    typeof(T).Name, seedingDataFile);
+                logger.Warning("Файл {FileName} не содержит данных для {EntityType}", seedingDataFile, typeof(T).Name);
                 return;
             }
 
             await repository.InitializeAsync(entitiesCollection, cancellationToken);
-            logger.Information("Successfully seeded {Count} {EntityType} entities",
+            logger.Information("Успешно загружено {Count} сущностей типа {EntityType}",
                 entitiesCollection.Count, typeof(T).Name);
         }
         catch (OperationCanceledException)
         {
-            logger.Information("Seeding operation for {EntityType} was cancelled", typeof(T).Name);
+            logger.Information("Операция сидинга для {EntityType} была отменена", typeof(T).Name);
             throw;
         }
         catch (FileNotFoundException ex)
         {
-            logger.Error("Seeding file not found: {FileName} for {EntityType}", seedingDataFile, typeof(T).Name);
+            logger.Error("Файл сидинга не найден: {FileName} для {EntityType}", seedingDataFile, typeof(T).Name);
             throw;
         }
         catch (JsonException ex)
         {
-            logger.Error(ex, "Invalid JSON format in seeding file {FileName} for {EntityType}. " +
-                             "Check file structure and data types", seedingDataFile, typeof(T).Name);
+            logger.Error(ex, "Неверный формат JSON в файле сидинга {FileName} для {EntityType}. " +
+                             "Проверьте структуру и типы данных", seedingDataFile, typeof(T).Name);
             throw;
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "Unexpected error during seeding {EntityType} from {FileName}",
+            logger.Error(ex, "Неожиданная ошибка при сидинге {EntityType} из файла {FileName}",
                 typeof(T).Name, seedingDataFile);
             throw;
         }
     }
 
-    private protected abstract Func<TCreateDto, T> MapFromDto();
-
-    private async Task<IEnumerable<T>> LoadEntitiesFromFileAsync(Func<TCreateDto, T> selector, string seedingDataFile,
+    /// <summary>
+    /// Загружает сущности из JSON-файла.
+    /// </summary>
+    /// <param name="seedingDataFile">Имя JSON-файла.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>Коллекция сущностей из файла.</returns>
+    private async Task<IEnumerable<T>> LoadEntitiesFromFileAsync(string seedingDataFile,
         CancellationToken cancellationToken = default)
     {
         var jsonPath = Path.Combine("Seeding", "Data", seedingDataFile);
         if (!File.Exists(jsonPath))
         {
-            logger.Warning("Seeding file not found: {FilePath}", jsonPath);
+            logger.Warning("Файл сидинга не найден: {FilePath}", jsonPath);
             return [];
         }
 
         var json = await File.ReadAllTextAsync(jsonPath, cancellationToken);
-        var models = JsonSerializer.Deserialize<TCreateDto[]>(json);
-        logger.Debug("Seeding file deserialized successfully. Deserialized entities count: {EntitiesCount}",
+        var models = JsonSerializer.Deserialize<T[]>(json);
+        logger.Debug("Файл сидинга успешно десериализован. Количество сущностей: {EntitiesCount}",
             models?.Length ?? 0);
-        return models is not null ? models.Select(selector) : [];
+        return models ?? [];
     }
 }
