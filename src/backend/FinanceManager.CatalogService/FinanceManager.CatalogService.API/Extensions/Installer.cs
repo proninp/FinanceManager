@@ -1,5 +1,7 @@
 ﻿using FinanceManager.CatalogService.Abstractions.Repositories;
 using FinanceManager.CatalogService.Abstractions.Services;
+using FinanceManager.CatalogService.Implementations.Errors;
+using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FinanceManager.CatalogService.Implementations.Services;
 using FinanceManager.CatalogService.Repositories.Implementations;
 using Serilog;
@@ -75,6 +77,30 @@ public static class Installer
             .AddScoped<ICurrencyService, CurrencyService>()
             .AddScoped<IExchangeRateService, ExchangeRateService>()
             .AddScoped<IRegistryHolderService, RegistryHolderService>();
+
+        services.AddFluentResultsExceptionsFactories();
+        
+        return services;
+    }
+
+    /// <summary>
+    /// Регистрирует фабрики ошибок для различных сущностей в контейнер зависимостей.
+    /// Используется для централизованного создания экземпляров ошибок в стиле FluentResults.
+    /// </summary>
+    /// <param name="services">Коллекция сервисов для регистрации зависимостей.</param>
+    /// <returns>Обновлённая коллекция сервисов.</returns>
+    private static IServiceCollection AddFluentResultsExceptionsFactories(this IServiceCollection services)
+    {
+        services
+            .AddScoped<IErrorsFactory, ErrorsFactory>()
+            .AddScoped<IAccountErrorsFactory, AccountErrorsFactory>()
+            .AddScoped<IAccountTypeErrorsFactory, AccountTypeErrorsFactory>()
+            .AddScoped<IBankErrorsFactory, BankErrorsFactory>()
+            .AddScoped<ICategoryErrorsFactory, CategoryErrorsFactory>()
+            .AddScoped<ICountryErrorsFactory, CountryErrorsFactory>()
+            .AddScoped<ICurrencyErrorsFactory, CurrencyErrorsFactory>()
+            .AddScoped<IExchangeRateErrorsFactory, ExchangeRateErrorsFactory>()
+            .AddScoped<IRegistryHolderErrorsFactory, RegistryHolderErrorsFactory>();
         return services;
     }
 }
