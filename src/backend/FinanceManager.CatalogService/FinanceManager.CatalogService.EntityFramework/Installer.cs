@@ -1,10 +1,12 @@
 ﻿using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.EntityFramework.Options;
+using FinanceManager.CatalogService.EntityFramework.Seeding.Abstractions;
+using FinanceManager.CatalogService.EntityFramework.Seeding.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 namespace FinanceManager.CatalogService.EntityFramework;
 
@@ -40,19 +42,37 @@ public static class Installer
     }
 
     /// <summary>
-    /// Применяет все ожидающие миграции Entity Framework Core при запуске приложения.
+    /// Добавляет сервисы для заполнения базы данных начальными данными (сидирование)
     /// </summary>
-    /// <param name="application">Экземпляр <see cref="WebApplication"/>, предоставляющий доступ к сервисам и жизненному циклу приложения.</param>
-    /// <returns>
-    /// Задача, представляющая асинхронную операцию применения миграций.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">
-    /// Выбрасывается, если <see cref="DatabaseContext"/> не зарегистрирован в DI-контейнере.
-    /// </exception>ы
-    public static async Task UseMigrationAsync(this WebApplication application)
+    /// <param name="services">Коллекция сервисов</param>
+    /// <returns>Коллекция сервисов с зарегистрированными сидерами</returns>
+    /// <remarks>
+    /// Регистрирует реализации IDataSeeder для заполнения:
+    /// - Стран (CountrySeeder)
+    /// - Банков (BankSeeder)
+    /// - Валют (CurrencySeeder)
+    /// </remarks>
+    public static IServiceCollection AddSeeding(this IServiceCollection services)
     {
-        using var scope = application.Services.CreateScope();
+        services.AddScoped<IDataSeeder, CountrySeeder>();
+        services.AddScoped<IDataSeeder, BankSeeder>();
+        services.AddScoped<IDataSeeder, CurrencySeeder>();
+        return services;
+    }
+
+    /// <summary>
+    /// Применяет все ожидающие миграции базы данных для контекста DatabaseContext
+    /// </summary>
+    /// <param name="host">Экземпляр IHost, содержащий конфигурацию приложения и сервисы</param>
+    /// <returns>
+    /// Возвращает тот же экземпляр IHost для поддержки цепочки вызовов.
+    /// Задача завершается после применения всех миграций.
+    /// </returns>
+    public static async Task<IHost> UseMigrationAsync(this IHost host)
+    {
+        using var scope = host.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-        await dbContext.Database.MigrateAsync(application.Lifetime.ApplicationStopping);
+        await dbContext.Database.MigrateAsync();
+        return host;
     }
 }
