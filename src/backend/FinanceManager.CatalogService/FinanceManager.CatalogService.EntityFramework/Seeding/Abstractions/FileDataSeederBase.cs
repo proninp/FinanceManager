@@ -10,7 +10,7 @@ namespace FinanceManager.CatalogService.EntityFramework.Seeding.Abstractions;
 /// Загружает и сохраняет данные сущностей в соответствующий репозиторий.
 /// </summary>
 /// <typeparam name="T">Тип сущности, которая будет загружена.</typeparam>
-public abstract class DataSeederBase<T>(ILogger logger)
+public abstract class FileDataSeederBase<T>(ISeedingEntitiesProducer<T> seedingProducer, ILogger logger)
     where T : IdentityModel
 {
     /// <summary>
@@ -33,17 +33,16 @@ public abstract class DataSeederBase<T>(ILogger logger)
 
         try
         {
-            var entities = await LoadEntitiesFromFileAsync(seedingDataFile, cancellationToken);
-            var entitiesCollection = entities as ICollection<T> ?? entities.ToList();
-            if (entitiesCollection.Count == 0)
+            var entities = await seedingProducer.ProduceEntitiesAsync(seedingDataFile, cancellationToken);
+            if (entities.Length == 0)
             {
                 logger.Warning("Файл {FileName} не содержит данных для {EntityType}", seedingDataFile, typeof(T).Name);
                 return;
             }
 
-            await repository.InitializeAsync(entitiesCollection, cancellationToken);
+            await repository.InitializeAsync(entities, cancellationToken);
             logger.Information("Успешно загружено {Count} сущностей типа {EntityType}",
-                entitiesCollection.Count, typeof(T).Name);
+                entities.Length, typeof(T).Name);
         }
         catch (OperationCanceledException)
         {
@@ -67,30 +66,5 @@ public abstract class DataSeederBase<T>(ILogger logger)
                 typeof(T).Name, seedingDataFile);
             throw;
         }
-    }
-
-    /// <summary>
-    /// Загружает сущности из JSON-файла.
-    /// </summary>
-    /// <param name="seedingDataFile">Имя JSON-файла.</param>
-    /// <param name="cancellationToken">Токен отмены операции.</param>
-    /// <returns>Коллекция сущностей из файла.</returns>
-    private async Task<IEnumerable<T>> LoadEntitiesFromFileAsync(string seedingDataFile,
-        CancellationToken cancellationToken = default)
-    {
-        var basePath = AppContext.BaseDirectory;
-        var jsonPath = Path.Combine(basePath, "Seeding", "Data", seedingDataFile);
-        if (!File.Exists(jsonPath))
-        {
-            logger.Warning("Файл сидинга не найден: {FilePath}", jsonPath);
-            return [];
-        }
-
-        var json = await File.ReadAllTextAsync(jsonPath, cancellationToken);
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var models = JsonSerializer.Deserialize<T[]>(json, options);
-        logger.Debug("Файл сидинга успешно десериализован. Количество сущностей: {EntitiesCount}",
-            models?.Length ?? 0);
-        return models ?? [];
     }
 }

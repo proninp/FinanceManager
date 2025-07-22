@@ -8,8 +8,11 @@ namespace FinanceManager.CatalogService.EntityFramework.Seeding.Seeders;
 /// <summary>
 /// Сидер стран. Загружает данные стран из JSON-файла в репозиторий.
 /// </summary>
-public class CountrySeeder(ICountryRepository countryRepository, ILogger logger)
-    : DataSeederBase<Country>(logger), IDataSeeder
+public class CountryFileSeeder(
+    ICountryRepository countryRepository,
+    ISeedingEntitiesProducer<Country> seedingProducer,
+    ILogger logger)
+    : FileDataSeederBase<Country>(seedingProducer, logger), IDataSeeder
 {
     private const string CountriesSeedingJsonFileName = "countries.json";
 

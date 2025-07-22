@@ -8,7 +8,10 @@ namespace FinanceManager.CatalogService.EntityFramework.Seeding.Seeders;
 /// <summary>
 /// Сидер валют. Загружает данные валют из JSON-файла в репозиторий.
 /// </summary>
-public class CurrencySeeder(ICurrencyRepository currencyRepository, ILogger logger) : DataSeederBase<Currency>(logger), IDataSeeder
+public class CurrencyFileSeeder(
+    ICurrencyRepository currencyRepository,
+    ISeedingEntitiesProducer<Currency> seedingProducer,
+    ILogger logger) : FileDataSeederBase<Currency>(seedingProducer, logger), IDataSeeder
 {
     private const string CurrencySeedingJsonFileName = "currencies.json";
 

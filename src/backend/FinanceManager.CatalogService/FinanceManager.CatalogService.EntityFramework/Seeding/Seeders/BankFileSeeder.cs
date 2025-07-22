@@ -8,8 +8,8 @@ namespace FinanceManager.CatalogService.EntityFramework.Seeding.Seeders;
 /// <summary>
 /// Сидер банков. Загружает данные банков из JSON-файла в репозиторий.
 /// </summary>
-public class BankSeeder(IBankRepository bankRepository, ILogger logger) : 
-    DataSeederBase<Bank>(logger), IDataSeeder
+public class BankFileSeeder(IBankRepository bankRepository, ISeedingEntitiesProducer<Bank> seedingProducer, ILogger logger)
+    : FileDataSeederBase<Bank>(seedingProducer, logger), IDataSeeder
 {
     private const string BankSeedingJsonFileName = "banks.json";
 

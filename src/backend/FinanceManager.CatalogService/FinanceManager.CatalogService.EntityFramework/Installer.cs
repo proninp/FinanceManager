@@ -1,6 +1,7 @@
 ﻿using FinanceManager.CatalogService.Abstractions.Repositories.Common;
 using FinanceManager.CatalogService.EntityFramework.Options;
 using FinanceManager.CatalogService.EntityFramework.Seeding.Abstractions;
+using FinanceManager.CatalogService.EntityFramework.Seeding.Data;
 using FinanceManager.CatalogService.EntityFramework.Seeding.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -54,9 +55,11 @@ public static class Installer
     /// </remarks>
     public static IServiceCollection AddSeeding(this IServiceCollection services)
     {
-        services.AddScoped<IDataSeeder, CountrySeeder>();
-        services.AddScoped<IDataSeeder, BankSeeder>();
-        services.AddScoped<IDataSeeder, CurrencySeeder>();
+        services
+            .AddScoped(typeof(ISeedingEntitiesProducer<>), typeof(SeedingEntitiesFileProducer<>))
+            .AddScoped<IDataSeeder, CountryFileSeeder>()
+            .AddScoped<IDataSeeder, BankFileSeeder>()
+            .AddScoped<IDataSeeder, CurrencyFileSeeder>();
         return services;
     }
 
