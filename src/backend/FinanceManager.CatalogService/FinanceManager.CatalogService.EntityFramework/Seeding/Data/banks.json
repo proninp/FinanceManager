@@ -1,0 +1,77 @@
+﻿[
+  {
+    "Id": "464dda4d-e88c-4737-978f-8b277d80cc53",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Сбербанк"
+  },
+  {
+    "Id": "511fa925-912b-473e-bdae-691f5a3c07dc",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "ВТБ"
+  },
+  {
+    "Id": "e2debef4-19e5-418c-96e7-b4801f543d00",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Газпромбанк"
+  },
+  {
+    "Id": "ac826299-3d3a-49ec-9263-bb4c167e0a03",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Т-Банк"
+  },
+  {
+    "Id": "99f8125a-e4ac-4d2d-9dcc-b0f82d42e498",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Альфа-Банк"
+  },
+  {
+    "Id": "fbc34cac-7df4-4f68-9050-5ea36330db33",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Россельхозбанк"
+  },
+  {
+    "Id": "79e78ae6-5fe3-4011-841a-3087c6ef3ebf",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Райффайзенбанк"
+  },
+  {
+    "Id": "e46c9b23-c88a-4cb2-8a0b-7571a33d04c6",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Промсвязьбанк"
+  },
+  {
+    "Id": "4329a748-ec2f-4038-825d-b659946c84ed",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Росбанк"
+  },
+  {
+    "Id": "3c26f624-145e-44cc-98be-6cd1776867f4",
+    "CountryId": "5e7a8f3b-2e54-4a95-938a-6c4b1f9c2a1d",
+    "Name": "Совкомбанк"
+  },
+  {
+    "Id": "2d792988-86a8-4538-ae64-df4d5702067e",
+    "CountryId": "8d3e7f2a-5b1c-4e9d-9a7f-2b6c1d8e4f3a",
+    "Name": "Беларусбанк АСБ"
+  },
+  {
+    "Id": "4fd2956c-1a97-4d4b-9693-dff70359bfc9",
+    "CountryId": "8d3e7f2a-5b1c-4e9d-9a7f-2b6c1d8e4f3a",
+    "Name": "Белагропромбанк"
+  },
+  {
+    "Id": "dc9ad750-4ddc-4946-aed3-115afbd5ee02",
+    "CountryId": "8d3e7f2a-5b1c-4e9d-9a7f-2b6c1d8e4f3a",
+    "Name": "Приорбанк"
+  },
+  {
+    "Id": "cbbd5093-f78c-405e-af85-e5f6436dc89f",
+    "CountryId": "8d3e7f2a-5b1c-4e9d-9a7f-2b6c1d8e4f3a",
+    "Name": "Белинвестбанк"
+  },
+  {
+    "Id": "69cf8805-250a-4396-b82c-4a67e74e804f",
+    "CountryId": "8d3e7f2a-5b1c-4e9d-9a7f-2b6c1d8e4f3a",
+    "Name": "Цептер Банк"
+  }
+]

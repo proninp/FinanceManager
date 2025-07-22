@@ -1,0 +1,434 @@
+﻿[
+  {
+    "Id": "3d1eef3a-9970-4e12-a78c-dc824308a38a",
+    "Name": "Доллар США",
+    "CharCode": "USD",
+    "NumCode": "840",
+    "Sign": "$",
+    "Emoji": "🇺🇸",
+    "IsDeleted": false
+  },
+  {
+    "Id": "68d68b67-f602-4f11-9ee7-c0c25beb29d8",
+    "Name": "Евро",
+    "CharCode": "EUR",
+    "NumCode": "978",
+    "Sign": "€",
+    "Emoji": "🇪🇺",
+    "IsDeleted": false
+  },
+  {
+    "Id": "b95e99d2-e16a-451e-bf5e-860d17e58347",
+    "Name": "Российский рубль",
+    "CharCode": "RUB",
+    "NumCode": "643",
+    "Sign": "₽",
+    "Emoji": "🇷🇺",
+    "IsDeleted": false
+  },
+  {
+    "Id": "f3e566db-adee-4bdb-85ea-617d528a507c",
+    "Name": "Белорусский рубль",
+    "CharCode": "BYN",
+    "NumCode": "933",
+    "Sign": "BYN",
+    "Emoji": "🇧🇾",
+    "IsDeleted": false
+  },
+  {
+    "Id": "ef4ad64b-f8b6-4807-9ff2-b6418f078cb1",
+    "Name": "Японская иена",
+    "CharCode": "JPY",
+    "NumCode": "392",
+    "Sign": "¥",
+    "Emoji": "🇯🇵",
+    "IsDeleted": false
+  },
+  {
+    "Id": "a325956f-d540-4d0c-9b34-6f3b4c276da1",
+    "Name": "Фунт стерлингов",
+    "CharCode": "GBP",
+    "NumCode": "826",
+    "Sign": "£",
+    "Emoji": "🇬🇧",
+    "IsDeleted": false
+  },
+  {
+    "Id": "51859eb9-8798-422d-96f2-661585ed0237",
+    "Name": "Швейцарский франк",
+    "CharCode": "CHF",
+    "NumCode": "756",
+    "Sign": "CHF",
+    "Emoji": "🇨🇭",
+    "IsDeleted": false
+  },
+  {
+    "Id": "582f24f2-9014-4fed-b763-9f599444c55f",
+    "Name": "Китайский юань",
+    "CharCode": "CNY",
+    "NumCode": "156",
+    "Sign": "¥",
+    "Emoji": "🇨🇳",
+    "IsDeleted": false
+  },
+  {
+    "Id": "56083aa2-bb38-40f1-8bb4-009907902c29",
+    "Name": "Канадский доллар",
+    "CharCode": "CAD",
+    "NumCode": "124",
+    "Sign": "$",
+    "Emoji": "🇨🇦",
+    "IsDeleted": false
+  },
+  {
+    "Id": "572710d4-38de-4646-9ed7-4bd3b0d5479b",
+    "Name": "Австралийский доллар",
+    "CharCode": "AUD",
+    "NumCode": "036",
+    "Sign": "$",
+    "Emoji": "🇦🇺",
+    "IsDeleted": false
+  },
+  {
+    "Id": "1b058b89-5fd7-4c34-8e43-74b7feef6d26",
+    "Name": "Новозеландский доллар",
+    "CharCode": "NZD",
+    "NumCode": "554",
+    "Sign": "$",
+    "Emoji": "🇳🇿",
+    "IsDeleted": false
+  },
+  {
+    "Id": "c9f6fe20-abae-4552-9c6a-f9bfa7f6912d",
+    "Name": "Сингапурский доллар",
+    "CharCode": "SGD",
+    "NumCode": "702",
+    "Sign": "$",
+    "Emoji": "🇸🇬",
+    "IsDeleted": false
+  },
+  {
+    "Id": "128d9e78-d29d-456b-aa5d-3cac1e44574d",
+    "Name": "Гонконгский доллар",
+    "CharCode": "HKD",
+    "NumCode": "344",
+    "Sign": "$",
+    "Emoji": "🇭🇰",
+    "IsDeleted": false
+  },
+  {
+    "Id": "94a016f5-f257-4978-ac1b-e4cbd699f648",
+    "Name": "Норвежская крона",
+    "CharCode": "NOK",
+    "NumCode": "578",
+    "Sign": "kr",
+    "Emoji": "🇳🇴",
+    "IsDeleted": false
+  },
+  {
+    "Id": "8bb60ee1-f745-45fb-aef2-851fad501835",
+    "Name": "Шведская крона",
+    "CharCode": "SEK",
+    "NumCode": "752",
+    "Sign": "kr",
+    "Emoji": "🇸🇪",
+    "IsDeleted": false
+  },
+  {
+    "Id": "aed63e09-c33b-4c2b-abf0-eb973c4c4c04",
+    "Name": "Датская крона",
+    "CharCode": "DKK",
+    "NumCode": "208",
+    "Sign": "kr",
+    "Emoji": "🇩🇰",
+    "IsDeleted": false
+  },
+  {
+    "Id": "9f15a8d7-2955-41d4-9601-1953b2a9ce37",
+    "Name": "Польский злотый",
+    "CharCode": "PLN",
+    "NumCode": "985",
+    "Sign": "zł",
+    "Emoji": "🇵🇱",
+    "IsDeleted": false
+  },
+  {
+    "Id": "fcc8d01a-78b0-4b60-9832-ed4038c5257e",
+    "Name": "Чешская крона",
+    "CharCode": "CZK",
+    "NumCode": "203",
+    "Sign": "Kč",
+    "Emoji": "🇨🇿",
+    "IsDeleted": false
+  },
+  {
+    "Id": "f44fde65-afc2-4ec4-af1e-ba73394bf79b",
+    "Name": "Венгерский форинт",
+    "CharCode": "HUF",
+    "NumCode": "348",
+    "Sign": "Ft",
+    "Emoji": "🇭🇺",
+    "IsDeleted": false
+  },
+  {
+    "Id": "5b209abe-4982-48f0-a7de-2fb594ab9deb",
+    "Name": "Турецкая лира",
+    "CharCode": "TRY",
+    "NumCode": "949",
+    "Sign": "₺",
+    "Emoji": "🇹🇷",
+    "IsDeleted": false
+  },
+  {
+    "Id": "b424ae3a-2d7b-4504-a475-7d7c4fbffd30",
+    "Name": "Бразильский реал",
+    "CharCode": "BRL",
+    "NumCode": "986",
+    "Sign": "R$",
+    "Emoji": "🇧🇷",
+    "IsDeleted": false
+  },
+  {
+    "Id": "1e238898-a090-4379-aab5-5ffe194c8833",
+    "Name": "Индийская рупия",
+    "CharCode": "INR",
+    "NumCode": "356",
+    "Sign": "₹",
+    "Emoji": "🇮🇳",
+    "IsDeleted": false
+  },
+  {
+    "Id": "d2900d70-93d9-4d9e-a615-c9af0a390fd5",
+    "Name": "Мексиканский песо",
+    "CharCode": "MXN",
+    "NumCode": "484",
+    "Sign": "$",
+    "Emoji": "🇲🇽",
+    "IsDeleted": false
+  },
+  {
+    "Id": "cda2533b-4844-462a-9e5f-8531354709cb",
+    "Name": "Южноафриканский ранд",
+    "CharCode": "ZAR",
+    "NumCode": "710",
+    "Sign": "R",
+    "Emoji": "🇿🇦",
+    "IsDeleted": false
+  },
+  {
+    "Id": "c5e3bbf3-a2ea-46c8-a452-99cf10870750",
+    "Name": "Израильский шекель",
+    "CharCode": "ILS",
+    "NumCode": "376",
+    "Sign": "₪",
+    "Emoji": "🇮🇱",
+    "IsDeleted": false
+  },
+  {
+    "Id": "41a6221a-079a-4f93-ae97-15bc936be8de",
+    "Name": "Саудовский риял",
+    "CharCode": "SAR",
+    "NumCode": "682",
+    "Sign": "﷼",
+    "Emoji": "🇸🇦",
+    "IsDeleted": false
+  },
+  {
+    "Id": "f057fbde-053e-4ca8-9667-20b3d15e51b0",
+    "Name": "ОАЭ дирхам",
+    "CharCode": "AED",
+    "NumCode": "784",
+    "Sign": "د.إ",
+    "Emoji": "🇦🇪",
+    "IsDeleted": false
+  },
+  {
+    "Id": "a89b029b-7b1d-484c-b911-a166919c512d",
+    "Name": "Кувейтский динар",
+    "CharCode": "KWD",
+    "NumCode": "414",
+    "Sign": "د.ك",
+    "Emoji": "🇰🇼",
+    "IsDeleted": false
+  },
+  {
+    "Id": "a8875d28-bf19-4b8c-b61c-9f48f96f0fd4",
+    "Name": "Катарский риал",
+    "CharCode": "QAR",
+    "NumCode": "634",
+    "Sign": "ر.ق",
+    "Emoji": "🇶🇦",
+    "IsDeleted": false
+  },
+  {
+    "Id": "6000ce60-db39-4dcf-937b-090de8e5a9c5",
+    "Name": "Египетский фунт",
+    "CharCode": "EGP",
+    "NumCode": "818",
+    "Sign": "£",
+    "Emoji": "🇪🇬",
+    "IsDeleted": false
+  },
+  {
+    "Id": "b1fff0d3-e3e4-4044-83d0-30a5d4673407",
+    "Name": "Пакистанская рупия",
+    "CharCode": "PKR",
+    "NumCode": "586",
+    "Sign": "₨",
+    "Emoji": "🇵🇰",
+    "IsDeleted": false
+  },
+  {
+    "Id": "c0f5ab4f-b360-48c2-8d7b-0f5c86659a65",
+    "Name": "Бангладешская така",
+    "CharCode": "BDT",
+    "NumCode": "050",
+    "Sign": "৳",
+    "Emoji": "🇧🇩",
+    "IsDeleted": false
+  },
+  {
+    "Id": "e09f7475-4982-480a-977b-845a1fcc83ea",
+    "Name": "Индонезийская рупия",
+    "CharCode": "IDR",
+    "NumCode": "360",
+    "Sign": "Rp",
+    "Emoji": "🇮🇩",
+    "IsDeleted": false
+  },
+  {
+    "Id": "808dae87-540f-4c58-bda2-cbcb4acef922",
+    "Name": "Филиппинское песо",
+    "CharCode": "PHP",
+    "NumCode": "608",
+    "Sign": "₱",
+    "Emoji": "🇵🇭",
+    "IsDeleted": false
+  },
+  {
+    "Id": "3b424213-4020-4c59-b251-7a51865347fd",
+    "Name": "Малайзийский ринггит",
+    "CharCode": "MYR",
+    "NumCode": "458",
+    "Sign": "RM",
+    "Emoji": "🇲🇾",
+    "IsDeleted": false
+  },
+  {
+    "Id": "562e40bb-5107-40f5-9906-b15a1cf1b76b",
+    "Name": "Таиландский бат",
+    "CharCode": "THB",
+    "NumCode": "764",
+    "Sign": "฿",
+    "Emoji": "🇹🇭",
+    "IsDeleted": false
+  },
+  {
+    "Id": "3e619b1d-127a-40de-a3dd-06999c7553a0",
+    "Name": "Вьетнамский донг",
+    "CharCode": "VND",
+    "NumCode": "704",
+    "Sign": "₫",
+    "Emoji": "🇻🇳",
+    "IsDeleted": false
+  },
+  {
+    "Id": "e9944f17-f26f-4926-95c4-789d2750b6ef",
+    "Name": "Аргентинский песо",
+    "CharCode": "ARS",
+    "NumCode": "032",
+    "Sign": "$",
+    "Emoji": "🇦🇷",
+    "IsDeleted": false
+  },
+  {
+    "Id": "cf627fee-ddb1-4c33-9b34-38f9709eb5f8",
+    "Name": "Чилийское песо",
+    "CharCode": "CLP",
+    "NumCode": "152",
+    "Sign": "$",
+    "Emoji": "🇨🇱",
+    "IsDeleted": false
+  },
+  {
+    "Id": "15473fd2-4574-4324-a856-2a2539cdbad7",
+    "Name": "Колумбийское песо",
+    "CharCode": "COP",
+    "NumCode": "170",
+    "Sign": "$",
+    "Emoji": "🇨🇴",
+    "IsDeleted": false
+  },
+  {
+    "Id": "9f334c77-9a56-4e2e-9058-27519d824366",
+    "Name": "Перуанский соль",
+    "CharCode": "PEN",
+    "NumCode": "604",
+    "Sign": "S/",
+    "Emoji": "🇵🇪",
+    "IsDeleted": false
+  },
+  {
+    "Id": "85c33f8c-4a44-494b-a57d-dd77035ad657",
+    "Name": "Исландская крона",
+    "CharCode": "ISK",
+    "NumCode": "352",
+    "Sign": "kr",
+    "Emoji": "🇮🇸",
+    "IsDeleted": false
+  },
+  {
+    "Id": "0dd40691-2c3e-4fd0-b86b-77afc231790c",
+    "Name": "Южнокорейская вона",
+    "CharCode": "KRW",
+    "NumCode": "410",
+    "Sign": "₩",
+    "Emoji": "🇰🇷",
+    "IsDeleted": false
+  },
+  {
+    "Id": "f6d8ddda-095c-44bf-a55c-445e8aec94b6",
+    "Name": "Тайваньский доллар",
+    "CharCode": "TWD",
+    "NumCode": "901",
+    "Sign": "NT$",
+    "Emoji": "🇹🇼",
+    "IsDeleted": false
+  },
+  {
+    "Id": "b6ae2763-0faf-4fb8-9031-eb03e733910e",
+    "Name": "Шри-ланкийская рупия",
+    "CharCode": "LKR",
+    "NumCode": "144",
+    "Sign": "Rs",
+    "Emoji": "🇱🇰",
+    "IsDeleted": false
+  },
+  {
+    "Id": "70c59617-0504-4651-b30c-683d3f953649",
+    "Name": "Нигерийская найра",
+    "CharCode": "NGN",
+    "NumCode": "566",
+    "Sign": "₦",
+    "Emoji": "🇳🇬",
+    "IsDeleted": false
+  },
+  {
+    "Id": "31c6206d-603b-4f11-b397-ba39e0180e92",
+    "Name": "Кенийский шиллинг",
+    "CharCode": "KES",
+    "NumCode": "404",
+    "Sign": "KSh",
+    "Emoji": "🇰🇪",
+    "IsDeleted": false
+  },
+  {
+    "Id": "f04c0514-8a55-4681-9154-d0e97862bc89",
+    "Name": "Ганский седи",
+    "CharCode": "GHS",
+    "NumCode": "936",
+    "Sign": "₵",
+    "Emoji": "🇬🇭",
+    "IsDeleted": false
+  }
+]
