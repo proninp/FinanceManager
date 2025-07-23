@@ -1,6 +1,9 @@
+using System.Reflection;
 using FinanceManager.CatalogService.API.Extensions;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.EntityFramework.Seeding;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,16 +16,18 @@ builder.Services
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer(); 
+builder.Services.AddSwagger(builder.Configuration);
+//builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseStaticFiles();
+    app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0);
+    app.UseSwaggerUI(options => {options.SwaggerEndpoint("./v1/swagger.json", "FinanceManager CatalogService API");});
 }
 
 await app.UseMigrationAsync();
