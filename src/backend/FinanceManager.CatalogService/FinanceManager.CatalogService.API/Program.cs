@@ -26,8 +26,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseStaticFiles();
-    app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0);
-    app.UseSwaggerUI(options => {options.SwaggerEndpoint("./v1/swagger.json", "FinanceManager CatalogService API");});
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 await app.UseMigrationAsync();
