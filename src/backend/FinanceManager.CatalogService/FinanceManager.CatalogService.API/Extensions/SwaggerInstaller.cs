@@ -28,32 +28,17 @@ public static class SwaggerInstaller
     {
         services.AddSwaggerGen(options =>
         {
-            var openApiInfo = new OpenApiInfo
-            {
-                Title = "Finance Manager Catalog Service API",
-                Version = "v1",
-                Description = "API для обработки запросов на получение информации о сущностях каталогов через REST",
-                Contact = new OpenApiContact
-                {
-                    Name = "Команда DotNetRunners",
-                    Url = new Uri("https://github.com/proninp/FinanceManager")
-                }
-            };
-            
-            options.SwaggerDoc("v1", openApiInfo);
-            
+            options.SwaggerDoc("v1", configuration.GetSection(nameof(OpenApiInfo)).Get<OpenApiInfo>());
+
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-        
             if (File.Exists(xmlPath))
             {
                 options.IncludeXmlComments(xmlPath);
             }
-            
+
             options.EnableAnnotations();
         });
         return services;
     }
-
-  
 }
