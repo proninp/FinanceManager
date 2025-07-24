@@ -69,6 +69,7 @@ public static class Installer
     private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services
+            .AddScoped<ISystemInfoService, SystemInfoService>()
             .AddScoped<IAccountService, AccountService>()
             .AddScoped<IAccountTypeService, AccountTypeService>()
             .AddScoped<IBankService, BankService>()

@@ -1,6 +1,5 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using FinanceManager.CatalogService.Abstractions.Services;
+using FinanceManager.CatalogService.Contracts.DTOs.SystemInfo;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -10,52 +9,58 @@ namespace FinanceManager.CatalogService.API.Controllers;
 /// Контроллер информации о сервисе
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 [SwaggerTag("Контроллер информации о сервисе")]
-public class EnvironmentController(ILogger logger) : ControllerBase
+[Produces("application/json")]
+public sealed class EnvironmentController(ISystemInfoService systemInfoService, Serilog.ILogger logger) : ControllerBase
 {
     /// <summary>
-    /// Возвращает системную информацию о приложении и окружении.
+    /// Возвращает системную информацию о приложении и окружении
     /// </summary>
-    /// <returns>
-    /// Строка с данными:
-    /// - Имя и версия сборки,
-    /// - Версия .NET,
-    /// - Локальное время (ISO 8601),
-    /// - Имя машины,
-    /// - Архитектура ОС и процесса,
-    /// - Платформа и версия ОС.
-    /// </returns>
-    [HttpGet(Name = "GetEnvInfo")]
-    [ProducesResponseType(typeof(string), 200)]
-    public ActionResult<string> Get()
+    /// <returns>Структурированная информация о системе</returns>
+    /// <response code="200">Системная информация успешно получена</response>
+    /// <response code="500">Внутренняя ошибка сервера</response>
+    [HttpGet("info")]
+    [SwaggerOperation(
+        Summary = "Получение системной информации",
+        Description = "Возвращает подробную информацию о приложении, платформе и окружении выполнения"
+    )]
+    [ProducesResponseType(typeof(SystemInfoResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public ActionResult<SystemInfoResponseDto> GetSystemInfo()
     {
-        // Получение информации о сборке
-        var assembly = Assembly.GetEntryAssembly();
-        var assemblyName = assembly?.GetName().Name ?? "Unknown";
-        var assemblyVersion = assembly?.GetName().Version?.ToString() ?? "Unknown";
+        try
+        {
+            logger.Information("Запрос системной информации");
+            var systemInfoResponse = systemInfoService.GetSystemInfo();
+            logger.Information("Системная информация успешно возвращена");
+            return Ok(systemInfoResponse);
+        }
+        catch (Exception ex)
+        {
+            logger.Error(ex, "Ошибка при получении системной информации");
+            return Problem(
+                title: "Ошибка получения системной информации",
+                detail: "Не удалось получить информацию о системе",
+                statusCode: StatusCodes.Status500InternalServerError
+            );
+        }
+    }
 
-        // Получение информации о платформе и окружении
-        var frameworkDescription = RuntimeInformation.FrameworkDescription;
-        var localTime = DateTime.Now.ToString("o"); // ISO 8601 формат
-        var machineName = Environment.MachineName;
-        var osArchitecture = RuntimeInformation.OSArchitecture.ToString();
-        var osPlatform = RuntimeInformation.OSDescription;
-        var osVersion = Environment.OSVersion.VersionString;
-        var processArchitecture = RuntimeInformation.ProcessArchitecture.ToString();
-
-        // Используем StringBuilder для формирования строки
-        var sb = new StringBuilder();
-        sb.AppendLine($"          Assembly Name = {assemblyName}");
-        sb.AppendLine($"       Assembly Version = {assemblyVersion}");
-        sb.AppendLine($"  Framework Description = {frameworkDescription}");
-        sb.AppendLine($"             Local Time = {localTime}");
-        sb.AppendLine($"           Machine Name = {machineName}");
-        sb.AppendLine($"        OS Architecture = {osArchitecture}");
-        sb.AppendLine($"            OS Platform = {osPlatform}");
-        sb.AppendLine($"             OS Version = {osVersion}");
-        sb.AppendLine($"   Process Architecture = {processArchitecture}");
-
-        return sb.ToString();
+    /// <summary>
+    /// Проверка доступности сервиса (Health Check)
+    /// </summary>
+    /// <returns>Статус сервиса</returns>
+    /// <response code="200">Сервис доступен</response>
+    [HttpGet("health")]
+    [SwaggerOperation(
+        Summary = "Проверка работоспособности",
+        Description = "Простая проверка доступности сервиса"
+    )]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    public IActionResult GetHealth()
+    {
+        logger.Information("Получен Health check запрос");
+        return Ok(new {Status = "Healthy", Timestamp = DateTime.UtcNow });
     }
 }
