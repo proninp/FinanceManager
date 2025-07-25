@@ -16,6 +16,7 @@ public class BankRepository(DatabaseContext context, ILogger logger)
     : BaseRepository<Bank, BankFilterDto>(context, logger), IBankRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Включает связанные сущности для <see cref="Bank"/> (например, страну).
@@ -57,17 +58,17 @@ public class BankRepository(DatabaseContext context, ILogger logger)
     /// <returns>Количество записей, сохранённых в базе данных.</returns>
     public async Task<int> InitializeAsync(IEnumerable<Bank> entities, CancellationToken cancellationToken = default)
     {
-        logger.Information("Начинается инициализация сущности Банк");
+        _logger.Information("Начинается инициализация сущности Банк");
         if (!await Entities.AnyAsync(cancellationToken))
         {
-            logger.Debug("Таблица банков пуста, добавляем все");
+            _logger.Debug("Таблица банков пуста, добавляем все");
             await Entities.AddRangeAsync(entities, cancellationToken);
             var result = await _context.CommitAsync(cancellationToken);
-            logger.Information("Инициализация завершена, добавлено {AddedCount} банков", result);
+            _logger.Information("Инициализация завершена, добавлено {AddedCount} банков", result);
             return result;
         }
 
-        logger.Debug("Таблица банков содержит данные, проверяем уникальность");
+        _logger.Debug("Таблица банков содержит данные, проверяем уникальность");
         var query = Entities.AsQueryable();
         var addedCount = 0;
 
@@ -79,18 +80,18 @@ public class BankRepository(DatabaseContext context, ILogger logger)
             {
                 await Entities.AddAsync(entity, cancellationToken);
                 addedCount++;
-                logger.Debug("Добавлен банк: {BankName} (страна: {CountryId})", entity.Name, entity.CountryId);
+                _logger.Debug("Добавлен банк: {BankName} (страна: {CountryId})", entity.Name, entity.CountryId);
             }
             else
             {
-                logger.Debug("Банк {BankName} уже существует в стране {CountryId}, пропускаем", entity.Name,
+                _logger.Debug("Банк {BankName} уже существует в стране {CountryId}, пропускаем", entity.Name,
                     entity.CountryId);
             }
         }
 
         var commitResult = await _context.CommitAsync(cancellationToken);
 
-        logger.Information("Инициализация завершена, добавлено {AddedCount} новых банков", addedCount);
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} новых банков", addedCount);
 
         return commitResult;
     }
@@ -104,14 +105,14 @@ public class BankRepository(DatabaseContext context, ILogger logger)
     public async Task<ICollection<Bank>> GetAllAsync(bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Получение всех банков. Включить связанные данные: {IncludeRelated}", includeRelated);
+        _logger.Information("Получение всех банков. Включить связанные данные: {IncludeRelated}", includeRelated);
 
         var query = Entities.AsNoTracking();
         if (includeRelated)
             query = IncludeRelatedEntities(query);
         var banks = await query.ToListAsync(cancellationToken);
 
-        logger.Information("Получено {BanksCount} банков", banks.Count);
+        _logger.Information("Получено {BanksCount} банков", banks.Count);
 
         return banks;
     }
@@ -127,7 +128,7 @@ public class BankRepository(DatabaseContext context, ILogger logger)
     public async Task<bool> IsNameUniqueByCountryAsync(string name, Guid countryId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        logger.Debug("Проверка уникальности имени банка '{BankName}' в стране {CountryId}, исключая банк {ExcludeId}",
+        _logger.Debug("Проверка уникальности имени банка '{BankName}' в стране {CountryId}, исключая банк {ExcludeId}",
             name, countryId, excludeId);
 
         var query = Entities.Where(b => b.CountryId == countryId);
@@ -135,7 +136,7 @@ public class BankRepository(DatabaseContext context, ILogger logger)
             predicate: b => string.Equals(b.Name, name, StringComparison.InvariantCultureIgnoreCase),
             excludeId, cancellationToken);
 
-        logger.Debug("Имя банка '{BankName}' в стране {CountryId} {UniqueResult}",
+        _logger.Debug("Имя банка '{BankName}' в стране {CountryId} {UniqueResult}",
             name, countryId, isUnique ? "уникально" : "не уникально");
 
         return isUnique;
@@ -153,7 +154,7 @@ public class BankRepository(DatabaseContext context, ILogger logger)
         bool includeDeletedAccounts = false,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Получение количества счетов для банка {BankId}. " +
+        _logger.Information("Получение количества счетов для банка {BankId}. " +
                            "Включить архивные: {IncludeArchived}, " +
                            "Включить удалённые: {IncludeDeleted}",
             bankId, includeArchivedAccounts, includeDeletedAccounts);
@@ -166,7 +167,7 @@ public class BankRepository(DatabaseContext context, ILogger logger)
 
         var count = await query.CountAsync(cancellationToken);
 
-        logger.Information("Банк {BankId} используется в {AccountsCount} счетах", bankId, count);
+        _logger.Information("Банк {BankId} используется в {AccountsCount} счетах", bankId, count);
 
         return count;
     }
@@ -179,11 +180,11 @@ public class BankRepository(DatabaseContext context, ILogger logger)
     /// <returns>True, если банк можно удалить; иначе — false.</returns>
     public async Task<bool> CanBeDeletedAsync(Guid bankId, CancellationToken cancellationToken = default)
     {
-        logger.Debug("Проверка возможности удаления банка {BankId}", bankId);
+        _logger.Debug("Проверка возможности удаления банка {BankId}", bankId);
 
         var canBeDeleted = !await _context.Accounts.AnyAsync(a => a.BankId == bankId, cancellationToken);
 
-        logger.Information("Банк {BankId} {DeletionResult}", bankId,
+        _logger.Information("Банк {BankId} {DeletionResult}", bankId,
             canBeDeleted ? "может быть удалён" : "не может быть удалён (используется в счетах)");
 
         return canBeDeleted;
