@@ -51,6 +51,7 @@ public class AccountRepository(DatabaseContext context, ILogger logger)
                 ? query.Where(a => a.Name.Contains(filter.NameContains))
                 : query.Where(a => string.Equals(a.Name, string.Empty));
         }
+
         if (filter.IsIncludeInBalance.HasValue)
             query = query.Where(a => a.IsIncludeInBalance == filter.IsIncludeInBalance.Value);
         if (filter.IsDefault.HasValue)
@@ -76,11 +77,18 @@ public class AccountRepository(DatabaseContext context, ILogger logger)
         bool includeDeleted = false,
         CancellationToken cancellationToken = default)
     {
-        return await Entities
+        logger.Information(
+            "Получение количества счетов для владельца {RegistryHolderId}. " +
+            "Включить архивные: {IncludeArchived}, " +
+            "Включить удалённые: {IncludeDeleted}",
+            registryHolderId, includeArchived, includeDeleted);
+        var count = await Entities
             .Where(a => a.RegistryHolderId == registryHolderId &&
                         (includeArchived || !a.IsArchived) &&
                         (includeDeleted || !a.IsDeleted))
             .CountAsync(cancellationToken);
+        logger.Information("Найдено {Count} счетов для владельца {RegistryHolderId}", count, registryHolderId);
+        return count;
     }
 
     /// <summary>
@@ -93,10 +101,17 @@ public class AccountRepository(DatabaseContext context, ILogger logger)
     public async Task<bool> HasDefaultAccountAsync(Guid registryHolderId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
+        logger.Debug("Проверка наличия счёта по умолчанию для владельца {RegistryHolderId}, исключая счёт {ExcludeId}",
+            registryHolderId, excludeId);
         var query = Entities.AsQueryable();
         if (excludeId.HasValue)
             query = query.Where(a => a.Id != excludeId.Value);
-        return await query.AnyAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault, cancellationToken);
+        var hasDefault =
+            await query.AnyAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault, cancellationToken);
+        logger.Debug("Счёт по умолчанию для владельца {RegistryHolderId} {HasDefaultResult}",
+            registryHolderId, hasDefault ? "найден" : "не найден");
+
+        return hasDefault;
     }
 
     /// <summary>
@@ -108,7 +123,20 @@ public class AccountRepository(DatabaseContext context, ILogger logger)
     public async Task<Account?> GetDefaultAccountAsync(Guid registryHolderId,
         CancellationToken cancellationToken = default)
     {
-        return await Entities.FirstOrDefaultAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault,
+        logger.Information("Получение счёта по умолчанию для владельца {RegistryHolderId}", registryHolderId);
+        var defaultAccount = await Entities.FirstOrDefaultAsync(
+            a => a.RegistryHolderId == registryHolderId && a.IsDefault,
             cancellationToken);
+        if (defaultAccount == null)
+        {
+            logger.Warning("Счёт по умолчанию для владельца {RegistryHolderId} не найден", registryHolderId);
+        }
+        else
+        {
+            logger.Information("Найден счёт по умолчанию {AccountId} для владельца {RegistryHolderId}",
+                defaultAccount.Id, registryHolderId);
+        }
+
+        return defaultAccount;
     }
 }
