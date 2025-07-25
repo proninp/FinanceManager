@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Contracts.DTOs.Countries;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,8 +12,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для управления сущностями <see cref="Country"/>.
 /// Предоставляет методы для фильтрации, инициализации, проверки уникальности и сортировки.
 /// </summary>
-public class CountryRepository(DatabaseContext context)
-    : BaseRepository<Country, CountryFilterDto>(context), ICountryRepository
+public class CountryRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Country, CountryFilterDto>(context, logger), ICountryRepository
 {
     private readonly DatabaseContext _context = context;
 

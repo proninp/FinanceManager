@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,7 +12,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для управления сущностями <see cref="Bank"/>.
 /// Предоставляет методы для фильтрации, инициализации, проверки уникальности, получения связанных данных и проверки возможности удаления.
 /// </summary>
-public class BankRepository(DatabaseContext context) : BaseRepository<Bank, BankFilterDto>(context), IBankRepository
+public class BankRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Bank, BankFilterDto>(context, logger), IBankRepository
 {
     private readonly DatabaseContext _context = context;
 

@@ -5,6 +5,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -15,8 +16,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// <remarks>
 /// Наследует функциональность базового репозитория и реализует ICurrencyRepository.
 /// </remarks>
-public class CurrencyRepository(DatabaseContext context)
-    : BaseRepository<Currency, CurrencyFilterDto>(context), ICurrencyRepository
+public class CurrencyRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Currency, CurrencyFilterDto>(context, logger), ICurrencyRepository
 {
     private readonly DatabaseContext _context = context;
 

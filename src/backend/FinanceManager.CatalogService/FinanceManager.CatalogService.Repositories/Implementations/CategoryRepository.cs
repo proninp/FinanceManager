@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,8 +12,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для работы с категориями.
 /// Предоставляет методы фильтрации, проверки уникальности имени, проверки валидности смены родителя и получения категорий по владельцу.
 /// </summary>
-public class CategoryRepository(DatabaseContext context)
-    : BaseRepository<Category, CategoryFilterDto>(context), ICategoryRepository
+public class CategoryRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Category, CategoryFilterDto>(context, logger), ICategoryRepository
 {
     private readonly DatabaseContext _context = context;
 

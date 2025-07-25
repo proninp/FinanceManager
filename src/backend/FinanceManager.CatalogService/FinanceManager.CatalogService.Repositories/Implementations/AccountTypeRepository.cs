@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,8 +12,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для управления сущностями <see cref="AccountType"/>.
 /// Предоставляет методы для фильтрации, получения всех типов счетов, проверки уникальности кода, проверки существования по коду и проверки возможности удаления.
 /// </summary>
-public class AccountTypeRepository(DatabaseContext context)
-    : BaseRepository<AccountType, AccountTypeFilterDto>(context), IAccountTypeRepository
+public class AccountTypeRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<AccountType, AccountTypeFilterDto>(context, logger), IAccountTypeRepository
 {
     private readonly DatabaseContext _context = context;
 

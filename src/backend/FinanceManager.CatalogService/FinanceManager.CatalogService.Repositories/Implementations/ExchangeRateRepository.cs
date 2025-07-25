@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -14,8 +15,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// <remarks>
 /// Наследует функциональность базового репозитория и реализует IExchangeRateRepository.
 /// </remarks>
-public class ExchangeRateRepository(DatabaseContext context)
-    : BaseRepository<ExchangeRate, ExchangeRateFilterDto>(context), IExchangeRateRepository
+public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<ExchangeRate, ExchangeRateFilterDto>(context, logger), IExchangeRateRepository
 {
     private readonly DatabaseContext _context = context;
 

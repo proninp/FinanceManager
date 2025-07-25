@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,8 +12,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для работы со счетами.
 /// Предоставляет методы фильтрации, получения количества счетов по владельцу, проверки наличия и получения счета по умолчанию.
 /// </summary>
-public class AccountRepository(DatabaseContext context)
-    : BaseRepository<Account, AccountFilterDto>(context), IAccountRepository
+public class AccountRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Account, AccountFilterDto>(context, logger), IAccountRepository
 {
     private readonly DatabaseContext _context = context;
 

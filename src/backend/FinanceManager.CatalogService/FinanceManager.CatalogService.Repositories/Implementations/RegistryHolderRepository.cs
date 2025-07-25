@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,8 +12,8 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для работы с владельцами справочников (RegistryHolder).
 /// Предоставляет методы фильтрации, проверки уникальности TelegramId и возможности удаления.
 /// </summary>
-public class RegistryHolderRepository(DatabaseContext context)
-    : BaseRepository<RegistryHolder, RegistryHolderFilterDto>(context), IRegistryHolderRepository
+public class RegistryHolderRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<RegistryHolder, RegistryHolderFilterDto>(context, logger), IRegistryHolderRepository
 {
     private readonly DatabaseContext _context = context;
 
