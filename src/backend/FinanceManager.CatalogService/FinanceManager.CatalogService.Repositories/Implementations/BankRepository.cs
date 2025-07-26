@@ -59,10 +59,13 @@ public class BankRepository(DatabaseContext context, ILogger logger)
     public async Task<int> InitializeAsync(IEnumerable<Bank> entities, CancellationToken cancellationToken = default)
     {
         _logger.Information("Начинается инициализация сущности Банк");
+        var banksList = entities as ICollection<Bank> ?? entities.ToList();
+        _logger.Debug("Подготовлено {BanksCount} банков для инициализации", banksList.Count);
+
         if (!await Entities.AnyAsync(cancellationToken))
         {
             _logger.Debug("Таблица банков пуста, добавляем все");
-            await Entities.AddRangeAsync(entities, cancellationToken);
+            await Entities.AddRangeAsync(banksList, cancellationToken);
             var result = await _context.CommitAsync(cancellationToken);
             _logger.Information("Инициализация завершена, добавлено {AddedCount} банков", result);
             return result;
@@ -72,7 +75,7 @@ public class BankRepository(DatabaseContext context, ILogger logger)
         var query = Entities.AsQueryable();
         var addedCount = 0;
 
-        foreach (var entity in entities)
+        foreach (var entity in banksList)
         {
             if (!await query.AnyAsync(
                     b => b.CountryId == entity.CountryId && string.Equals(b.Name, entity.Name,
@@ -91,7 +94,8 @@ public class BankRepository(DatabaseContext context, ILogger logger)
 
         var commitResult = await _context.CommitAsync(cancellationToken);
 
-        _logger.Information("Инициализация завершена, добавлено {AddedCount} новых банков", addedCount);
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} новых банков из {TotalCount}", addedCount,
+            banksList.Count);
 
         return commitResult;
     }
@@ -155,8 +159,8 @@ public class BankRepository(DatabaseContext context, ILogger logger)
         CancellationToken cancellationToken = default)
     {
         _logger.Information("Получение количества счетов для банка {BankId}. " +
-                           "Включить архивные: {IncludeArchived}, " +
-                           "Включить удалённые: {IncludeDeleted}",
+                            "Включить архивные: {IncludeArchived}, " +
+                            "Включить удалённые: {IncludeDeleted}",
             bankId, includeArchivedAccounts, includeDeletedAccounts);
 
         var query = _context.Accounts.Where(b => b.BankId == bankId);
