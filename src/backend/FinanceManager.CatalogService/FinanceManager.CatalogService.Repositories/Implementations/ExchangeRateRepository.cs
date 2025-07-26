@@ -19,6 +19,7 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
     : BaseRepository<ExchangeRate, ExchangeRateFilterDto>(context, logger), IExchangeRateRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Включает связанные сущности (валюту) в запрос.
@@ -63,12 +64,12 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
     public async Task<bool> ExistsForCurrencyAndDateAsync(Guid currencyId, DateTime rateDate,
         CancellationToken cancellationToken = default)
     {
-        logger.Debug("Проверка наличия курса для валюты {CurrencyId} на дату {RateDate}",
+        _logger.Debug("Проверка наличия курса для валюты {CurrencyId} на дату {RateDate}",
             currencyId, rateDate);
         var exists = await Entities.AnyAsync(er => er.CurrencyId == currencyId && er.RateDate == rateDate,
             cancellationToken: cancellationToken);
 
-        logger.Debug("Курс для валюты {CurrencyId} на дату {RateDate} {HasCurrencyRate}",
+        _logger.Debug("Курс для валюты {CurrencyId} на дату {RateDate} {HasCurrencyRate}",
             currencyId, rateDate, exists ? "найден" : "не найден");
 
         return exists;
@@ -83,12 +84,12 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
     public async Task<ICollection<ExchangeRate>> AddRangeAsync(ICollection<ExchangeRate> exchangeRates,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Добавление {Count} курсов валют", exchangeRates.Count);
+        _logger.Information("Добавление {Count} курсов валют", exchangeRates.Count);
 
         if (!await Entities.AnyAsync(cancellationToken))
         {
             await Entities.AddRangeAsync(exchangeRates, cancellationToken);
-            logger.Information("Добавлены все {Count} курсов валют в пустой репозиторий", exchangeRates.Count);
+            _logger.Information("Добавлены все {Count} курсов валют в пустой репозиторий", exchangeRates.Count);
             return exchangeRates;
         }
 
@@ -103,7 +104,7 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
             addedRates.Add(entity);
         }
 
-        logger.Information("Добавлено {AddedCount} новых курсов валют из {TotalCount} предоставленных " +
+        _logger.Information("Добавлено {AddedCount} новых курсов валют из {TotalCount} предоставленных " +
                            "(пропущено {SkippedCount} существующих курсов)",
             addedRates.Count, exchangeRates.Count, exchangeRates.Count - addedRates.Count);
         return addedRates;
@@ -117,12 +118,12 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
     /// <returns>True, если курс существует, иначе False.</returns>
     public async Task<bool> ExistsForDateAsync(DateTime rateDate, CancellationToken cancellationToken = default)
     {
-        logger.Debug("Проверка наличия курса на дату {RateDate}", rateDate);
+        _logger.Debug("Проверка наличия курса на дату {RateDate}", rateDate);
         
         var exists = await Entities.AnyAsync(er => er.RateDate == rateDate,
             cancellationToken: cancellationToken);
         
-        logger.Debug("Курс для на дату {RateDate} {HasCurrencyRate}",
+        _logger.Debug("Курс для на дату {RateDate} {HasCurrencyRate}",
             rateDate, exists ? "найден" : "не найден");
         
         return exists;
@@ -136,7 +137,7 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
     /// <returns>Дата последнего курса или null, если записи отсутствуют.</returns>
     public async Task<DateTime?> GetLastRateDateAsync(Guid currencyId, CancellationToken cancellationToken = default)
     {
-        logger.Debug("Получение курса валюты {CurrencyId} на последнюю доступную дату", currencyId);
+        _logger.Debug("Получение курса валюты {CurrencyId} на последнюю доступную дату", currencyId);
         var exchangeRateDateTime = await Entities
             .Where(er => er.CurrencyId == currencyId)
             .Select(er => (DateTime?)er.RateDate)
@@ -144,12 +145,12 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
 
         if (exchangeRateDateTime.HasValue)
         {
-            logger.Debug("Для валюты {CurrencyId} найден курс на дату {RateDate}",
+            _logger.Debug("Для валюты {CurrencyId} найден курс на дату {RateDate}",
                 currencyId, exchangeRateDateTime.Value.Date);
         }
         else
         {
-            logger.Debug("Для валюты {CurrencyId} не найдено ни одного курса", currencyId);
+            _logger.Debug("Для валюты {CurrencyId} не найдено ни одного курса", currencyId);
         }
         
         return exchangeRateDateTime;
@@ -165,13 +166,13 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
     public async Task DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Удаление курсов валют для валюты {CurrencyId} с {DateFrom:yyyy-MM-dd} " +
+        _logger.Information("Удаление курсов валют для валюты {CurrencyId} с {DateFrom:yyyy-MM-dd} " +
                            "по {DateTo:yyyy-MM-dd}", currencyId, dateFrom, dateTo);
         
         var deletedCount = await Entities.Where(er => er.CurrencyId == currencyId && er.RateDate >= dateFrom && er.RateDate <= dateTo)
             .ExecuteDeleteAsync(cancellationToken);
         
-        logger.Information("Удалено {DeletedCount} курсов валют для валюты {CurrencyId} " +
+        _logger.Information("Удалено {DeletedCount} курсов валют для валюты {CurrencyId} " +
                            "за период с {DateFrom:yyyy-MM-dd} по {DateTo:yyyy-MM-dd}", 
             deletedCount, currencyId, dateFrom, dateTo);
     }
