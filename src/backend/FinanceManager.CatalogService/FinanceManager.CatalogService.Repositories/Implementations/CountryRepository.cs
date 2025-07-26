@@ -16,6 +16,7 @@ public class CountryRepository(DatabaseContext context, ILogger logger)
     : BaseRepository<Country, CountryFilterDto>(context, logger), ICountryRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Применяет фильтры к запросу <see cref="Country"/> на основе переданного <paramref name="filter"/>.
@@ -44,23 +45,45 @@ public class CountryRepository(DatabaseContext context, ILogger logger)
     /// <returns>Количество записей, сохранённых в базе данных.</returns>
     public async Task<int> InitializeAsync(IEnumerable<Country> entities, CancellationToken cancellationToken = default)
     {
+        _logger.Information("Начинается инициализация стран");
+        var countriesList = entities as ICollection<Country> ?? entities.ToList();
+        _logger.Debug("Подготовлено {CountriesCount} стран для инициализации", countriesList.Count);
+        
         if (!await Entities.AnyAsync(cancellationToken))
         {
-            await Entities.AddRangeAsync(entities, cancellationToken);
-            return await _context.CommitAsync(cancellationToken);
+            _logger.Debug("Таблица стран пуста, добавляем все страны");
+            await Entities.AddRangeAsync(countriesList, cancellationToken);
+            var result = await _context.CommitAsync(cancellationToken);
+                
+            _logger.Information("Инициализация завершена, добавлено {AddedCount} стран", result);
+            return result;
         }
 
+        _logger.Debug("Таблица стран содержит данные, проверяем уникальность");
         var query = Entities.AsQueryable();
-        foreach (var entity in entities)
+        var addedCount = 0;
+        
+        foreach (var entity in countriesList)
         {
             if (!await query.AnyAsync(
                     c => string.Equals(c.Name, entity.Name,
                         StringComparison.InvariantCultureIgnoreCase), cancellationToken))
             {
                 await Entities.AddAsync(entity, cancellationToken);
+                addedCount++;
+                _logger.Debug("Добавлена страна: {CountryName}", entity.Name);
+            }
+            else
+            {
+                _logger.Debug("Валюта {CountryName} уже существует, пропускаем", entity.Name);
             }
         }
-        return await _context.CommitAsync(cancellationToken);
+        var commitResult = await _context.CommitAsync(cancellationToken);
+            
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} новых валют из {TotalCount}",
+            addedCount, countriesList.Count);
+            
+        return commitResult;
     }
 
     /// <summary>
@@ -72,10 +95,18 @@ public class CountryRepository(DatabaseContext context, ILogger logger)
     public async Task<ICollection<Country>> GetAllOrderedByNameAsync(bool ascending = true,
         CancellationToken cancellationToken = default)
     {
+        _logger.Information(
+            "Получение всех стран, отсортированных по названию. " +
+            "По возрастанию: {Ascending}", ascending);
         var query = Entities.AsNoTracking();
-        if (ascending)
-            return await query.OrderBy(c => c.Name).ToListAsync(cancellationToken);
-        return await query.OrderByDescending(c => c.Name).ToListAsync(cancellationToken);
+        var countries = ascending
+            ? await query.OrderBy(c => c.Name).ToListAsync(cancellationToken)
+            : await query.OrderByDescending(c => c.Name).ToListAsync(cancellationToken);
+
+        _logger.Information("Получено {Count} стран, отсортированных по имени ({Order})", 
+            countries.Count, ascending ? "по возрастанию" : "по убыванию");
+        
+        return countries;
     }
 
     /// <summary>
@@ -88,20 +119,34 @@ public class CountryRepository(DatabaseContext context, ILogger logger)
     public async Task<bool> IsNameUniqueAsync(string name, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        return await IsUniqueAsync(Entities.AsQueryable(),
+        _logger.Debug("Проверка уникальности названия страны '{CountryName}', исключая страну {ExcludeId}", 
+            name, excludeId);
+        var isUnique = await IsUniqueAsync(Entities.AsQueryable(),
             predicate: c => string.Equals(c.Name, name, StringComparison.InvariantCultureIgnoreCase),
             excludeId, cancellationToken);
+
+        _logger.Information("Проверка уникальности имени страны: '{Name}' является {IsUnique}", 
+            name, isUnique ? "уникальным" : "неуникальным");
+        
+        return isUnique;
     }
 
     /// <summary>
     /// Определяет, может ли страна быть удалена (т.е. не используется ни одним банком).
     /// </summary>
-    /// <param name="countryId">Идентификатор страны для проверки.</param>
+    /// <param name="id">Идентификатор страны для проверки.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>True, если страну можно удалить; иначе — false.</returns>
-    public async Task<bool> CanBeDeletedAsync(Guid countryId, CancellationToken cancellationToken = default)
+    public async Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return !await _context.Banks
-            .AnyAsync(b => b.CountryId == countryId, cancellationToken);
+        _logger.Information("Проверка возможности удаления страны {CountryId}", id);
+        var hasBanks = await _context.Banks
+            .AnyAsync(b => b.CountryId == id, cancellationToken);
+        var canBeDeleted = !hasBanks;
+        
+        _logger.Information("Страна {CountryId} {DeletionResult}", 
+            id, canBeDeleted ? "может быть удалена" : "не может быть удалена (используется в банках)");
+        
+        return canBeDeleted;
     }
 }

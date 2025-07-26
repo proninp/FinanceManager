@@ -59,6 +59,8 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
+        logger.Information("Получение категорий для владельца справочника {RegistryHolderId}", registryHolderId);
+
         var query = Entities.AsQueryable();
 
         query = query.Where(c => c.RegistryHolderId == registryHolderId);
@@ -66,7 +68,12 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         if (includeRelated)
             query = IncludeRelatedEntities(query);
 
-        return await query.ToListAsync(cancellationToken);
+        var categories = await query.ToListAsync(cancellationToken);
+
+        logger.Information("Найдено {Count} категорий для владельца справочника {RegistryHolderId}",
+            categories.Count, registryHolderId);
+
+        return categories;
     }
 
     /// <summary>
@@ -90,6 +97,11 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
             : query.Where(c => c.ParentId == null);
         var isAny = await query.AnyAsync(c => c.RegistryHolderId == registryHolderId && c.Name == name,
             cancellationToken);
+
+        logger.Information("Проверка уникальности имени категории: имя '{Name}' для владельца {RegistryHolderId} " +
+                           "с родителем {ParentId} является {IsUnique}",
+            name, registryHolderId, parentId, !isAny ? "уникальным" : "неуникальным");
+
         return isAny;
     }
 
@@ -104,7 +116,21 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         CancellationToken cancellationToken = default)
     {
         if (newParentId.HasValue)
-            return !await CheckCycleAsync(categoryId, newParentId.Value, cancellationToken);
+        {
+            logger.Information(
+                "Проверка валидности смены родителя для категории {CategoryId} на нового родителя {NewParentId}",
+                categoryId, newParentId);
+
+            var hasCycle = await CheckCycleAsync(categoryId, newParentId.Value, cancellationToken);
+            if (hasCycle)
+            {
+                logger.Warning("Обнаружена циклическая зависимость при смене родителя для категории {CategoryId} " +
+                               "на родителя {NewParentId}", categoryId, newParentId);
+            }
+
+            return !hasCycle;
+        }
+
         return true;
     }
 
@@ -121,36 +147,44 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         const string categoryIdParamName = "@categoryId";
         const string newParentIdParamName = "@newParentId";
         const string sqlQuery = $"""
-                                WITH RECURSIVE category_tree AS (
-                                    SELECT id, parent_id, ARRAY[id] AS path, false AS is_cycle
-                                    FROM categories
-                                    WHERE id = {newParentIdParamName}
-                                    UNION ALL
-                                    SELECT c.id, c.parent_id, path || c.id,
-                                        c.id = ANY(path) OR is_cycle
-                                    FROM categories c
-                                    JOIN category_tree ct ON c.id = ct.parent_id
-                                )
-                                SELECT EXISTS (SELECT 1 FROM category_tree WHERE id = {categoryIdParamName} OR is_cycle);
-                                """;
-        
-        await using var connection = _context.Database.GetDbConnection();
-        await connection.OpenAsync(cancellationToken);
-        await using var command = connection.CreateCommand();
-        command.CommandText = sqlQuery;
-        
-        var categoryIdParam = command.CreateParameter();
-        categoryIdParam.ParameterName = categoryIdParamName;
-        categoryIdParam.Value = categoryId;
-        command.Parameters.Add(categoryIdParam);
-        
-        var newParentIdParam = command.CreateParameter();
-        newParentIdParam.ParameterName = newParentIdParamName;
-        newParentIdParam.Value = newParentId;
-        command.Parameters.Add(newParentIdParam);
-        
-        var result = await command.ExecuteScalarAsync(cancellationToken);
-        
-        return result is bool and true;
+                                 WITH RECURSIVE category_tree AS (
+                                     SELECT id, parent_id, ARRAY[id] AS path, false AS is_cycle
+                                     FROM categories
+                                     WHERE id = {newParentIdParamName}
+                                     UNION ALL
+                                     SELECT c.id, c.parent_id, path || c.id,
+                                         c.id = ANY(path) OR is_cycle
+                                     FROM categories c
+                                     JOIN category_tree ct ON c.id = ct.parent_id
+                                 )
+                                 SELECT EXISTS (SELECT 1 FROM category_tree WHERE id = {categoryIdParamName} OR is_cycle);
+                                 """;
+        try
+        {
+            await using var connection = _context.Database.GetDbConnection();
+            await connection.OpenAsync(cancellationToken);
+            await using var command = connection.CreateCommand();
+            command.CommandText = sqlQuery;
+
+            var newParentIdParam = command.CreateParameter();
+            newParentIdParam.ParameterName = newParentIdParamName;
+            newParentIdParam.Value = newParentId;
+            command.Parameters.Add(newParentIdParam);
+            
+            var categoryIdParam = command.CreateParameter();
+            categoryIdParam.ParameterName = categoryIdParamName;
+            categoryIdParam.Value = categoryId;
+            command.Parameters.Add(categoryIdParam);
+
+            var result = await command.ExecuteScalarAsync(cancellationToken);
+
+            return result is bool and true;
+        }
+        catch (Exception ex)
+        {
+            logger.Error(ex, "Ошибка при проверке циклической зависимости в иерархии категорий " +
+                             "для категории {CategoryId} и родителя {NewParentId}", categoryId, newParentId);
+            throw;
+        }
     }
 }
