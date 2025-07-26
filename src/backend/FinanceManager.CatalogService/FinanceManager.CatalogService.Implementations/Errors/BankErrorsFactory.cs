@@ -18,7 +18,7 @@ public class BankErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) : I
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("Bank not found: {BankId}", id);
+        logger.Warning("Банк не найден: {BankId}", id);
         return errorsFactory.NotFound("BANK_NOT_FOUND", EntityName, id);
     }
 
@@ -31,7 +31,7 @@ public class BankErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) : I
     /// <returns>Экземпляр ошибки</returns>
     public IError NameAlreadyExists(string name, Guid countryId, string countryName)
     {
-        logger.Warning("Bank name already exists: {Name} for country with id '{CountryId}'", name,
+        logger.Warning("Название банка уже существует: {Name} для страны с идентификатором '{CountryId}'", name,
             countryId);
         return errorsFactory.AlreadyExists("BANK_NAME_EXISTS", EntityName, "Name", name);
     }
@@ -42,7 +42,7 @@ public class BankErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) : I
     /// <returns>Экземпляр ошибки</returns>
     public IError NameIsRequired()
     {
-        logger.Warning("Bank name is required");
+        logger.Warning("Название банка обязательно для заполнения");
         return errorsFactory.Required("BANK_NAME_REQUIRED", EntityName, "Name");
     }
 
@@ -53,7 +53,7 @@ public class BankErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) : I
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedBank(Guid id)
     {
-        logger.Warning("Cannot delete bank '{BankId}' because it is using in other entities", id);
+        logger.Warning("Невозможно удалить банк '{BankId}', так как он используется в других сущностях", id);
         return errorsFactory.CannotDeleteUsedEntity("BANK_IN_USE", EntityName, id);
     }
 }

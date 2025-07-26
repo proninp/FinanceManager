@@ -16,7 +16,7 @@ public class CountryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// </summary>
     public IError NotFound(Guid id)
     {
-        logger.Warning("Country not found: {CountryId}", id);
+        logger.Warning("Страна не найдена: {CountryId}", id);
         return errorsFactory.NotFound("COUNTRY_NOT_FOUND", EntityName, id);
     }
 
@@ -25,7 +25,7 @@ public class CountryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// </summary>
     public IError NameAlreadyExists(string name)
     {
-        logger.Warning("Country name already exists: {Name}", name);
+        logger.Warning("Название страны уже существует: {Name}", name);
         return errorsFactory.AlreadyExists("COUNTRY_NAME_EXISTS", EntityName, "Name", name);
     }
 
@@ -34,7 +34,7 @@ public class CountryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// </summary>
     public IError NameIsRequired()
     {
-        logger.Warning($"{EntityName} name is required");
+        logger.Warning("Название {EntityName} обязательно для заполнения", EntityName);
         return errorsFactory.Required("COUNTRY_NAME_REQUIRED", EntityName, "Name");
     }
     
@@ -45,7 +45,7 @@ public class CountryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedCountry(Guid id)
     {
-        logger.Warning("Cannot delete country '{CountryId}' because it is using in other entities", id);
+        logger.Warning("Невозможно удалить страну '{CountryId}', так как она используется в других сущностях", id);
         return errorsFactory.CannotDeleteUsedEntity("COUNTRY_IN_USE", EntityName, id);
     }
 }

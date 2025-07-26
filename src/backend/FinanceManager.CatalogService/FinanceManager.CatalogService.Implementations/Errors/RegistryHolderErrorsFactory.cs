@@ -20,7 +20,7 @@ public class RegistryHolderErrorsFactory(IErrorsFactory errorsFactory, ILogger l
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("RegistryHolder not found: {RegistryHolderId}", id);
+        logger.Warning("Владелец справочника не найден: {RegistryHolderId}", id);
         return errorsFactory.NotFound("REGISTRYHOLDER_NOT_FOUND", EntityName, id);
     }
 
@@ -30,7 +30,7 @@ public class RegistryHolderErrorsFactory(IErrorsFactory errorsFactory, ILogger l
     /// <returns>Экземпляр ошибки</returns>
     public IError TelegramIdIsRequired()
     {
-        logger.Warning("{EntityName} telegram id is required", EntityName);
+        logger.Warning("Telegram ID {EntityName} обязателен для заполнения", EntityName);
         return errorsFactory.Required("REGISTRYHOLDER_TELEGRAMID_REQUIRED", EntityName, TelegramIdField);
     }
 
@@ -41,8 +41,9 @@ public class RegistryHolderErrorsFactory(IErrorsFactory errorsFactory, ILogger l
     /// <returns>Экземпляр ошибки</returns>
     public IError TelegramIdAlreadyExists(long telegramId)
     {
-        logger.Warning("{EntityName} telegram id already exists", EntityName);
-        return errorsFactory.AlreadyExists("REGISTRYHOLDER_TELEGRAMID_EXISTS", EntityName, TelegramIdField, telegramId);
+        logger.Warning("Telegram ID {EntityName} уже существует", EntityName);
+        return errorsFactory.AlreadyExists("REGISTRYHOLDER_TELEGRAMID_EXISTS",
+            EntityName, TelegramIdField, telegramId);
     }
 
     /// <summary>
@@ -52,7 +53,9 @@ public class RegistryHolderErrorsFactory(IErrorsFactory errorsFactory, ILogger l
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedRegistryHolder(Guid id)
     {
-        logger.Warning("Cannot delete registry holder '{RegistryHolderId}' because it is used in other entities", id);
+        logger.Warning(
+            "Невозможно удалить владельца справочника '{RegistryHolderId}', так как он используется в других сущностях",
+            id);
         return errorsFactory.CannotDeleteUsedEntity("REGISTRYHOLDER_IN_USE", EntityName, id);
     }
 }

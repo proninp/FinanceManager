@@ -22,7 +22,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("Account not found: {AccountId}", id);
+        logger.Warning("Счёт не найден: {AccountId}", id);
         return errorsFactory.NotFound("ACCOUNT_NOT_FOUND", EntityName, id);
     }
 
@@ -33,7 +33,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError DefaultAccountNotFound(Guid registryHolderId)
     {
-        logger.Warning("Default account not found for registry holder: {RegistryHolderId}", registryHolderId);
+        logger.Warning("Счёт по умолчанию не найден для владельца реестра: {RegistryHolderId}", registryHolderId);
         return errorsFactory.CustomNotFound(
             "ACCOUNT_DEFAULT_NOT_FOUND",
             $"Default account not found for registry holder: {registryHolderId}");
@@ -45,7 +45,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError NameIsRequired()
     {
-        logger.Warning("{EntityName} name is required", EntityName);
+        logger.Warning("Название {EntityName} обязательно для заполнения", EntityName);
         return errorsFactory.Required(
             "ACCOUNT_NAME_REQUIRED", EntityName, NameField);
     }
@@ -58,11 +58,11 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     public IError CannotDeleteUsedAccount(Guid id)
     {
         logger.Warning(
-            "Cannot delete Account '{AccountId}' because it is used in other entities", id);
+            "Невозможно удалить счёт '{AccountId}', так как он используется в других сущностях", id);
         return errorsFactory.CannotDeleteUsedEntity(
             "ACCOUNT_IN_USE", EntityName, id);
     }
-    
+
     /// <summary>
     /// Создаёт ошибку, при попытке безопасно удалить счет по умолчанию
     /// </summary>
@@ -70,12 +70,12 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotSoftDeleteDefaultAccount(Guid id)
     {
-        logger.Warning("Cannot perform soft deleting for default account: {AccountId}", id);
+        logger.Warning("Невозможно выполнить мягкое удаление счёта по умолчанию: {AccountId}", id);
         return errorsFactory.CustomConflictError(
             "ACCOUNT_CANNOT_SOFT_DELETE_DEFAULT",
             $"Cannot perform soft deletion for default account '{id}'");
     }
-    
+
     /// <summary>
     /// Создаёт ошибку, при попытке удалить счет по умолчанию
     /// </summary>
@@ -83,7 +83,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteDefaultAccount(Guid id)
     {
-        logger.Warning("Cannot delete default account: {AccountId}", id);
+        logger.Warning("Невозможно удалить счёт по умолчанию: {AccountId}", id);
         return errorsFactory.CustomConflictError(
             "ACCOUNT_CANNOT_DELETE_DEFAULT",
             $"Cannot delete default account '{id}'");
@@ -96,7 +96,8 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError AccountCannotBeSetAsDefaultIfArchivedOrDeleted(Guid id)
     {
-        logger.Warning("Account cannot be set as default because it is archived or deleted: {AccountId}", id);
+        logger.Warning(
+            "Счёт не может быть установлен как счёт по умолчанию, так как он архивирован или удалён: {AccountId}", id);
         return errorsFactory.CustomConflictError(
             "ACCOUNT_CANNOT_BE_DEFAULT_IF_ARCHIVED_OR_DELETED",
             $"Account '{id}' cannot be set as default because it is archived or deleted");
@@ -109,7 +110,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError CurrencyIsSoftDeleted(Guid currencyId)
     {
-        logger.Warning("Currency '{CurrencyId}' for account is soft deleted", currencyId);
+        logger.Warning("Валюта '{CurrencyId}' для счёта помечена как удалённая", currencyId);
         return errorsFactory.NotFound(
             "ACCOUNT_CURRENCY_SOFT_DELETED", CurrencyField, currencyId);
     }
@@ -121,7 +122,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError AccountTypeIsSoftDeleted(Guid accountTypeId)
     {
-        logger.Warning("AccountType '{AccountTypeId}' for account is soft deleted", accountTypeId);
+        logger.Warning("Тип счёта '{AccountTypeId}' для счёта помечен как удалённый", accountTypeId);
         return errorsFactory.NotFound(
             "ACCOUNT_ACCOUNTTYPE_SOFT_DELETED", AccountTypeField, accountTypeId);
     }
@@ -133,7 +134,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotArchiveDefaultAccount(Guid id)
     {
-        logger.Warning("Cannot archive default account: {AccountId}", id);
+        logger.Warning("Невозможно архивировать счёт по умолчанию: {AccountId}", id);
         return errorsFactory.CustomConflictError(
             "ACCOUNT_CANNOT_ARCHIVE_DEFAULT",
             $"Cannot archive default account '{id}'");
@@ -146,7 +147,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError ReplacementDefaultAccountNotFound(Guid replacementDefaultAccountId)
     {
-        logger.Warning("Replacement default account not found: {ReplacementDefaultAccountId}",
+        logger.Warning("Замещающий счёт по умолчанию не найден: {ReplacementDefaultAccountId}",
             replacementDefaultAccountId);
         return errorsFactory.NotFound(
             "ACCOUNT_REPLACEMENT_DEFAULT_NOT_FOUND", EntityName, replacementDefaultAccountId);
@@ -159,7 +160,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError RegistryHolderNotFound(Guid registryHolderId)
     {
-        logger.Warning("Registry holder not found: {RegistryHolderId}", registryHolderId);
+        logger.Warning("Владелец реестра не найден: {RegistryHolderId}", registryHolderId);
         return errorsFactory.NotFound("ACCOUNT_REGISTRYHOLDER_NOT_FOUND", "RegistryHolder", registryHolderId);
     }
 
@@ -170,7 +171,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError AccountTypeNotFound(Guid accountTypeId)
     {
-        logger.Warning("Account type not found: {AccountTypeId}", accountTypeId);
+        logger.Warning("Тип счёта не найден: {AccountTypeId}", accountTypeId);
         return errorsFactory.NotFound("ACCOUNT_ACCOUNTTYPE_NOT_FOUND", "AccountType", accountTypeId);
     }
 
@@ -181,7 +182,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError CurrencyNotFound(Guid currencyId)
     {
-        logger.Warning("Currency not found: {CurrencyId}", currencyId);
+        logger.Warning("Валюта не найдена: {CurrencyId}", currencyId);
         return errorsFactory.NotFound("ACCOUNT_CURRENCY_NOT_FOUND", "Currency", currencyId);
     }
 
@@ -192,7 +193,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError BankNotFound(Guid bankId)
     {
-        logger.Warning("Bank not found: {BankId}", bankId);
+        logger.Warning("Банк не найден: {BankId}", bankId);
         return errorsFactory.NotFound("ACCOUNT_BANK_NOT_FOUND", "Bank", bankId);
     }
 
@@ -203,7 +204,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     /// <returns>Экземпляр ошибки</returns>
     public IError ReplacementAccountCannotBeSetAsDefault(Guid replacementDefaultAccountId)
     {
-        logger.Warning("Replacement account cannot be set as default: {ReplacementDefaultAccountId}",
+        logger.Warning("Замещающий счёт не может быть установлен по умолчанию: {ReplacementDefaultAccountId}",
             replacementDefaultAccountId);
         return errorsFactory.CustomConflictError(
             "ACCOUNT_REPLACEMENT_CANNOT_BE_DEFAULT",
@@ -219,7 +220,7 @@ public class AccountErrorsFactory(IErrorsFactory errorsFactory, ILogger logger) 
     public IError RegistryHolderDiffersBetweenReplacedDefaultAccounts(Guid id, Guid replacementDefaultAccountId)
     {
         logger.Warning(
-            "Registry holders differ between replaced default accounts: {Id} and {ReplacementDefaultAccountId}", id,
+            "Владельцы реестра отличаются между заменяемыми счетами по умолчанию: {Id} и {ReplacementDefaultAccountId}", id,
             replacementDefaultAccountId);
         return errorsFactory.CustomConflictError(
             "ACCOUNT_REGISTRYHOLDER_DIFFERS",

@@ -23,16 +23,17 @@ public class AccountTypeService(
     /// </summary>
     public async Task<Result<AccountTypeDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting account type by id: {AccountTypeId}", id);
+        logger.Information("Получение типа счета по идентификатору: {AccountTypeId}", id);
 
         var accountType =
             await accountTypeRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (accountType is null)
         {
+            logger.Warning("Тип счета с идентификатором {AccountTypeId} не найден", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
-        logger.Information("Successfully retrieved account type: {AccountTypeId}", id);
+        logger.Information("Тип счета {AccountTypeId} успешно получен", id);
         return Result.Ok(accountType.ToDto());
     }
 
@@ -42,10 +43,10 @@ public class AccountTypeService(
     public async Task<Result<ICollection<AccountTypeDto>>> GetPagedAsync(AccountTypeFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged account types with filter: {@Filter}", filter);
+        logger.Information("Получение списка типов счетов с фильтрацией: {@Filter}", filter);
         var types = await accountTypeRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
         var typesDto = types.ToDto();
-        logger.Information("Successfully retrieved {Count} account types", typesDto.Count);
+        logger.Information("Получено {Count} типов счетов", typesDto.Count);
         return Result.Ok(typesDto);
     }
 
@@ -54,10 +55,10 @@ public class AccountTypeService(
     /// </summary>
     public async Task<Result<ICollection<AccountTypeDto>>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting all account types");
+        logger.Information("Получение всех типов счетов");
         var types = await accountTypeRepository.GetAllAsync(cancellationToken);
         var typesDto = types.ToDto();
-        logger.Information("Successfully retrieved {Count} account types", typesDto.Count());
+        logger.Information("Получено {Count} типов счетов", typesDto.Count);
         return Result.Ok(typesDto);
     }
 
@@ -67,22 +68,24 @@ public class AccountTypeService(
     public async Task<Result<AccountTypeDto>> CreateAsync(CreateAccountTypeDto createDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Creating account type: {@CreateDto}", createDto);
+        logger.Information("Создание нового типа счета: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.Code))
         {
+            logger.Warning("Попытка создания типа счета без указания кода");
             return Result.Fail(errorsFactory.CodeIsRequired());
         }
 
         if (!await accountTypeRepository.IsCodeUniqueAsync(createDto.Code, cancellationToken: cancellationToken))
         {
+            logger.Warning("Попытка создания типа счета с неуникальным кодом: {Code}", createDto.Code);
             return Result.Fail(errorsFactory.CodeAlreadyExists(createDto.Code));
         }
 
         var entity = await accountTypeRepository.AddAsync(createDto.ToAccountType(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully created account type: {AccountTypeId}", entity.Id);
+        logger.Information("Тип счета {AccountTypeId} с кодом '{Code}' успешно создан", entity.Id, createDto.Code);
         return Result.Ok(entity.ToDto());
     }
 
@@ -92,11 +95,12 @@ public class AccountTypeService(
     public async Task<Result<AccountTypeDto>> UpdateAsync(UpdateAccountTypeDto updateDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Updating account type: {@UpdateDto}", updateDto);
+        logger.Information("Обновление типа счета: {@UpdateDto}", updateDto);
 
         var entity = await accountTypeRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (entity is null)
         {
+            logger.Warning("Тип счета с идентификатором {AccountTypeId} не найден для обновления", updateDto.Id);
             return Result.Fail(errorsFactory.NotFound(updateDto.Id));
         }
 
@@ -106,6 +110,8 @@ public class AccountTypeService(
         {
             if (!await accountTypeRepository.IsCodeUniqueAsync(updateDto.Code, updateDto.Id, cancellationToken))
             {
+                logger.Warning("Попытка обновления типа счета {AccountTypeId} с неуникальным кодом: {Code}",
+                    updateDto.Id, updateDto.Code);
                 return Result.Fail(errorsFactory.CodeAlreadyExists(updateDto.Code));
             }
 
@@ -124,11 +130,11 @@ public class AccountTypeService(
         {
             // нам не нужно вызывать метод accountTypeRepository.UpdateAsync(), так как сущность accountType уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Successfully updated account type: {AccountTypeId}", updateDto.Id);
+            logger.Information("Тип счета {AccountTypeId} успешно обновлен", updateDto.Id);
         }
         else
         {
-            logger.Information("No changes detected for account type: {AccountTypeId}", updateDto.Id);
+            logger.Information("Изменения для типа счета {AccountTypeId} не обнаружены", updateDto.Id);
         }
 
         return Result.Ok(entity.ToDto());
@@ -139,10 +145,11 @@ public class AccountTypeService(
     /// </summary>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting account type: {AccountTypeId}", id);
+        logger.Information("Жесткое удаление типа счета: {AccountTypeId}", id);
 
         if (!await accountTypeRepository.CanBeDeletedAsync(id, cancellationToken))
         {
+            logger.Warning("Тип счета {AccountTypeId} не может быть удален, так как используется в счетах", id);
             return Result.Fail(errorsFactory.CannotDeleteUsedAccountType(id));
         }
 
@@ -150,7 +157,11 @@ public class AccountTypeService(
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            logger.Warning("No account type was deleted for id: {AccountTypeId}", id);
+            logger.Warning("Тип счета {AccountTypeId} не был удален, возможно он не существует", id);
+        }
+        else
+        {
+            logger.Information("Тип счета {AccountTypeId} успешно удален", id);
         }
 
         return Result.Ok();
@@ -162,9 +173,9 @@ public class AccountTypeService(
     public async Task<Result<bool>> IsCodeUniqueAsync(string code, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Checking if account type code is unique: {Code}, excludeId: {ExcludeId}", code, excludeId);
+        logger.Debug("Проверка уникальности кода типа счета: '{Code}', исключая: {ExcludeId}", code, excludeId);
         var isUnique = await accountTypeRepository.IsCodeUniqueAsync(code, excludeId, cancellationToken);
-        logger.Information("Is account type {Code} unique: {IsUnique}", code, isUnique);
+        logger.Debug("Код типа счета '{Code}' {UniqueResult}", code, isUnique ? "уникален" : "не уникален");
         return Result.Ok(isUnique);
     }
 
@@ -173,8 +184,9 @@ public class AccountTypeService(
     /// </summary>
     public async Task<Result<bool>> ExistsByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
-        logger.Information("Checking if account type exists by code: {Code}", code);
+        logger.Debug("Проверка существования типа счета по коду: '{Code}'", code);
         var exists = await accountTypeRepository.ExistsByCodeAsync(code, false, cancellationToken);
+        logger.Debug("Тип счета с кодом '{Code}' {ExistsResult}", code, exists ? "существует" : "не существует");
         return Result.Ok(exists);
     }
 
@@ -186,24 +198,25 @@ public class AccountTypeService(
     /// <returns>Результат операции</returns>
     public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Soft deleting account type: {AccountTypeId}", id);
+        logger.Information("Мягкое удаление типа счета: {AccountTypeId}", id);
 
         var entity = await accountTypeRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (entity is null)
         {
+            logger.Warning("Тип счета с идентификатором {AccountTypeId} не найден для мягкого удаления", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
         if (entity.IsDeleted)
         {
-            logger.Information("Account type already soft deleted: {AccountTypeId}", id);
+            logger.Information("Тип счета {AccountTypeId} уже помечен как удаленный", id);
             return Result.Ok();
         }
 
         entity.MarkAsDeleted();
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully soft deleted account type: {AccountTypeId}", id);
+        logger.Information("Тип счета {AccountTypeId} успешно помечен как удаленный", id);
         return Result.Ok();
     }
 
@@ -215,24 +228,25 @@ public class AccountTypeService(
     /// <returns>Результат операции</returns>
     public async Task<Result> RestoreAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Restoring account type: {AccountTypeId}", id);
+        logger.Information("Восстановление типа счета: {AccountTypeId}", id);
 
         var entity = await accountTypeRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (entity is null)
         {
+            logger.Warning("Тип счета с идентификатором {AccountTypeId} не найден для восстановления", id);
             return Result.Fail(errorsFactory.NotFound(id));
         }
 
         if (!entity.IsDeleted)
         {
-            logger.Information("Account type is not deleted, nothing to restore: {AccountTypeId}", id);
+            logger.Information("Тип счета {AccountTypeId} не был удален, восстановление не требуется", id);
             return Result.Ok();
         }
 
         entity.Restore();
         await unitOfWork.CommitAsync(cancellationToken);
-
-        logger.Information("Successfully restored account type: {AccountTypeId}", id);
+        
+        logger.Information("Тип счета {AccountTypeId} успешно восстановлен", id);
         return Result.Ok();
     }
 }

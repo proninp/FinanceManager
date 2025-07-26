@@ -21,7 +21,7 @@ public class CategoryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("Category not found: {CategoryId}", id);
+        logger.Warning("Категория не найдена: {CategoryId}", id);
         return errorsFactory.NotFound("CATEGORY_NOT_FOUND", EntityName, id);
     }
 
@@ -31,10 +31,10 @@ public class CategoryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NameIsRequired()
     {
-        logger.Warning("{EntityName} name is required", EntityName);
+        logger.Warning("Название {EntityName} обязательно для заполнения", EntityName);
         return errorsFactory.Required("CATEGORY_NAME_REQUIRED", EntityName, NameField);
     }
-    
+
     /// <summary>
     /// Создаёт ошибку, указывающую на то, что категория с указанным именем уже существует для пользователя
     /// </summary>
@@ -42,7 +42,7 @@ public class CategoryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NameAlreadyExistsInScope(string name)
     {
-        logger.Warning("{EntityName} name already exists: {Name}", EntityName, name);
+        logger.Warning("Название {EntityName} уже существует: {Name}", EntityName, name);
         return errorsFactory.AlreadyExists("CATEGORY_NAME_ALREADY_EXISTS", EntityName, NameField, name);
     }
 
@@ -53,7 +53,7 @@ public class CategoryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedCategory(Guid id)
     {
-        logger.Warning("Cannot delete Category '{CategoryId}' because it is used in other entities", id);
+        logger.Warning("Невозможно удалить категорию '{CategoryId}', так как она используется в других сущностях", id);
         return errorsFactory.CannotDeleteUsedEntity("CATEGORY_IN_USE", EntityName, id);
     }
 
@@ -64,7 +64,7 @@ public class CategoryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError RegistryHolderNotFound(Guid registryHolderId)
     {
-        logger.Warning("Registry holder not found for category: {RegistryHolderId}", registryHolderId);
+        logger.Warning("Владелец справочника не найден для категории: {RegistryHolderId}", registryHolderId);
         return errorsFactory.NotFound("CATEGORY_REGISTRYHOLDER_NOT_FOUND", RegistryHolderField, registryHolderId);
     }
 
@@ -76,7 +76,8 @@ public class CategoryErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError RecursiveParentCategoryRelation(Guid id, Guid parentId)
     {
-        logger.Warning("Recursive parent category relation detected: {CategoryId} -> {ParentId}", id, parentId);
+        logger.Warning("Обнаружена циклическая связь родительской категории: {CategoryId} -> {ParentId}",
+            id, parentId);
         return errorsFactory.CustomConflictError(
             "CATEGORY_RECURSIVE_PARENT",
             $"Cannot set category '{id}' as child of '{parentId}' due to recursive relation");
