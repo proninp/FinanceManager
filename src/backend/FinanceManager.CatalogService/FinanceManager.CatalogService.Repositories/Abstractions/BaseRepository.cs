@@ -17,6 +17,18 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     where TFilterDto : BasePaginationDto
 {
     private protected readonly DbSet<T> Entities = context.Set<T>();
+    
+    /// <summary>
+    /// Проверяет, является ли сущность пустой
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены для прерывания операции</param>
+    /// <returns>
+    /// Задача, которая завершается с результатом:
+    /// <c>true</c> - если сущность пуста;
+    /// <c>false</c> - если содержит элементы
+    /// </returns>
+    public async Task<bool> IsEmptyAsync(CancellationToken cancellationToken = default) =>
+        !await Entities.AnyAsync(cancellationToken);
 
     /// <summary>
     /// Проверяет, существует ли сущность с указанным идентификатором.

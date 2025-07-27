@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
+﻿using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
 using FinanceManager.CatalogService.Domain.Abstractions;
 
 namespace FinanceManager.CatalogService.Abstractions.Repositories.Common;
@@ -13,6 +12,17 @@ public interface IBaseRepository<T, in TFilterDto>
     where T : IdentityModel
     where TFilterDto : BasePaginationDto
 {
+    /// <summary>
+    /// Проверяет, является ли сущность пустой
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены для прерывания операции</param>
+    /// <returns>
+    /// Задача, которая завершается с результатом:
+    /// <c>true</c> - если сущность пуста;
+    /// <c>false</c> - если содержит элементы
+    /// </returns>
+    Task<bool> IsEmptyAsync(CancellationToken cancellationToken = default);
+    
     /// <summary>
     /// Проверяет существование сущности по идентификатору
     /// </summary>
