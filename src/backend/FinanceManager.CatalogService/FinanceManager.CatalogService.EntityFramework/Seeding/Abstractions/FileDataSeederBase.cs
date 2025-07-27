@@ -51,7 +51,7 @@ public abstract class FileDataSeederBase<T>(ISeedingEntitiesProducer<T> seedingP
         }
         catch (FileNotFoundException ex)
         {
-            logger.Error("Файл сидинга не найден: {FileName} для {EntityType}", seedingDataFile, typeof(T).Name);
+            logger.Error(ex, "Файл сидинга не найден: {FileName} для {EntityType}", seedingDataFile, typeof(T).Name);
             throw;
         }
         catch (JsonException ex)

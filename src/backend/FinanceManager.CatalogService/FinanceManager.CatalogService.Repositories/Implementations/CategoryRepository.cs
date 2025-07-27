@@ -16,6 +16,7 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
     : BaseRepository<Category, CategoryFilterDto>(context, logger), ICategoryRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Включает связанные сущности RegistryHolder и Parent для категории.
@@ -59,7 +60,7 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Получение категорий для владельца справочника {RegistryHolderId}", registryHolderId);
+        _logger.Information("Получение категорий для владельца справочника {RegistryHolderId}", registryHolderId);
 
         var query = Entities.AsQueryable();
 
@@ -70,7 +71,7 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
 
         var categories = await query.ToListAsync(cancellationToken);
 
-        logger.Information("Найдено {Count} категорий для владельца справочника {RegistryHolderId}",
+        _logger.Information("Найдено {Count} категорий для владельца справочника {RegistryHolderId}",
             categories.Count, registryHolderId);
 
         return categories;
@@ -98,7 +99,7 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         var isAny = await query.AnyAsync(c => c.RegistryHolderId == registryHolderId && c.Name == name,
             cancellationToken);
 
-        logger.Information("Проверка уникальности имени категории: имя '{Name}' для владельца {RegistryHolderId} " +
+        _logger.Information("Проверка уникальности имени категории: имя '{Name}' для владельца {RegistryHolderId} " +
                            "с родителем {ParentId} является {IsUnique}",
             name, registryHolderId, parentId, !isAny ? "уникальным" : "неуникальным");
 
@@ -117,14 +118,14 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
     {
         if (newParentId.HasValue)
         {
-            logger.Information(
+            _logger.Information(
                 "Проверка валидности смены родителя для категории {CategoryId} на нового родителя {NewParentId}",
                 categoryId, newParentId);
 
             var hasCycle = await CheckCycleAsync(categoryId, newParentId.Value, cancellationToken);
             if (hasCycle)
             {
-                logger.Warning("Обнаружена циклическая зависимость при смене родителя для категории {CategoryId} " +
+                _logger.Warning("Обнаружена циклическая зависимость при смене родителя для категории {CategoryId} " +
                                "на родителя {NewParentId}", categoryId, newParentId);
             }
 
@@ -182,7 +183,7 @@ public class CategoryRepository(DatabaseContext context, ILogger logger)
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "Ошибка при проверке циклической зависимости в иерархии категорий " +
+            _logger.Error(ex, "Ошибка при проверке циклической зависимости в иерархии категорий " +
                              "для категории {CategoryId} и родителя {NewParentId}", categoryId, newParentId);
             throw;
         }

@@ -1,15 +1,11 @@
 ﻿using System.Reflection;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace FinanceManager.CatalogService.API.Extensions;
 
 /// <summary>
 /// Добавляет и настраивает Swagger для API.
 /// </summary>
-/// <param name="services">Коллекция сервисов DI.</param>
-/// <param name="configuration">Конфигурация приложения (раздел OpenApiInfo).</param>
-/// <returns>Коллекция сервисов для цепочки вызовов.</returns>
 public static class SwaggerInstaller
 {
     /// <summary>
@@ -18,12 +14,6 @@ public static class SwaggerInstaller
     /// <param name="services">Коллекция сервисов DI.</param>
     /// <param name="configuration">Конфигурация приложения (раздел OpenApiInfo).</param>
     /// <returns>Коллекция сервисов для цепочки вызовов.</returns>
-    /// <remarks>
-    /// Конфигурация Swagger включает:
-    /// - Загрузку метаданных из раздела <see cref="OpenApiInfo"/> в конфигурации,
-    /// - XML-документацию из файла сборки,
-    /// - Поддержку аннотаций Swagger (например, <see cref="SwaggerOperationAttribute"/>).
-    /// </remarks>
     public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSwaggerGen(options =>

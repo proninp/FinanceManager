@@ -7,17 +7,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.6">
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.1">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.6" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
       <PackageReference Include="Serilog" Version="4.3.0" />
     </ItemGroup>
 
@@ -26,9 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Microsoft.AspNetCore">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.14\Microsoft.AspNetCore.dll</HintPath>
-      </Reference>
       <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
         <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.14\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
       </Reference>
