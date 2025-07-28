@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.UserService.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{09DCE54C-69A1-4AB2-A050-B9377617AF5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.UserService.Contracts", "FinanceManager.UserService.Contracts\FinanceManager.UserService.Contracts.csproj", "{4105822D-DC73-4F0A-B600-1584397C97A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinanceManager.UserService.Contracts", "FinanceManager.UserService.Contracts\FinanceManager.UserService.Contracts.csproj", "{4105822D-DC73-4F0A-B600-1584397C97A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinanceManager.UserService.Abstractions", "FinanceManager.UserService.Abstractions\FinanceManager.UserService.Abstractions.csproj", "{AE346022-C966-4AEB-8F94-A8DED0C0FDE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +31,17 @@ Global
 		{4105822D-DC73-4F0A-B600-1584397C97A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4105822D-DC73-4F0A-B600-1584397C97A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4105822D-DC73-4F0A-B600-1584397C97A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE346022-C966-4AEB-8F94-A8DED0C0FDE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE346022-C966-4AEB-8F94-A8DED0C0FDE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE346022-C966-4AEB-8F94-A8DED0C0FDE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE346022-C966-4AEB-8F94-A8DED0C0FDE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4105822D-DC73-4F0A-B600-1584397C97A7} = {09DCE54C-69A1-4AB2-A050-B9377617AF5F}
+		{AE346022-C966-4AEB-8F94-A8DED0C0FDE8} = {09DCE54C-69A1-4AB2-A050-B9377617AF5F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F23DF9A5-1B16-4457-A4EF-17C60495C29B}
