@@ -8,6 +8,9 @@ using Serilog;
 
 namespace FinanceManager.CatalogService.Implementations.Services;
 
+/// <summary>
+/// Сервис для управления справочником валют, реализующий основные CRUD-операции
+/// </summary>
 public class CurrencyService(
     IUnitOfWork unitOfWork,
     ICurrencyRepository currencyRepository,
