@@ -26,16 +26,17 @@ public class ExchangeRateService(
     /// <returns>Результат с DTO курса или ошибкой, если не найден</returns>
     public async Task<Result<ExchangeRateDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting exchange rate by id: {ExchangeRateId}", id);
+        logger.Information("Получение курса валют по идентификатору: {ExchangeRateId}", id);
 
         var rate = await exchangeRateRepository.GetByIdAsync(id, disableTracking: true,
             cancellationToken: cancellationToken);
         if (rate is null)
         {
+            logger.Warning("Курс валют с идентификатором {ExchangeRateId} не найден", id);
             return Result.Fail(exchangeRateErrorsFactory.NotFound(id));
         }
 
-        logger.Information("Successfully retrieved exchange rate: {ExchangeRateId}", id);
+        logger.Information("Курс валют {ExchangeRateId} успешно получен", id);
         return Result.Ok(rate.ToDto());
     }
 
@@ -48,12 +49,13 @@ public class ExchangeRateService(
     public async Task<Result<ICollection<ExchangeRateDto>>> GetPagedAsync(ExchangeRateFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged exchange rates with filter: {@Filter}", filter);
+        logger.Information("Получение списка курсов валют с фильтрацией: {@Filter}", filter);
+        
         var rates = await exchangeRateRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
         var ratesDto = rates.ToDto();
 
-        logger.Information("Successfully retrieved {Count} exchange rates", ratesDto.Count);
+        logger.Information("Получено {Count} курсов валют", ratesDto.Count);
         return Result.Ok(ratesDto);
     }
 
@@ -66,32 +68,39 @@ public class ExchangeRateService(
     public async Task<Result<ExchangeRateDto>> CreateAsync(CreateExchangeRateDto createDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Creating exchange rate: {@CreateDto}", createDto);
+        logger.Information("Создание нового курса валют: {@CreateDto}", createDto);
+        
         if (createDto.CurrencyId == Guid.Empty)
         {
+            logger.Warning("Попытка создания курса валют без указания валюты");
             return Result.Fail(exchangeRateErrorsFactory.CurrencyIsRequired());
         }
 
         if (createDto.RateDate == default)
         {
+            logger.Warning("Попытка создания курса валют без указания даты");
             return Result.Fail(exchangeRateErrorsFactory.RateDateIsRequired());
         }
 
         if (createDto.Rate == 0)
         {
+            logger.Warning("Попытка создания курса валют без указания значения курса");
             return Result.Fail(exchangeRateErrorsFactory.RateValueIsRequired());
         }
 
         if (await exchangeRateRepository.ExistsForCurrencyAndDateAsync(createDto.CurrencyId, createDto.RateDate,
                 cancellationToken))
         {
+            logger.Warning("Попытка создания курса валют для валюты {CurrencyId} на дату {RateDate}, который уже существует", 
+                createDto.CurrencyId, createDto.RateDate);
             return Result.Fail(exchangeRateErrorsFactory.AlreadyExists(createDto.CurrencyId, createDto.RateDate));
         }
 
         var rate = await exchangeRateRepository.AddAsync(createDto.ToExchangeRate(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully created exchange rate: {ExchangeRateId}", rate.Id);
+        logger.Information("Курс валют {ExchangeRateId} для валюты {CurrencyId} на дату {RateDate} со значением {Rate} успешно создан",
+            rate.Id, createDto.CurrencyId, createDto.RateDate, createDto.Rate);
 
         return Result.Ok(rate.ToDto());
     }
@@ -106,13 +115,13 @@ public class ExchangeRateService(
         CancellationToken cancellationToken = default)
     {
         var createDtoList = createExchangeRatesDto as IList<CreateExchangeRateDto> ?? createExchangeRatesDto.ToList();
-        logger.Information("Adding range of exchange rates: {@CreateExchangeRatesDto}", createDtoList);
+        logger.Information("Добавление списка курсов валют: количество элементов {Count}", createDtoList.Count);
 
         var entities = createDtoList.Select(x => x.ToExchangeRate()).ToList();
         await exchangeRateRepository.AddRangeAsync(entities, cancellationToken);
         var result = await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully added {Count} exchange rates", result);
+        logger.Information("Успешно добавлено {Count} курсов валют", result);
         return Result.Ok(result);
     }
 
@@ -125,11 +134,12 @@ public class ExchangeRateService(
     public async Task<Result<ExchangeRateDto>> UpdateAsync(UpdateExchangeRateDto updateDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Updating exchange rate: {@UpdateDto}", updateDto);
+        logger.Information("Обновление курса валют: {@UpdateDto}", updateDto);
 
         var rate = await exchangeRateRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (rate is null)
         {
+            logger.Warning("Курс валют с идентификатором {ExchangeRateId} не найден для обновления", updateDto.Id);
             return Result.Fail(exchangeRateErrorsFactory.NotFound(updateDto.Id));
         }
 
@@ -140,6 +150,8 @@ public class ExchangeRateService(
             if (await exchangeRateRepository.ExistsForCurrencyAndDateAsync(rate.CurrencyId, updateDto.RateDate.Value,
                     cancellationToken))
             {
+                logger.Warning("Попытка обновления курса валют {ExchangeRateId} на дату {RateDate}, для которой уже существует курс валюты {CurrencyId}", 
+                    updateDto.Id, updateDto.RateDate.Value, rate.CurrencyId);
                 return Result.Fail(exchangeRateErrorsFactory.AlreadyExists(rate.CurrencyId, updateDto.RateDate.Value));
             }
 
@@ -156,11 +168,11 @@ public class ExchangeRateService(
         if (isNeedUpdate)
         {
             await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Successfully updated exchange rate: {ExchangeRateId}", updateDto.Id);
+            logger.Information("Курс валют {ExchangeRateId} успешно обновлен", updateDto.Id);
         }
         else
         {
-            logger.Information("No changes detected for exchange rate: {ExchangeRateId}", updateDto.Id);
+            logger.Information("Изменения для курса валют {ExchangeRateId} не обнаружены", updateDto.Id);
         }
 
         return Result.Ok(rate.ToDto());
@@ -174,13 +186,17 @@ public class ExchangeRateService(
     /// <returns>Результат выполнения операции</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting exchange rate: {ExchangeRateId}", id);
+        logger.Information("Удаление курса валют: {ExchangeRateId}", id);
 
         await exchangeRateRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            logger.Warning("No exchange rate was deleted for id: {ExchangeRateId}", id);
+            logger.Warning("Курс валют {ExchangeRateId} не был удален, возможно он не существует", id);
+        }
+        else
+        {
+            logger.Information("Курс валют {ExchangeRateId} успешно удален", id);
         }
 
         return Result.Ok();
@@ -196,11 +212,13 @@ public class ExchangeRateService(
     public async Task<Result<bool>> ExistsForCurrencyAndDateAsync(Guid currencyId, DateTime rateDate,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Checking if exchange rate exists for currency {CurrencyId} on {RateDate}", currencyId,
-            rateDate);
+        logger.Debug("Проверка существования курса для валюты {CurrencyId} на дату {RateDate}", currencyId, rateDate);
 
         var exists =
             await exchangeRateRepository.ExistsForCurrencyAndDateAsync(currencyId, rateDate, cancellationToken);
+            
+        logger.Debug("Курс для валюты {CurrencyId} на дату {RateDate} {ExistsResult}", 
+            currencyId, rateDate, exists ? "существует" : "не существует");
         return Result.Ok(exists);
     }
 
@@ -213,9 +231,20 @@ public class ExchangeRateService(
     public async Task<Result<DateTime?>> GetLastRateDateAsync(Guid currencyId,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting last rate date for currency: {CurrencyId}", currencyId);
+        logger.Information("Получение даты последнего курса для валюты: {CurrencyId}", currencyId);
 
         var date = await exchangeRateRepository.GetLastRateDateAsync(currencyId, cancellationToken);
+        
+        if (date.HasValue)
+        {
+            logger.Information("Для валюты {CurrencyId} найдена дата последнего курса: {LastRateDate}", 
+                currencyId, date.Value);
+        }
+        else
+        {
+            logger.Information("Для валюты {CurrencyId} не найдено ни одного курса", currencyId);
+        }
+        
         return Result.Ok(date);
     }
 
@@ -230,13 +259,14 @@ public class ExchangeRateService(
     public async Task<Result<int>> DeleteByPeriodAsync(Guid currencyId, DateTime dateFrom, DateTime dateTo,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting exchange rates for currency {CurrencyId} from {DateFrom} to {DateTo}", currencyId,
-            dateFrom, dateTo);
+        logger.Information("Удаление курсов валют для валюты {CurrencyId} за период с {DateFrom:yyyy-MM-dd} по {DateTo:yyyy-MM-dd}", 
+            currencyId, dateFrom, dateTo);
 
         await exchangeRateRepository.DeleteByPeriodAsync(currencyId, dateFrom, dateTo, cancellationToken);
         var deletedCount = await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Deleted {Count} exchange rates for currency {CurrencyId}", deletedCount, currencyId);
+        logger.Information("Для валюты {CurrencyId} удалено {Count} курсов за период с {DateFrom:yyyy-MM-dd} по {DateTo:yyyy-MM-dd}", 
+            currencyId, deletedCount, dateFrom, dateTo);
         return Result.Ok(deletedCount);
     }
 }

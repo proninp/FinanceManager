@@ -20,7 +20,7 @@ public class AccountTypeErrorsFactory(IErrorsFactory errorsFactory, ILogger logg
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("AccountType not found: {AccountTypeId}", id);
+        logger.Warning("Тип счета не найден: {AccountTypeId}", id);
         return errorsFactory.NotFound("ACCOUNTTYPE_NOT_FOUND", EntityName, id);
     }
 
@@ -31,7 +31,7 @@ public class AccountTypeErrorsFactory(IErrorsFactory errorsFactory, ILogger logg
     /// <returns>Экземпляр ошибки</returns>
     public IError CodeAlreadyExists(string code)
     {
-        logger.Warning("AccountType with code '{Code}' already exists", code);
+        logger.Warning("Тип счета с кодом '{Code}' уже существует", code);
         return errorsFactory.AlreadyExists("ACCOUNTTYPE_CODE_EXISTS", EntityName, CodeField, code);
     }
 
@@ -41,7 +41,7 @@ public class AccountTypeErrorsFactory(IErrorsFactory errorsFactory, ILogger logg
     /// <returns>Экземпляр ошибки</returns>
     public IError CodeIsRequired()
     {
-        logger.Warning("{EntityName} code is required", EntityName);
+        logger.Warning("Код {EntityName} обязателен для заполнения", EntityName);
         return errorsFactory.Required("ACCOUNTTYPE_CODE_REQUIRED", EntityName, CodeField);
     }
 
@@ -52,7 +52,8 @@ public class AccountTypeErrorsFactory(IErrorsFactory errorsFactory, ILogger logg
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedAccountType(Guid id)
     {
-        logger.Warning("Cannot delete AccountType '{AccountTypeId}' because it is used in other entities", id);
+        logger.Warning("Невозможно удалить тип счета '{AccountTypeId}', так как он используется в других сущностях",
+            id);
         return errorsFactory.CannotDeleteUsedEntity("ACCOUNTTYPE_IN_USE", EntityName, id);
     }
 }

@@ -10,4 +10,8 @@
       <ProjectReference Include="..\FinanceManager.CatalogService.EntityFramework\FinanceManager.CatalogService.EntityFramework.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="4.3.0" />
+    </ItemGroup>
+
 </Project>

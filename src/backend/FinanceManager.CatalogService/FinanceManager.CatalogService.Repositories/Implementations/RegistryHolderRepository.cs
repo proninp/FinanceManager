@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,10 +12,11 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для работы с владельцами справочников (RegistryHolder).
 /// Предоставляет методы фильтрации, проверки уникальности TelegramId и возможности удаления.
 /// </summary>
-public class RegistryHolderRepository(DatabaseContext context)
-    : BaseRepository<RegistryHolder, RegistryHolderFilterDto>(context), IRegistryHolderRepository
+public class RegistryHolderRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<RegistryHolder, RegistryHolderFilterDto>(context, logger), IRegistryHolderRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Применяет фильтры к запросу владельцев справочников.
@@ -34,6 +36,7 @@ public class RegistryHolderRepository(DatabaseContext context)
         {
             query = query.Where(rh => rh.Role == filter.Role.Value);
         }
+
         return query;
     }
 
@@ -47,9 +50,14 @@ public class RegistryHolderRepository(DatabaseContext context)
     public async Task<bool> IsTelegramIdUniqueAsync(long telegramId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        return await IsUniqueAsync(Entities.AsQueryable(),
+        var isUnique = await IsUniqueAsync(Entities.AsQueryable(),
             predicate: rh => rh.TelegramId == telegramId,
             excludeId, cancellationToken);
+
+        _logger.Information("Проверка уникальности Telegram ID: {TelegramId} является {IsUnique}",
+            telegramId, isUnique ? "уникальным" : "неуникальным");
+
+        return isUnique;
     }
 
     /// <summary>
@@ -60,8 +68,22 @@ public class RegistryHolderRepository(DatabaseContext context)
     /// <returns>True, если владелец может быть удалён, иначе false.</returns>
     public async Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        if (await _context.Categories.AnyAsync(c => c.RegistryHolderId == id, cancellationToken))
+        var hasCategories = await _context.Categories.AnyAsync(c => c.RegistryHolderId == id, cancellationToken);
+        if (hasCategories)
+        {
+            _logger.Information(
+                "Владелец справочника {RegistryHolderId} не может быть удален: имеет связанные категории", id);
             return false;
-        return !await _context.Accounts.AnyAsync(a => a.RegistryHolderId == id, cancellationToken);
+        }
+
+        var hasAccounts = await _context.Accounts.AnyAsync(a => a.RegistryHolderId == id, cancellationToken);
+        if (hasAccounts)
+        {
+            _logger.Information("Владелец справочника {RegistryHolderId} не может быть удален: имеет связанные счета", id);
+            return false;
+        }
+        
+        _logger.Information("Владелец справочника {RegistryHolderId} может быть удален", id);
+        return true;
     }
 }

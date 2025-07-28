@@ -29,16 +29,17 @@ public class BankService(
     /// <returns>Результат с DTO банка или ошибкой, если не найден.</returns>
     public async Task<Result<BankDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting bank by id: {BankId}", id);
+        logger.Information("Получение банка по идентификатору: {BankId}", id);
 
         var bank =
             await bankRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (bank is null)
         {
+            logger.Warning("Банк с идентификатором {BankId} не найден", id);
             return Result.Fail(bankErrorsFactory.NotFound(id));
         }
 
-        logger.Information("Successfully retrieved bank: {BankId}", id);
+        logger.Information("Банк {BankId} успешно получен", id);
         return Result.Ok(bank.ToDto());
     }
 
@@ -51,13 +52,13 @@ public class BankService(
     public async Task<Result<ICollection<BankDto>>> GetPagedAsync(BankFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged banks with filter: {@Filter}", filter);
+        logger.Information("Получение списка банков с фильтрацией: {@Filter}", filter);
         var banks =
             await bankRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
         var banksDto = banks.ToDto();
 
-        logger.Information("Successfully retrieved {Count} banks", banksDto.Count);
+        logger.Information("Получено {Count} банков", banksDto.Count);
         return Result.Ok(banksDto);
     }
 
@@ -70,13 +71,13 @@ public class BankService(
     public async Task<Result<ICollection<BankDto>>> GetAllAsync(bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting all banks");
+        logger.Information("Получение всех банков. Включить связанные данные: {IncludeRelated}", includeRelated);
         var banks =
             await bankRepository.GetAllAsync(cancellationToken: cancellationToken);
 
         var banksDto = banks.ToDto();
 
-        logger.Information("Successfully retrieved {Count} banks", banksDto.Count);
+        logger.Information("Получено {Count} банков", banksDto.Count);
         return Result.Ok(banksDto);
     }
 
@@ -89,10 +90,11 @@ public class BankService(
     public async Task<Result<BankDto>> CreateAsync(CreateBankDto createDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Creating bank: {@CreateDto}", createDto);
+        logger.Information("Создание нового банка: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
+            logger.Warning("Попытка создания банка без указания названия");
             return Result.Fail(bankErrorsFactory.NameIsRequired());
         }
 
@@ -101,11 +103,15 @@ public class BankService(
 
         if (country is null)
         {
+            logger.Warning("Страна с идентификатором {CountryId} не найдена для создания банка", createDto.CountryId);
             return Result.Fail(countryErrorsFactory.NotFound(createDto.CountryId));
         }
 
         if (!await CheckBankNameUniq(createDto.Name, createDto.CountryId, cancellationToken: cancellationToken))
         {
+            logger.Warning(
+                "Попытка создания банка с неуникальным названием '{BankName}' в стране {CountryId} ({CountryName})",
+                createDto.Name, country.Id, country.Name);
             return Result.Fail(bankErrorsFactory.NameAlreadyExists(createDto.Name, country.Id, country.Name));
         }
 
@@ -114,6 +120,9 @@ public class BankService(
 
         logger.Information("Successfully created bank: {BankId} with name: {Name}",
             bank.Id, createDto.Name);
+
+        logger.Information("Банк {BankId} с названием '{BankName}' успешно создан в стране {CountryName}",
+            bank.Id, createDto.Name, country.Name);
 
         return Result.Ok(bank.ToDto());
     }
@@ -124,19 +133,21 @@ public class BankService(
     /// <param name="updateDto">Данные для обновления банка.</param>
     /// <param name="cancellationToken">Токен отмены операции.</param>
     /// <returns>Результат с DTO обновленного банка или ошибкой.</returns>
-    public async Task<Result<BankDto>> UpdateAsync(UpdateBankDto updateDto, CancellationToken cancellationToken = default)
+    public async Task<Result<BankDto>> UpdateAsync(UpdateBankDto updateDto,
+        CancellationToken cancellationToken = default)
     {
-        logger.Information("Updating bank: {@UpdateDto}", updateDto);
+        logger.Information("Обновление банка: {@UpdateDto}", updateDto);
 
         var bank =
             await bankRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (bank is null)
         {
+            logger.Warning("Банк с идентификатором {BankId} не найден для обновления", updateDto.Id);
             return Result.Fail(bankErrorsFactory.NotFound(updateDto.Id));
         }
-        
+
         var isNeedUpdate = false;
-        
+
         Country? country = null;
         if (updateDto.CountryId is not null && updateDto.CountryId.Value != bank.CountryId)
         {
@@ -145,14 +156,17 @@ public class BankService(
 
             if (country is null)
             {
+                logger.Warning("Страна с идентификатором {CountryId} не найдена для обновления банка {BankId}",
+                    updateDto.CountryId.Value, updateDto.Id);
                 return Result.Fail(countryErrorsFactory.NotFound(updateDto.CountryId.Value));
             }
+
             bank.CountryId = updateDto.CountryId.Value;
             isNeedUpdate = true;
         }
 
         country ??= bank.Country;
-        
+
         if (updateDto.Name is not null && !string.Equals(updateDto.Name, bank.Name))
         {
             var isNameUnique =
@@ -160,22 +174,25 @@ public class BankService(
                     updateDto.Name, country.Id, cancellationToken: cancellationToken);
             if (!isNameUnique)
             {
+                logger.Warning(
+                    "Попытка обновления банка {BankId} с неуникальным названием '{BankName}' в стране {CountryName}",
+                    updateDto.Id, updateDto.Name, country.Name);
                 return Result.Fail(bankErrorsFactory.NameAlreadyExists(updateDto.Name, country.Id, country.Name));
             }
-            
+
             bank.Name = updateDto.Name;
             isNeedUpdate = true;
         }
-        
+
         if (isNeedUpdate)
         {
             // нам не нужно вызывать метод bankRepository.UpdateAsync(), так как сущность bank уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Successfully updated bank: {BankId}", updateDto.Id);
+            logger.Information("Банк {BankId} успешно обновлен", updateDto.Id);
         }
         else
         {
-            logger.Information("No changes detected for bank: {BankId}", updateDto.Id);
+            logger.Information("Изменения для банка {BankId} не обнаружены", updateDto.Id);
         }
 
         return Result.Ok(bank.ToDto());
@@ -189,10 +206,11 @@ public class BankService(
     /// <returns>Результат выполнения операции.</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting bank: {BankId}", id);
+        logger.Information("Удаление банка: {BankId}", id);
 
         if (!await bankRepository.CanBeDeletedAsync(id, cancellationToken))
         {
+            logger.Warning("Банк {BankId} не может быть удален, так как используется в счетах", id);
             return Result.Fail(bankErrorsFactory.CannotDeleteUsedBank(id));
         }
 
@@ -200,7 +218,11 @@ public class BankService(
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            logger.Warning("No bank was deleted for id: {BankId}", id);
+            logger.Warning("Банк {BankId} не был удален, возможно он не существует", id);
+        }
+        else
+        {
+            logger.Information("Банк {BankId} успешно удален", id);
         }
 
         return Result.Ok();
@@ -219,13 +241,14 @@ public class BankService(
         CancellationToken cancellationToken = default)
     {
         logger.Information(
-            "Getting accounts count for bank: {BankId} (includeArchived: {IncludeArchived}, includeDeleted: {IncludeDeleted})",
+            "Получение количества счетов для банка {BankId}. Включить архивные: {IncludeArchived}, включить удаленные: {IncludeDeleted}",
             bankId, includeArchivedAccounts, includeDeletedAccounts);
 
         var bank = await bankRepository.GetByIdAsync(bankId, disableTracking: true,
             cancellationToken: cancellationToken);
         if (bank is null)
         {
+            logger.Warning("Банк с идентификатором {BankId} не найден для подсчета счетов", bankId);
             return Result.Fail(bankErrorsFactory.NotFound(bankId));
         }
 
@@ -235,7 +258,7 @@ public class BankService(
             includeDeletedAccounts,
             cancellationToken);
 
-        logger.Information("Accounts count for bank {BankId}: {Count}", bankId, count);
+        logger.Information("Для банка {BankId} найдено {Count} счетов", bankId, count);
         return Result.Ok(count);
     }
 
@@ -250,9 +273,17 @@ public class BankService(
     private async Task<bool> CheckBankNameUniq(string name, Guid countryId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
+        logger.Debug(
+            "Проверка уникальности названия банка '{BankName}' в стране {CountryId}, исключая банк {ExcludeId}",
+            name, countryId, excludeId);
+
         var isNameUnique =
             await bankRepository.IsNameUniqueByCountryAsync(name, countryId,
                 cancellationToken: cancellationToken);
+        
+        logger.Debug("Название банка '{BankName}' в стране {CountryId} {UniqueResult}",
+            name, countryId, isNameUnique ? "уникально" : "не уникально");
+        
         return isNameUnique;
     }
 }

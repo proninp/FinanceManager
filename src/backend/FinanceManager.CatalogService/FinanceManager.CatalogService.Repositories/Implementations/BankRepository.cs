@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,9 +12,11 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для управления сущностями <see cref="Bank"/>.
 /// Предоставляет методы для фильтрации, инициализации, проверки уникальности, получения связанных данных и проверки возможности удаления.
 /// </summary>
-public class BankRepository(DatabaseContext context) : BaseRepository<Bank, BankFilterDto>(context), IBankRepository
+public class BankRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Bank, BankFilterDto>(context, logger), IBankRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Включает связанные сущности для <see cref="Bank"/> (например, страну).
@@ -55,24 +58,46 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
     /// <returns>Количество записей, сохранённых в базе данных.</returns>
     public async Task<int> InitializeAsync(IEnumerable<Bank> entities, CancellationToken cancellationToken = default)
     {
+        _logger.Information("Начинается инициализация сущности Банк");
+        var banksList = entities as ICollection<Bank> ?? entities.ToList();
+        _logger.Debug("Подготовлено {BanksCount} банков для инициализации", banksList.Count);
+
         if (!await Entities.AnyAsync(cancellationToken))
         {
-            await Entities.AddRangeAsync(entities, cancellationToken);
-            return await _context.CommitAsync(cancellationToken);
+            _logger.Debug("Таблица банков пуста, добавляем все");
+            await Entities.AddRangeAsync(banksList, cancellationToken);
+            var result = await _context.CommitAsync(cancellationToken);
+            _logger.Information("Инициализация завершена, добавлено {AddedCount} банков", result);
+            return result;
         }
 
+        _logger.Debug("Таблица банков содержит данные, проверяем уникальность");
         var query = Entities.AsQueryable();
-        foreach (var entity in entities)
+        var addedCount = 0;
+
+        foreach (var entity in banksList)
         {
             if (!await query.AnyAsync(
                     b => b.CountryId == entity.CountryId && string.Equals(b.Name, entity.Name,
                         StringComparison.InvariantCultureIgnoreCase), cancellationToken))
             {
                 await Entities.AddAsync(entity, cancellationToken);
+                addedCount++;
+                _logger.Debug("Добавлен банк: {BankName} (страна: {CountryId})", entity.Name, entity.CountryId);
+            }
+            else
+            {
+                _logger.Debug("Банк {BankName} уже существует в стране {CountryId}, пропускаем", entity.Name,
+                    entity.CountryId);
             }
         }
 
-        return await _context.CommitAsync(cancellationToken);
+        var commitResult = await _context.CommitAsync(cancellationToken);
+
+        _logger.Information("Инициализация завершена, добавлено {AddedCount} новых банков из {TotalCount}", addedCount,
+            banksList.Count);
+
+        return commitResult;
     }
 
     /// <summary>
@@ -84,10 +109,16 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
     public async Task<ICollection<Bank>> GetAllAsync(bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
+        _logger.Information("Получение всех банков. Включить связанные данные: {IncludeRelated}", includeRelated);
+
         var query = Entities.AsNoTracking();
         if (includeRelated)
             query = IncludeRelatedEntities(query);
-        return await query.ToListAsync(cancellationToken);
+        var banks = await query.ToListAsync(cancellationToken);
+
+        _logger.Information("Получено {BanksCount} банков", banks.Count);
+
+        return banks;
     }
 
     /// <summary>
@@ -101,10 +132,18 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
     public async Task<bool> IsNameUniqueByCountryAsync(string name, Guid countryId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
+        _logger.Debug("Проверка уникальности имени банка '{BankName}' в стране {CountryId}, исключая банк {ExcludeId}",
+            name, countryId, excludeId);
+
         var query = Entities.Where(b => b.CountryId == countryId);
-        return await IsUniqueAsync(query,
+        var isUnique = await IsUniqueAsync(query,
             predicate: b => string.Equals(b.Name, name, StringComparison.InvariantCultureIgnoreCase),
             excludeId, cancellationToken);
+
+        _logger.Debug("Имя банка '{BankName}' в стране {CountryId} {UniqueResult}",
+            name, countryId, isUnique ? "уникально" : "не уникально");
+
+        return isUnique;
     }
 
     /// <summary>
@@ -119,13 +158,22 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
         bool includeDeletedAccounts = false,
         CancellationToken cancellationToken = default)
     {
+        _logger.Information("Получение количества счетов для банка {BankId}. " +
+                            "Включить архивные: {IncludeArchived}, " +
+                            "Включить удалённые: {IncludeDeleted}",
+            bankId, includeArchivedAccounts, includeDeletedAccounts);
+
         var query = _context.Accounts.Where(b => b.BankId == bankId);
         if (!includeArchivedAccounts)
             query = query.Where(a => a.IsArchived == false);
         if (!includeDeletedAccounts)
             query = query.Where(a => a.IsDeleted == false);
 
-        return await query.CountAsync(cancellationToken);
+        var count = await query.CountAsync(cancellationToken);
+
+        _logger.Information("Банк {BankId} используется в {AccountsCount} счетах", bankId, count);
+
+        return count;
     }
 
     /// <summary>
@@ -136,6 +184,13 @@ public class BankRepository(DatabaseContext context) : BaseRepository<Bank, Bank
     /// <returns>True, если банк можно удалить; иначе — false.</returns>
     public async Task<bool> CanBeDeletedAsync(Guid bankId, CancellationToken cancellationToken = default)
     {
-        return !await _context.Accounts.AnyAsync(a => a.BankId == bankId, cancellationToken);
+        _logger.Debug("Проверка возможности удаления банка {BankId}", bankId);
+
+        var canBeDeleted = !await _context.Accounts.AnyAsync(a => a.BankId == bankId, cancellationToken);
+
+        _logger.Information("Банк {BankId} {DeletionResult}", bankId,
+            canBeDeleted ? "может быть удалён" : "не может быть удалён (используется в счетах)");
+
+        return canBeDeleted;
     }
 }

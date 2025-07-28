@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Contracts.DTOs.Abstractions;
 using FinanceManager.CatalogService.Domain.Abstractions;
 using FinanceManager.CatalogService.EntityFramework;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Abstractions;
 
@@ -12,12 +13,13 @@ namespace FinanceManager.CatalogService.Repositories.Abstractions;
 /// </summary>
 /// <typeparam name="T">Тип сущности.</typeparam>
 /// <typeparam name="TFilterDto">Тип DTO фильтра для пагинации.</typeparam>
-public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : IBaseRepository<T, TFilterDto>
+public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context, ILogger logger)
+    : IBaseRepository<T, TFilterDto>
     where T : IdentityModel
     where TFilterDto : BasePaginationDto
 {
     private protected readonly DbSet<T> Entities = context.Set<T>();
-    
+
     /// <summary>
     /// Проверяет, является ли сущность пустой
     /// </summary>
@@ -27,8 +29,14 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     /// <c>true</c> - если сущность пуста;
     /// <c>false</c> - если содержит элементы
     /// </returns>
-    public async Task<bool> IsEmptyAsync(CancellationToken cancellationToken = default) =>
-        !await Entities.AnyAsync(cancellationToken);
+    public async Task<bool> IsEmptyAsync(CancellationToken cancellationToken = default)
+    {
+        logger.Debug("Проверка на пустоту сущности {EntityType}", typeof(T).Name);
+        var isEmpty = !await Entities.AnyAsync(cancellationToken);
+        logger.Debug("Сущность {EntityType} {ExistsResult}", typeof(T).Name,
+            isEmpty ? "не найдена" : "найдена");
+        return isEmpty;
+    }
 
     /// <summary>
     /// Проверяет, существует ли сущность с указанным идентификатором.
@@ -38,8 +46,12 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     /// <returns>True, если сущность существует, иначе false.</returns>
     public async Task<bool> AnyAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await Entities
+        logger.Debug("Проверка существования сущности {EntityType} с Id: {Id}", typeof(T).Name, id);
+        var exists = await Entities
             .AnyAsync(e => e.Id == id, cancellationToken);
+        logger.Debug("Сущность {EntityType} с Id {Id} {ExistsResult}", typeof(T).Name, id,
+            exists ? "найдена" : "не найдена");
+        return exists;
     }
 
     /// <summary>
@@ -53,6 +65,7 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     public async Task<T?> GetByIdAsync(Guid id, bool includeRelated = true, bool disableTracking = false,
         CancellationToken cancellationToken = default)
     {
+        logger.Information("Получение сущности {EntityType} по Id: {Id}", typeof(T).Name, id);
         var query = Entities.AsQueryable();
         if (disableTracking)
             query = query.AsNoTrackingWithIdentityResolution();
@@ -60,7 +73,17 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
         if (includeRelated)
             query = IncludeRelatedEntities(query);
 
-        return await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        var entity = await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+        if (entity is null)
+        {
+            logger.Warning("Сущность {EntityType} с Id {Id} не найдена", typeof(T).Name, id);
+        }
+        else
+        {
+            logger.Information("Сущность {EntityType} с Id {Id} успешно получена", typeof(T).Name, id);
+        }
+
+        return entity;
     }
 
     /// <summary>
@@ -81,13 +104,18 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     public async Task<ICollection<T>> GetPagedAsync(TFilterDto filter, bool includeRelated = true,
         CancellationToken cancellationToken = default)
     {
+        logger.Information("Получение страницы сущностей {EntityType}. Страница: {Page}, Размер: {PageSize}",
+            typeof(T).Name, filter.Page, filter.ItemsPerPage);
+
         var query = Entities.AsNoTracking();
-
         query = SetFilters(filter, query);
-
         query = query.Skip(filter.Skip).Take(filter.Take);
+        var entities = await query.ToListAsync(cancellationToken);
 
-        return await query.ToListAsync(cancellationToken);
+        logger.Information("Получено {Count} сущностей {EntityType} на странице {Page}",
+            entities.Count, typeof(T).Name, filter.Page);
+
+        return entities;
     }
 
     /// <summary>
@@ -106,7 +134,9 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     /// <returns>Добавленная сущность.</returns>
     public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
+        logger.Information("Добавление новой сущности {EntityType} с Id: {Id}", typeof(T).Name, entity.Id);
         var addedEntity = await Entities.AddAsync(entity, cancellationToken);
+        logger.Information("Сущность {EntityType} с Id {Id} подготовлена к сохранению", typeof(T).Name, entity.Id);
         return addedEntity.Entity;
     }
 
@@ -117,7 +147,10 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     /// <returns>Обновлённая сущность.</returns>
     public T Update(T entity)
     {
-        return Entities.Update(entity).Entity;
+        logger.Information("Обновление сущности {EntityType} с Id: {Id}", typeof(T).Name, entity.Id);
+        var updatedEntity = Entities.Update(entity).Entity;
+        logger.Information("Сущность {EntityType} с Id {Id} подготовлена к обновлению", typeof(T).Name, entity.Id);
+        return updatedEntity;
     }
 
     /// <summary>
@@ -128,9 +161,19 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
     /// <returns>True, если сущность была удалена, иначе false.</returns>
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        logger.Information("Удаление сущности {EntityType} с Id: {Id}", typeof(T).Name, id);
+        
         var result = await Entities
             .Where(e => e.Id == id)
             .ExecuteDeleteAsync(cancellationToken);
+        if (result > 0)
+        {
+            logger.Information("Сущность {EntityType} с Id {Id} успешно удалена", typeof(T).Name, id);
+        }
+        else
+        {
+            logger.Warning("Сущность {EntityType} с Id {Id} не была удалена (возможно, не найдена)", typeof(T).Name, id);
+        }
         return result > 0;
     }
 
@@ -151,9 +194,16 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context) : I
         Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
+        logger.Debug("Проверка уникальности сущности {EntityType}, исключая Id: {ExcludeId}", 
+            typeof(T).Name, excludeId);
         if (excludeId.HasValue)
             query = query.Where(e => e.Id != excludeId.Value);
 
-        return !await query.AnyAsync(predicate, cancellationToken: cancellationToken);
+        var exists = await query.AnyAsync(predicate, cancellationToken: cancellationToken);
+        
+        logger.Debug("Результат проверки уникальности для {EntityType}: {IsUnique}", 
+            typeof(T).Name, !exists ? "уникальна" : "не уникальна");
+        
+        return !exists;
     }
 }

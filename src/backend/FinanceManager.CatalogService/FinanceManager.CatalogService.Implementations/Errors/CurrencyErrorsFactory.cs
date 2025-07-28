@@ -20,7 +20,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("Currency not found: {CurrencyId}", id);
+        logger.Warning("Валюта не найдена: {CurrencyId}", id);
         return errorsFactory.NotFound("CURRENCY_NOT_FOUND", EntityName, id);
     }
 
@@ -31,7 +31,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError CharCodeAlreadyExists(string charCode)
     {
-        logger.Warning("Currency char code already exists: {CharCode}", charCode);
+        logger.Warning("Буквенный код валюты уже существует: {CharCode}", charCode);
         return errorsFactory.AlreadyExists("CURRENCY_CHARCODE_EXISTS", EntityName, CharCodeField, charCode);
     }
 
@@ -42,7 +42,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NumCodeAlreadyExists(string numCode)
     {
-        logger.Warning("Currency num code already exists: {NumCode}", numCode);
+        logger.Warning("Числовой код валюты уже существует: {NumCode}", numCode);
         return errorsFactory.AlreadyExists("CURRENCY_NUMCODE_EXISTS", EntityName, NumCodeField, numCode);
     }
 
@@ -52,7 +52,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError CharCodeIsRequired()
     {
-        logger.Warning($"{EntityName} char code is required");
+        logger.Warning("Буквенный код {EntityName} обязателен для заполнения", EntityName);
         return errorsFactory.Required("CURRENCY_CHARCODE_REQUIRED", EntityName, CharCodeField);
     }
 
@@ -62,7 +62,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NumCodeIsRequired()
     {
-        logger.Warning($"{EntityName} num code is required");
+        logger.Warning("Числовой код {EntityName} обязателен для заполнения", EntityName);
         return errorsFactory.Required("CURRENCY_NUMCODE_REQUIRED", EntityName, NumCodeField);
     }
 
@@ -72,7 +72,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError NameIsRequired()
     {
-        logger.Warning($"{EntityName} name is required");
+        logger.Warning("Название {EntityName} обязательно для заполнения", EntityName);
         return errorsFactory.Required("CURRENCY_NAME_REQUIRED", EntityName, "Name");
     }
 
@@ -83,7 +83,7 @@ public class CurrencyErrorsFactory(IErrorsFactory errorsFactory, ILogger logger)
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedCurrency(Guid id)
     {
-        logger.Warning("Cannot delete currency '{CurrencyId}' because it is using in other entities", id);
+        logger.Warning("Невозможно удалить валюту '{CurrencyId}', так как она используется в других сущностях", id);
         return errorsFactory.CannotDeleteUsedEntity("CURRENCY_IN_USE", EntityName, id);
     }
 }

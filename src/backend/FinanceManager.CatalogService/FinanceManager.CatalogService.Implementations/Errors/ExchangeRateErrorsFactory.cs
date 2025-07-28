@@ -22,7 +22,7 @@ public class ExchangeRateErrorsFactory(IErrorsFactory errorsFactory, ILogger log
     /// <returns>Экземпляр ошибки</returns>
     public IError NotFound(Guid id)
     {
-        logger.Warning("ExchangeRate not found: {ExchangeRateId}", id);
+        logger.Warning("Курс валют не найден: {ExchangeRateId}", id);
         return errorsFactory.NotFound("EXCHANGERATE_NOT_FOUND", EntityName, id);
     }
 
@@ -34,8 +34,9 @@ public class ExchangeRateErrorsFactory(IErrorsFactory errorsFactory, ILogger log
     /// <returns>Экземпляр ошибки</returns>
     public IError AlreadyExists(Guid currencyId, DateTime rateDate)
     {
-        logger.Warning("ExchangeRate already exists for currency {CurrencyId} on {RateDate}", currencyId, rateDate);
-        return errorsFactory.AlreadyExists("EXCHANGERATE_EXISTS", EntityName, $"{CurrencyIdField}:{RateDateField}", $"{currencyId}:{rateDate:yyyy-MM-dd}");
+        logger.Warning("Курс валют уже существует для валюты {CurrencyId} на дату {RateDate}", currencyId, rateDate);
+        return errorsFactory.AlreadyExists("EXCHANGERATE_EXISTS", EntityName, $"{CurrencyIdField}:{RateDateField}",
+            $"{currencyId}:{rateDate:yyyy-MM-dd}");
     }
 
     /// <summary>
@@ -44,7 +45,7 @@ public class ExchangeRateErrorsFactory(IErrorsFactory errorsFactory, ILogger log
     /// <returns>Экземпляр ошибки</returns>
     public IError CurrencyIsRequired()
     {
-        logger.Warning("{EntityName} currency is required", EntityName);
+        logger.Warning("Валюта {EntityName} обязательна для заполнения", EntityName);
         return errorsFactory.Required("EXCHANGERATE_CURRENCY_REQUIRED", EntityName, CurrencyIdField);
     }
 
@@ -54,7 +55,7 @@ public class ExchangeRateErrorsFactory(IErrorsFactory errorsFactory, ILogger log
     /// <returns>Экземпляр ошибки</returns>
     public IError RateDateIsRequired()
     {
-        logger.Warning("{EntityName} rate date is required", EntityName);
+        logger.Warning("Дата курса {EntityName} обязательна для заполнения", EntityName);
         return errorsFactory.Required("EXCHANGERATE_RATEDATE_REQUIRED", EntityName, RateDateField);
     }
 
@@ -64,7 +65,7 @@ public class ExchangeRateErrorsFactory(IErrorsFactory errorsFactory, ILogger log
     /// <returns>Экземпляр ошибки</returns>
     public IError RateValueIsRequired()
     {
-        logger.Warning("{EntityName} rate value is required", EntityName);
+        logger.Warning("Значение курса {EntityName} обязательно для заполнения", EntityName);
         return errorsFactory.Required("EXCHANGERATE_VALUE_REQUIRED", EntityName, RateField);
     }
 
@@ -75,7 +76,8 @@ public class ExchangeRateErrorsFactory(IErrorsFactory errorsFactory, ILogger log
     /// <returns>Экземпляр ошибки</returns>
     public IError CannotDeleteUsedExchangeRate(Guid id)
     {
-        logger.Warning("Cannot delete exchange rate '{ExchangeRateId}' because it is used in other entities", id);
+        logger.Warning("Невозможно удалить курс валют '{ExchangeRateId}', так как он используется в других сущностях",
+            id);
         return errorsFactory.CannotDeleteUsedEntity("EXCHANGERATE_IN_USE", EntityName, id);
     }
 }

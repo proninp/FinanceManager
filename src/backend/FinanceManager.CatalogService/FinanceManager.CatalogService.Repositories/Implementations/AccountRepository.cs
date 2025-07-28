@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,10 +12,11 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для работы со счетами.
 /// Предоставляет методы фильтрации, получения количества счетов по владельцу, проверки наличия и получения счета по умолчанию.
 /// </summary>
-public class AccountRepository(DatabaseContext context)
-    : BaseRepository<Account, AccountFilterDto>(context), IAccountRepository
+public class AccountRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<Account, AccountFilterDto>(context, logger), IAccountRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Включает связанные сущности для запроса счетов: владельца справочника, тип счета, валюту и банк.
@@ -50,6 +52,7 @@ public class AccountRepository(DatabaseContext context)
                 ? query.Where(a => a.Name.Contains(filter.NameContains))
                 : query.Where(a => string.Equals(a.Name, string.Empty));
         }
+
         if (filter.IsIncludeInBalance.HasValue)
             query = query.Where(a => a.IsIncludeInBalance == filter.IsIncludeInBalance.Value);
         if (filter.IsDefault.HasValue)
@@ -75,11 +78,18 @@ public class AccountRepository(DatabaseContext context)
         bool includeDeleted = false,
         CancellationToken cancellationToken = default)
     {
-        return await Entities
+        _logger.Information(
+            "Получение количества счетов для владельца {RegistryHolderId}. " +
+            "Включить архивные: {IncludeArchived}, " +
+            "Включить удалённые: {IncludeDeleted}",
+            registryHolderId, includeArchived, includeDeleted);
+        var count = await Entities
             .Where(a => a.RegistryHolderId == registryHolderId &&
                         (includeArchived || !a.IsArchived) &&
                         (includeDeleted || !a.IsDeleted))
             .CountAsync(cancellationToken);
+        _logger.Information("Найдено {Count} счетов для владельца {RegistryHolderId}", count, registryHolderId);
+        return count;
     }
 
     /// <summary>
@@ -92,10 +102,17 @@ public class AccountRepository(DatabaseContext context)
     public async Task<bool> HasDefaultAccountAsync(Guid registryHolderId, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
+        _logger.Debug("Проверка наличия счёта по умолчанию для владельца {RegistryHolderId}, исключая счёт {ExcludeId}",
+            registryHolderId, excludeId);
         var query = Entities.AsQueryable();
         if (excludeId.HasValue)
             query = query.Where(a => a.Id != excludeId.Value);
-        return await query.AnyAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault, cancellationToken);
+        var hasDefault =
+            await query.AnyAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault, cancellationToken);
+        _logger.Debug("Счёт по умолчанию для владельца {RegistryHolderId} {HasDefaultResult}",
+            registryHolderId, hasDefault ? "найден" : "не найден");
+
+        return hasDefault;
     }
 
     /// <summary>
@@ -107,7 +124,20 @@ public class AccountRepository(DatabaseContext context)
     public async Task<Account?> GetDefaultAccountAsync(Guid registryHolderId,
         CancellationToken cancellationToken = default)
     {
-        return await Entities.FirstOrDefaultAsync(a => a.RegistryHolderId == registryHolderId && a.IsDefault,
+        _logger.Information("Получение счёта по умолчанию для владельца {RegistryHolderId}", registryHolderId);
+        var defaultAccount = await Entities.FirstOrDefaultAsync(
+            a => a.RegistryHolderId == registryHolderId && a.IsDefault,
             cancellationToken);
+        if (defaultAccount == null)
+        {
+            _logger.Warning("Счёт по умолчанию для владельца {RegistryHolderId} не найден", registryHolderId);
+        }
+        else
+        {
+            _logger.Information("Найден счёт по умолчанию {AccountId} для владельца {RegistryHolderId}",
+                defaultAccount.Id, registryHolderId);
+        }
+
+        return defaultAccount;
     }
 }

@@ -4,6 +4,7 @@ using FinanceManager.CatalogService.Domain.Entities;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace FinanceManager.CatalogService.Repositories.Implementations;
 
@@ -11,10 +12,11 @@ namespace FinanceManager.CatalogService.Repositories.Implementations;
 /// Репозиторий для управления сущностями <see cref="AccountType"/>.
 /// Предоставляет методы для фильтрации, получения всех типов счетов, проверки уникальности кода, проверки существования по коду и проверки возможности удаления.
 /// </summary>
-public class AccountTypeRepository(DatabaseContext context)
-    : BaseRepository<AccountType, AccountTypeFilterDto>(context), IAccountTypeRepository
+public class AccountTypeRepository(DatabaseContext context, ILogger logger)
+    : BaseRepository<AccountType, AccountTypeFilterDto>(context, logger), IAccountTypeRepository
 {
     private readonly DatabaseContext _context = context;
+    private readonly ILogger _logger = logger;
 
     /// <summary>
     /// Применяет фильтры к запросу <see cref="AccountType"/> на основе переданного <paramref name="filter"/>.
@@ -49,7 +51,13 @@ public class AccountTypeRepository(DatabaseContext context)
     /// <returns>Коллекция типов счетов.</returns>
     public async Task<ICollection<AccountType>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await Entities.AsNoTracking().ToListAsync(cancellationToken);
+        _logger.Information("Получение всех типов счетов");
+
+        var accountTypes = await Entities.AsNoTracking().ToListAsync(cancellationToken);
+
+        _logger.Information("Получено {AccountTypesCount} типов счетов", accountTypes.Count);
+
+        return accountTypes;
     }
 
     /// <summary>
@@ -62,9 +70,17 @@ public class AccountTypeRepository(DatabaseContext context)
     public async Task<bool> IsCodeUniqueAsync(string code, Guid? excludeId = null,
         CancellationToken cancellationToken = default)
     {
-        return await IsUniqueAsync(Entities.AsQueryable(),
+        _logger.Debug("Проверка уникальности кода типа счёта '{Code}', исключая тип {ExcludeId}",
+            code, excludeId);
+
+        var isUnique = await IsUniqueAsync(Entities.AsQueryable(),
             predicate: a => string.Equals(a.Code, code, StringComparison.InvariantCultureIgnoreCase),
             excludeId, cancellationToken);
+
+        _logger.Debug("Код типа счёта '{Code}' {UniqueResult}",
+            code, isUnique ? "уникален" : "не уникален");
+
+        return isUnique;
     }
 
     /// <summary>
@@ -77,10 +93,19 @@ public class AccountTypeRepository(DatabaseContext context)
     public async Task<bool> ExistsByCodeAsync(string code, bool includeDeleted = false,
         CancellationToken cancellationToken = default)
     {
+        _logger.Debug("Проверка существования типа счёта по коду '{Code}'. Включить удалённые: {IncludeDeleted}",
+            code, includeDeleted);
+
         var query = Entities.Where(a => a.Code == code);
         if (!includeDeleted)
             query = query.Where(a => !a.IsDeleted);
-        return await query.AnyAsync(cancellationToken);
+        
+        var exists = await query.AnyAsync(cancellationToken);
+        
+        _logger.Debug("Тип счёта с кодом '{Code}' {ExistsResult}", 
+            code, exists ? "существует" : "не существует");
+
+        return exists;
     }
 
     /// <summary>
@@ -91,6 +116,13 @@ public class AccountTypeRepository(DatabaseContext context)
     /// <returns>True, если тип счета можно удалить; иначе — false.</returns>
     public async Task<bool> CanBeDeletedAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return !await _context.Accounts.AnyAsync(a => a.AccountTypeId == id, cancellationToken);
+        _logger.Information("Проверка возможности удаления типа счёта {AccountTypeId}", id);
+        
+        var canBeDeleted = !await _context.Accounts.AnyAsync(a => a.AccountTypeId == id, cancellationToken);
+        
+        _logger.Information("Тип счёта {AccountTypeId} {DeletionResult}", 
+            id, canBeDeleted ? "может быть удалён" : "не может быть удалён (используется в счетах)");
+        
+        return canBeDeleted;
     }
 }
