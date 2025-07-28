@@ -22,16 +22,17 @@ public class CurrencyService(
     /// <returns>Результат с DTO валюты или ошибкой, если не найдена</returns>
     public async Task<Result<CurrencyDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting currency by id: {CurrencyId}", id);
+        logger.Information("Получение валюты по идентификатору: {CurrencyId}", id);
 
         var currency =
             await currencyRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (currency is null)
         {
+            logger.Warning("Валюта с идентификатором {CurrencyId} не найдена", id);
             return Result.Fail(currencyErrorsFactory.NotFound(id));
         }
 
-        logger.Information("Successfully retrieved currency: {CurrencyId}", id);
+        logger.Information("Валюта {CurrencyId} успешно получена", id);
         return Result.Ok(currency.ToDto());
     }
 
@@ -44,12 +45,13 @@ public class CurrencyService(
     public async Task<Result<ICollection<CurrencyDto>>> GetPagedAsync(CurrencyFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged currencies with filter: {@Filter}", filter);
+        logger.Information("Получение списка валют с фильтрацией: {@Filter}", filter);
+        
         var currencies = await currencyRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
         var currenciesDto = currencies.ToDto();
 
-        logger.Information("Successfully retrieved {Count} currencies", currenciesDto.Count);
+        logger.Information("Получено {Count} валют", currenciesDto.Count);
         return Result.Ok(currenciesDto);
     }
 
@@ -62,38 +64,43 @@ public class CurrencyService(
     public async Task<Result<CurrencyDto>> CreateAsync(CreateCurrencyDto createDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Creating currency: {@CreateDto}", createDto);
+        logger.Information("Создание новой валюты: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.CharCode))
         {
+            logger.Warning("Попытка создания валюты без указания символьного кода");
             return Result.Fail(currencyErrorsFactory.CharCodeIsRequired());
         }
 
         if (string.IsNullOrWhiteSpace(createDto.NumCode))
         {
+            logger.Warning("Попытка создания валюты без указания числового кода");
             return Result.Fail(currencyErrorsFactory.NumCodeIsRequired());
         }
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
+            logger.Warning("Попытка создания валюты без указания названия");
             return Result.Fail(currencyErrorsFactory.NameIsRequired());
         }
 
         if (!await currencyRepository.IsCharCodeUniqueAsync(createDto.CharCode, cancellationToken: cancellationToken))
         {
+            logger.Warning("Попытка создания валюты с неуникальным символьным кодом: '{CharCode}'", createDto.CharCode);
             return Result.Fail(currencyErrorsFactory.CharCodeAlreadyExists(createDto.CharCode));
         }
 
         if (!await currencyRepository.IsNumCodeUniqueAsync(createDto.NumCode, cancellationToken: cancellationToken))
         {
+            logger.Warning("Попытка создания валюты с неуникальным числовым кодом: '{NumCode}'", createDto.NumCode);
             return Result.Fail(currencyErrorsFactory.NumCodeAlreadyExists(createDto.NumCode));
         }
 
         var currency = await currencyRepository.AddAsync(createDto.ToCurrency(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully created currency: {CurrencyId} with char code: {CharCode}",
-            currency.Id, createDto.CharCode);
+        logger.Information("Валюта {CurrencyId} с символьным кодом '{CharCode}' и названием '{Name}' успешно создана",
+            currency.Id, createDto.CharCode, createDto.Name);
 
         return Result.Ok(currency.ToDto());
     }
@@ -107,11 +114,12 @@ public class CurrencyService(
     public async Task<Result<CurrencyDto>> UpdateAsync(UpdateCurrencyDto updateDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Updating currency: {@UpdateDto}", updateDto);
+        logger.Information("Обновление валюты: {@UpdateDto}", updateDto);
 
         var currency = await currencyRepository.GetByIdAsync(updateDto.Id, cancellationToken: cancellationToken);
         if (currency is null)
         {
+            logger.Warning("Валюта с идентификатором {CurrencyId} не найдена для обновления", updateDto.Id);
             return Result.Fail(currencyErrorsFactory.NotFound(updateDto.Id));
         }
 
@@ -127,6 +135,8 @@ public class CurrencyService(
         {
             if (!await currencyRepository.IsCharCodeUniqueAsync(updateDto.CharCode, updateDto.Id, cancellationToken))
             {
+                logger.Warning("Попытка обновления валюты {CurrencyId} с неуникальным символьным кодом: '{CharCode}'", 
+                    updateDto.Id, updateDto.CharCode);
                 return Result.Fail(currencyErrorsFactory.CharCodeAlreadyExists(updateDto.CharCode));
             }
 
@@ -138,6 +148,8 @@ public class CurrencyService(
         {
             if (!await currencyRepository.IsNumCodeUniqueAsync(updateDto.NumCode, updateDto.Id, cancellationToken))
             {
+                logger.Warning("Попытка обновления валюты {CurrencyId} с неуникальным числовым кодом: '{NumCode}'", 
+                    updateDto.Id, updateDto.NumCode);
                 return Result.Fail(currencyErrorsFactory.NumCodeAlreadyExists(updateDto.NumCode));
             }
 
@@ -161,11 +173,11 @@ public class CurrencyService(
         {
             // нам не нужно вызывать метод currencyRepository.UpdateAsync(), так как сущность currency уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Successfully updated currency: {CurrencyId}", updateDto.Id);
+            logger.Information("Валюта {CurrencyId} успешно обновлена", updateDto.Id);
         }
         else
         {
-            logger.Information("No changes detected for currency: {CurrencyId}", updateDto.Id);
+            logger.Information("Изменения для валюты {CurrencyId} не обнаружены", updateDto.Id);
         }
 
         return Result.Ok(currency.ToDto());
@@ -179,19 +191,26 @@ public class CurrencyService(
     /// <returns>Результат выполнения операции</returns>
     public async Task<Result> SoftDeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Soft deleting currency: {CurrencyId}", id);
+        logger.Information("Мягкое удаление валюты: {CurrencyId}", id);
 
         var currency =
             await currencyRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (currency is null)
         {
+            logger.Warning("Валюта с идентификатором {CurrencyId} не найдена для мягкого удаления", id);
             return Result.Fail(currencyErrorsFactory.NotFound(id));
+        }
+
+        if (currency.IsDeleted)
+        {
+            logger.Information("Валюта {CurrencyId} уже помечена как удаленная", id);
+            return Result.Ok();
         }
 
         currency.MarkAsDeleted();
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully soft deleted currency: {CurrencyId}", id);
+        logger.Information("Валюта {CurrencyId} успешно помечена как удаленная", id);
         return Result.Ok();
     }
 
@@ -203,24 +222,25 @@ public class CurrencyService(
     /// <returns>Результат выполнения операции</returns>
     public async Task<Result> RestoreAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Restoring currency: {CurrencyId}", id);
+        logger.Information("Восстановление валюты: {CurrencyId}", id);
 
         var currency = await currencyRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
         if (currency is null)
         {
+            logger.Warning("Валюта с идентификатором {CurrencyId} не найдена для восстановления", id);
             return Result.Fail(currencyErrorsFactory.NotFound(id));
         }
 
         if (!currency.IsDeleted)
         {
-            logger.Information("Currency is not deleted, nothing to restore: {CurrencyId}", id);
+            logger.Information("Валюта {CurrencyId} не была удалена, восстановление не требуется", id);
             return Result.Ok();
         }
 
         currency.Restore();
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully restored currency: {CurrencyId}", id);
+        logger.Information("Валюта {CurrencyId} успешно восстановлена", id);
         return Result.Ok();
     }
 
@@ -232,10 +252,11 @@ public class CurrencyService(
     /// <returns>Результат выполнения операции</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting currency: {CurrencyId}", id);
+        logger.Information("Жесткое удаление валюты: {CurrencyId}", id);
 
         if (!await currencyRepository.CanBeDeletedAsync(id, cancellationToken))
         {
+            logger.Warning("Валюта {CurrencyId} не может быть удалена, так как используется в счетах или курсах валют", id);
             return Result.Fail(currencyErrorsFactory.CannotDeleteUsedCurrency(id));
         }
 
@@ -243,7 +264,11 @@ public class CurrencyService(
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            logger.Warning("No currency was deleted for id: {CurrencyId}", id);
+            logger.Warning("Валюта {CurrencyId} не была удалена, возможно она не существует", id);
+        }
+        else
+        {
+            logger.Information("Валюта {CurrencyId} успешно удалена", id);
         }
 
         return Result.Ok();

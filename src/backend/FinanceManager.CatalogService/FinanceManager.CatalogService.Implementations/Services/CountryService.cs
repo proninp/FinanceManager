@@ -26,16 +26,17 @@ public class CountryService(
     /// <returns>Результат с DTO страны или ошибкой, если не найдена</returns>
     public async Task<Result<CountryDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting country by id: {CountryId}", id);
+        logger.Information("Получение страны по идентификатору: {CountryId}", id);
 
         var country =
             await countryRepository.GetByIdAsync(id, disableTracking: true, cancellationToken: cancellationToken);
         if (country is null)
         {
+            logger.Warning("Страна с идентификатором {CountryId} не найдена", id);
             return Result.Fail(countryErrorsFactory.NotFound(id));
         }
 
-        logger.Information("Successfully retrieved country: {CountryId}", id);
+        logger.Information("Страна {CountryId} успешно получена", id);
         return Result.Ok(country.ToDto());
     }
 
@@ -48,13 +49,14 @@ public class CountryService(
     public async Task<Result<ICollection<CountryDto>>> GetPagedAsync(CountryFilterDto filter,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Getting paged countries with filter: {@Filter}", filter);
+        logger.Information("Получение списка стран с фильтрацией: {@Filter}", filter);
+        
         var countries =
             await countryRepository.GetPagedAsync(filter, cancellationToken: cancellationToken);
 
         var countriesDto = countries.ToDto();
 
-        logger.Information("Successfully retrieved {Count} countries", countriesDto.Count);
+        logger.Information("Получено {Count} стран", countriesDto.Count);
         return Result.Ok(countriesDto);
     }
 
@@ -67,10 +69,11 @@ public class CountryService(
     public async Task<Result<CountryDto>> CreateAsync(CreateCountryDto createDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Creating country: {@CreateDto}", createDto);
+        logger.Information("Создание новой страны: {@CreateDto}", createDto);
 
         if (string.IsNullOrWhiteSpace(createDto.Name))
         {
+            logger.Warning("Попытка создания страны без указания названия");
             return Result.Fail(countryErrorsFactory.NameIsRequired());
         }
 
@@ -78,13 +81,14 @@ public class CountryService(
             await countryRepository.IsNameUniqueAsync(createDto.Name, cancellationToken: cancellationToken);
         if (!isNameUnique)
         {
+            logger.Warning("Попытка создания страны с неуникальным названием: '{CountryName}'", createDto.Name);
             return Result.Fail(countryErrorsFactory.NameAlreadyExists(createDto.Name));
         }
 
         var country = await countryRepository.AddAsync(createDto.ToCountry(), cancellationToken);
         await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Successfully created country: {CountryId} with name: {Name}",
+        logger.Information("Страна {CountryId} с названием '{CountryName}' успешно создана",
             country.Id, createDto.Name);
 
         return Result.Ok(country.ToDto());
@@ -99,12 +103,13 @@ public class CountryService(
     public async Task<Result<CountryDto>> UpdateAsync(UpdateCountryDto updateDto,
         CancellationToken cancellationToken = default)
     {
-        logger.Information("Updating country: {@UpdateDto}", updateDto);
+        logger.Information("Обновление страны: {@UpdateDto}", updateDto);
 
         var country =
             await countryRepository.GetByIdAsync(updateDto.Id, true, cancellationToken: cancellationToken);
         if (country is null)
         {
+            logger.Warning("Страна с идентификатором {CountryId} не найдена для обновления", updateDto.Id);
             return Result.Fail(countryErrorsFactory.NotFound(updateDto.Id));
         }
 
@@ -117,6 +122,8 @@ public class CountryService(
                     cancellationToken: cancellationToken);
             if (!isNameUnique)
             {
+                logger.Warning("Попытка обновления страны {CountryId} с неуникальным названием: '{CountryName}'", 
+                    updateDto.Id, updateDto.Name);
                 return Result.Fail(countryErrorsFactory.NameAlreadyExists(updateDto.Name));
             }
 
@@ -128,12 +135,13 @@ public class CountryService(
         {
             // нам не нужно вызывать метод countryRepository.UpdateAsync(), так как сущность country уже отслеживается
             await unitOfWork.CommitAsync(cancellationToken);
-            logger.Information("Successfully updated country: {CountryId}", updateDto.Id);
+            logger.Information("Страна {CountryId} успешно обновлена", updateDto.Id);
         }
         else
         {
-            logger.Information("No changes detected for country: {CountryId}", updateDto.Id);
+            logger.Information("Изменения для страны {CountryId} не обнаружены", updateDto.Id);
         }
+        
         return Result.Ok(country.ToDto());
     }
 
@@ -145,10 +153,11 @@ public class CountryService(
     /// <returns>Результат выполнения операции</returns>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        logger.Information("Deleting country: {CountryId}", id);
+        logger.Information("Удаление страны: {CountryId}", id);
 
         if (!await countryRepository.CanBeDeletedAsync(id, cancellationToken))
         {
+            logger.Warning("Страна {CountryId} не может быть удалена, так как используется в банках", id);
             return Result.Fail(countryErrorsFactory.CannotDeleteUsedCountry(id));
         }
         
@@ -156,8 +165,13 @@ public class CountryService(
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
         if (affectedRows == 0)
         {
-            logger.Warning("No country was deleted for id: {CountryId}", id);
+            logger.Warning("Страна {CountryId} не была удалена, возможно она не существует", id);
         }
+        else
+        {
+            logger.Information("Страна {CountryId} успешно удалена", id);
+        }
+        
         return Result.Ok();
     }
 }
