@@ -16,11 +16,8 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-<<<<<<< HEAD
-=======
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.6" />
->>>>>>> main
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
