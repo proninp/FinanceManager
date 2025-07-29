@@ -1,4 +1,5 @@
 using FinanceManager.CatalogService.API.Extensions;
+using FinanceManager.CatalogService.API.Middleware;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.EntityFramework.Seeding;
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Host.AddLogging(builder.Configuration);
 builder.Services
+    .AddExceptionHandling()
     .AddDatabase(builder.Configuration, builder.Environment.IsDevelopment())
     .AddSeeding()
     .AddApplication();
@@ -25,6 +27,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<RequestEnrichmentMiddleware>();
+app.UseExceptionHandler();
 
 await app.UseMigrationAsync();
 await app.SeedDatabaseAsync();
