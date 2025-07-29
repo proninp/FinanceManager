@@ -1,4 +1,5 @@
 using FinanceManager.CatalogService.API.Extensions;
+using FinanceManager.CatalogService.API.Middleware;
 using FinanceManager.CatalogService.EntityFramework;
 using FinanceManager.CatalogService.EntityFramework.Seeding;
 
@@ -27,6 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<RequestEnrichmentMiddleware>();
 app.UseExceptionHandler();
 
 await app.UseMigrationAsync();

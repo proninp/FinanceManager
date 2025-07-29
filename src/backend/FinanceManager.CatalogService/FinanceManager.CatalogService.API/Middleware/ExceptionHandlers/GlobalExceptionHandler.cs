@@ -88,7 +88,7 @@ public sealed class GlobalExceptionHandler(
     {
         var traceId = httpContext.TraceIdentifier;
         
-        problemDetails.Extensions.TryAdd("traceId", traceId);
+        problemDetails.Extensions.TryAdd("TraceId", traceId);
         problemDetails.Instance = httpContext.Request.Path;
     }
 }
