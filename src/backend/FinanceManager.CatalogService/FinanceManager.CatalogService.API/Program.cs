@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Host.AddLogging(builder.Configuration);
 builder.Services
+    .AddExceptionHandling()
     .AddDatabase(builder.Configuration, builder.Environment.IsDevelopment())
     .AddSeeding()
     .AddApplication();
@@ -25,6 +26,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseExceptionHandler();
 
 await app.UseMigrationAsync();
 await app.SeedDatabaseAsync();
