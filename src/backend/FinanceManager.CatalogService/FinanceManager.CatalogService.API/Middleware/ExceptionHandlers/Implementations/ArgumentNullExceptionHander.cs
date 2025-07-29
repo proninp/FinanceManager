@@ -4,10 +4,15 @@ using ILogger = Serilog.ILogger;
 
 namespace FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Implementations;
 
+/// <summary>
+/// Обработчик исключений типа ArgumentNullException
+/// </summary>
+/// <param name="logger">Логгер для записи информации об исключениях</param>
 public sealed class ArgumentNullExceptionHander(ILogger logger) : IExceptionHandler<ArgumentNullException>
 {
     private readonly ILogger _logger = logger.ForContext<ArgumentNullExceptionHander>();
     
+    /// <inheritdoc />
     public ProblemDetails Handle(ArgumentNullException exception)
     {
         _logger.Warning("Передан null параметр {ParameterName}: {Message}", 

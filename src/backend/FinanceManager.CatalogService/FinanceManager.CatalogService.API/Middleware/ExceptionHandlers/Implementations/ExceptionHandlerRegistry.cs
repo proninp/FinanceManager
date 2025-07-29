@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Abstractions;
+﻿using FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Implementations;

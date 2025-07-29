@@ -4,6 +4,11 @@ using ILogger = Serilog.ILogger;
 
 namespace FinanceManager.CatalogService.API.Middleware.ExceptionHandlers.Implementations;
 
+
+/// <summary>
+/// Обработчик общего типа для неопознанных исключений.
+/// </summary>
+/// <param name="logger">Логгер для записи информации об исключениях.</param>
 public sealed class FallbackExceptionHandler(ILogger logger) : IFallbackExceptionHandler
 {
     private readonly ILogger _logger = logger.ForContext<FallbackExceptionHandler>();
