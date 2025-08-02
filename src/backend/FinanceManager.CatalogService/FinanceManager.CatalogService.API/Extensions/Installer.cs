@@ -1,9 +1,12 @@
-﻿using FinanceManager.CatalogService.Abstractions.Repositories;
+﻿using System.Text.Json.Serialization;
+using FinanceManager.CatalogService.Abstractions.Repositories;
 using FinanceManager.CatalogService.Abstractions.Services;
+using FinanceManager.CatalogService.API.Controllers.Filters;
 using FinanceManager.CatalogService.Implementations.Errors;
 using FinanceManager.CatalogService.Implementations.Errors.Abstractions;
 using FinanceManager.CatalogService.Implementations.Services;
 using FinanceManager.CatalogService.Repositories.Implementations;
+using Microsoft.AspNetCore.Http.Json;
 using Serilog;
 
 namespace FinanceManager.CatalogService.API.Extensions;
@@ -39,7 +42,8 @@ public static class Installer
     {
         return services
             .AddRepositories()
-            .AddServices();
+            .AddServices()
+            .AddApiConfigurations();
     }
     
     /// <summary>
@@ -102,6 +106,23 @@ public static class Installer
             .AddScoped<ICurrencyErrorsFactory, CurrencyErrorsFactory>()
             .AddScoped<IExchangeRateErrorsFactory, ExchangeRateErrorsFactory>()
             .AddScoped<IRegistryHolderErrorsFactory, RegistryHolderErrorsFactory>();
+        return services;
+    }
+
+    /// <summary>
+    /// Добавляет стандартные конфигурации для Web API.
+    /// </summary>
+    /// <param name="services">Коллекция сервисов для регистрации.</param>
+    /// <returns>Коллекция сервисов для цепочки вызовов.</returns>
+    private static IServiceCollection AddApiConfigurations(this IServiceCollection services)
+    {
+        services.Configure<JsonOptions>(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+        
+        services.AddScoped<ModelStateValidationFilter>();
+        
         return services;
     }
 }
