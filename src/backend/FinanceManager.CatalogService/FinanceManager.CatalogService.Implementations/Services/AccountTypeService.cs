@@ -155,11 +155,7 @@ public class AccountTypeService(
 
         await accountTypeRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
-        if (affectedRows == 0)
-        {
-            logger.Warning("Тип счета {AccountTypeId} не был удален, возможно он не существует", id);
-        }
-        else
+        if (affectedRows > 0)
         {
             logger.Information("Тип счета {AccountTypeId} успешно удален", id);
         }

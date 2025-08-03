@@ -169,11 +169,10 @@ public class ExchangeRateRepository(DatabaseContext context, ILogger logger)
         _logger.Information("Удаление курсов валют для валюты {CurrencyId} с {DateFrom:yyyy-MM-dd} " +
                            "по {DateTo:yyyy-MM-dd}", currencyId, dateFrom, dateTo);
         
-        var deletedCount = await Entities.Where(er => er.CurrencyId == currencyId && er.RateDate >= dateFrom && er.RateDate <= dateTo)
-            .ExecuteDeleteAsync(cancellationToken);
-        
-        _logger.Information("Удалено {DeletedCount} курсов валют для валюты {CurrencyId} " +
-                           "за период с {DateFrom:yyyy-MM-dd} по {DateTo:yyyy-MM-dd}", 
-            deletedCount, currencyId, dateFrom, dateTo);
+        var itemsToDelete = await Entities
+            .Where(er => er.CurrencyId == currencyId && er.RateDate >= dateFrom && er.RateDate <= dateTo)
+            .ToListAsync(cancellationToken);
+
+        Entities.RemoveRange(itemsToDelete);
     }
 }

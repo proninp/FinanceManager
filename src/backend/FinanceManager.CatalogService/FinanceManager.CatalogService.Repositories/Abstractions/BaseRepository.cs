@@ -163,18 +163,27 @@ public abstract class BaseRepository<T, TFilterDto>(DatabaseContext context, ILo
     {
         logger.Information("Удаление сущности {EntityType} с Id: {Id}", typeof(T).Name, id);
         
-        var result = await Entities
-            .Where(e => e.Id == id)
-            .ExecuteDeleteAsync(cancellationToken);
-        if (result > 0)
+        var entity = await Entities .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+
+        if (entity is null)
+        {
+            logger.Warning("Сущность {EntityType} с Id {Id} не была удалена, т.к. не найдена", typeof(T).Name, id);
+            return false;
+        }
+        
+        Entities.Remove(entity);
+        var entry = context.Entry(entity);
+        var result = entry.State == EntityState.Deleted; 
+        
+        if (result)
         {
             logger.Information("Сущность {EntityType} с Id {Id} успешно удалена", typeof(T).Name, id);
         }
         else
         {
-            logger.Warning("Сущность {EntityType} с Id {Id} не была удалена (возможно, не найдена)", typeof(T).Name, id);
+            logger.Warning("Сущность {EntityType} с Id {Id} не была удалена", typeof(T).Name, id);
         }
-        return result > 0;
+        return result;
     }
 
     /// <summary>

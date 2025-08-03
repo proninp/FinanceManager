@@ -265,11 +265,7 @@ public class CurrencyService(
 
         await currencyRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
-        if (affectedRows == 0)
-        {
-            logger.Warning("Валюта {CurrencyId} не была удалена, возможно она не существует", id);
-        }
-        else
+        if (affectedRows > 0)
         {
             logger.Information("Валюта {CurrencyId} успешно удалена", id);
         }

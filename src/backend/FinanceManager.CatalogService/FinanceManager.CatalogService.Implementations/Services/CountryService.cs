@@ -163,11 +163,7 @@ public class CountryService(
         
         await countryRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
-        if (affectedRows == 0)
-        {
-            logger.Warning("Страна {CountryId} не была удалена, возможно она не существует", id);
-        }
-        else
+        if (affectedRows > 0)
         {
             logger.Information("Страна {CountryId} успешно удалена", id);
         }

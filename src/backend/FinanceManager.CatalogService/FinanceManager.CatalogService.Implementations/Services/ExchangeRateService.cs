@@ -190,11 +190,7 @@ public class ExchangeRateService(
 
         await exchangeRateRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
-        if (affectedRows == 0)
-        {
-            logger.Warning("Курс валют {ExchangeRateId} не был удален, возможно он не существует", id);
-        }
-        else
+        if (affectedRows > 0)
         {
             logger.Information("Курс валют {ExchangeRateId} успешно удален", id);
         }
