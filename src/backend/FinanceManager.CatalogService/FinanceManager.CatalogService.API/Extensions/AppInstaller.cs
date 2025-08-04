@@ -11,7 +11,7 @@ namespace FinanceManager.CatalogService.API.Extensions;
 /// <summary>
 /// Класс-установщик для регистрации инфраструктурных компонентов приложения.
 /// </summary>
-public static class Installer
+public static class AppInstaller
 {
     /// <summary>
     /// Добавляет и настраивает логирование Serilog в приложение.
