@@ -99,10 +99,88 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
         return result.ToActionResult(this);
     }
 
-    [HttpDelete]
-    public async Task<ActionResult<bool>> Delete(Guid id, CancellationToken cancellationToken)
+    /// <summary>
+    /// Обновляет существующего владельца справочника.
+    /// </summary>
+    /// <param name="dto">DTO с данными для обновления владельца.</param>
+    /// <param name="cancellationToken">Токен отмены операции.</param>
+    /// <returns>
+    /// Результат выполнения операции:
+    /// <list type="bullet">
+    ///     <item><description>200 OK - при успешном обновлении (возвращает обновленный объект <see cref="RegistryHolderDto"/>)</description></item>
+    ///     <item><description>400 Bad Request - при некорректных данных</description></item>
+    ///     <item><description>404 Not Found - если владелец справочника не найден</description></item>
+    ///     <item><description>409 Conflict - при попытке обновления с неуникальным TelegramId</description></item>
+    ///     <item><description>500 Internal Server Error - при внутренних ошибках сервера</description></item>
+    /// </list>
+    /// </returns>
+    /// <remarks>
+    /// Логирует:
+    /// <list type="bullet">
+    ///     <item><description>Факт поступления запроса (с сериализованным DTO)</description></item>
+    ///     <item><description>Успешное обновление (с ID обновленного владельца)</description></item>
+    /// </list>
+    /// </remarks>
+    /// <example>
+    /// Пример запроса:
+    /// <code>
+    /// PUT /api/RegistryHolder
+    /// {
+    ///     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    ///     "telegramId": 123456789,
+    ///     "role": "Admin"
+    /// }
+    /// </code>
+    /// </example>
+    [HttpPut]
+    [SwaggerOperation(
+        Summary = "Обновление существующего владельца справочника",
+        Description = "Обновляет существующего владельца справочника с указанными параметрами")]
+    [SwaggerResponse(200, "Владелец справочника успешно обновлен", typeof(RegistryHolderDto))]
+    [SwaggerResponse(400, "Некорректные данные запроса")]
+    [SwaggerResponse(404, "Владелец справочника не найден")]
+    [SwaggerResponse(409, "Владелец справочника с таким TelegramId уже существует")]
+    [SwaggerResponse(500, "Внутренняя ошибка сервера")]
+    public async Task<ActionResult<RegistryHolderDto>> Update([FromBody, Required] UpdateRegistryHolderDto dto,
+        CancellationToken cancellationToken = default)
     {
+        logger.Information("Запрос на обновление владельца справочника: {@UpdateDto}", dto);
+        
+        var result = await registryHolderService.UpdateAsync(dto, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            logger.Information("Владелец справочника {RegistryHolderId} успешно обновлен", dto.Id);
+        }
+        
+        return result.ToActionResult(this);
+    }
+
+    /// <summary>
+    /// Удаляет владельца справочника по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор владельца справочника.</param>
+    /// <param name="cancellationToken">Токен отмены для асинхронной операции.</param>
+    /// <returns>ActionResult с результатом операции или соответствующим статусом ошибки.</returns>
+    [HttpDelete("{id:guid}")]
+    [SwaggerOperation(
+        Summary = "Удаление владельца справочника по идентификатору",
+        Description = "Удаляет владельца справочника по указанному идентификатору")]
+    [SwaggerResponse(200, "Владелец справочника успешно удален")]
+    [SwaggerResponse(400, "Некорректный идентификатор")]
+    [SwaggerResponse(404, "Владелец справочника не найден")]
+    [SwaggerResponse(409, "Владелец справочника не может быть удален, так как используется в других сущностях")]
+    [SwaggerResponse(500, "Внутренняя ошибка сервера")]
+    public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        logger.Information("Запрос на удаление владельца справочника по Id: {RegistryHolderId}", id);
+        
         var result = await registryHolderService.DeleteAsync(id, cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            logger.Information("Владелец справочника {RegistryHolderId} успешно удален", id);
+        }
         
         return result.ToActionResult(this);
     }
