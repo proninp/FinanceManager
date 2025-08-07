@@ -222,18 +222,15 @@ public class CategoryService(
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         logger.Information("Удаление категории: {CategoryId}", id);
-
-        var category = await categoryRepository.GetByIdAsync(id, cancellationToken: cancellationToken);
-        if (category is null)
-        {
-            logger.Information("Категория {CategoryId} не найдена, удаление не требуется", id);
-            return Result.Ok();
-        }
-
+        
         await categoryRepository.DeleteAsync(id, cancellationToken);
-        await unitOfWork.CommitAsync(cancellationToken);
+        var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
 
-        logger.Information("Категория {CategoryId} успешно удалена", id);
+        if (affectedRows > 0)
+        {
+            logger.Information("Категория {CategoryId} успешно удалена", id);
+        }
+        
         return Result.Ok();
     }
 }

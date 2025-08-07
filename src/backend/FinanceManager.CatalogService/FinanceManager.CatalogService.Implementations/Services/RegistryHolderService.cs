@@ -165,11 +165,7 @@ public class RegistryHolderService(
         
         await registryHolderRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
-        if (affectedRows == 0)
-        {
-            logger.Warning("Владелец реестра {RegistryHolderId} не был удален, возможно он не существует", id);
-        }
-        else
+        if (affectedRows > 0)
         {
             logger.Information("Владелец реестра {RegistryHolderId} успешно удален", id);
         }

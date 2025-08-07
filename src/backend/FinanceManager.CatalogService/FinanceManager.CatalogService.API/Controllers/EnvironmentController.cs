@@ -29,22 +29,10 @@ public sealed class EnvironmentController(ISystemInfoService systemInfoService, 
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public ActionResult<SystemInfoResponseDto> GetSystemInfo()
     {
-        try
-        {
-            logger.Information("Запрос системной информации");
-            var systemInfoResponse = systemInfoService.GetSystemInfo();
-            logger.Information("Системная информация успешно возвращена");
-            return Ok(systemInfoResponse);
-        }
-        catch (Exception ex)
-        {
-            logger.Error(ex, "Ошибка при получении системной информации");
-            return Problem(
-                title: "Ошибка получения системной информации",
-                detail: "Не удалось получить информацию о системе",
-                statusCode: StatusCodes.Status500InternalServerError
-            );
-        }
+        logger.Information("Запрос системной информации");
+        var systemInfoResponse = systemInfoService.GetSystemInfo();
+        logger.Information("Системная информация успешно возвращена");
+        return Ok(systemInfoResponse);
     }
 
     /// <summary>

@@ -216,11 +216,7 @@ public class BankService(
 
         await bankRepository.DeleteAsync(id, cancellationToken);
         var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
-        if (affectedRows == 0)
-        {
-            logger.Warning("Банк {BankId} не был удален, возможно он не существует", id);
-        }
-        else
+        if (affectedRows > 0)
         {
             logger.Information("Банк {BankId} успешно удален", id);
         }

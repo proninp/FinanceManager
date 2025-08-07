@@ -322,13 +322,17 @@ public class AccountService(
 
         if (account.IsDefault)
         {
-            logger.Information("Счет {AccountId} успешно удален", id);
             return Result.Fail(errorsFactory.CannotDeleteDefaultAccount(id));
         }
 
         await accountRepository.DeleteAsync(id, cancellationToken);
-        await unitOfWork.CommitAsync(cancellationToken);
+        var affectedRows = await unitOfWork.CommitAsync(cancellationToken);
 
+        if (affectedRows > 0)
+        {
+            logger.Information("Счет {AccountId} успешно удален", id);
+        }
+        
         return Result.Ok();
     }
 

@@ -1,13 +1,31 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
+using FinanceManager.CatalogService.API.Controllers.Filters;
 using Microsoft.OpenApi.Models;
 
 namespace FinanceManager.CatalogService.API.Extensions;
 
 /// <summary>
-/// Добавляет и настраивает Swagger для API.
+/// Регистрирует Swagger, настраивает контроллеры, фильтры и общие настройки Web API.
 /// </summary>
-public static class SwaggerInstaller
+public static class WebApiConfigurationExtensions
 {
+    /// <summary>
+    /// Добавляет базовую конфигурацию для Web API.
+    /// </summary>
+    /// <param name="services">Коллекция сервисов.</param>
+    /// <returns>Коллекция сервисов для цепочки вызовов.</returns>
+    public static IServiceCollection AddWebApiConfiguration(this IServiceCollection services)
+    {
+        services.AddScoped<ModelStateValidationFilter>();
+        
+        services
+            .AddControllers()
+            .AddJsonOptions(options => 
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        return services;
+    }
+    
     /// <summary>
     /// Добавляет и настраивает Swagger для API.
     /// </summary>
