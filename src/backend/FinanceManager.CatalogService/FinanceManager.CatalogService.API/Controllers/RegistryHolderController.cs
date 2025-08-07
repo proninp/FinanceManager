@@ -38,8 +38,33 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
     public async Task<ActionResult<RegistryHolderDto>> GetById(Guid id, CancellationToken cancellationToken)
     {
         logger.Information("Запрос информации о пользователе по Id: {RegistryHolderId}", id);
-        
+
         var result = await registryHolderService.GetByIdAsync(id, cancellationToken);
+
+        return result.ToActionResult(this);
+    }
+
+    /// <summary>
+    /// Получение списка владельцев справочников с фильтрацией и пагинацией.
+    /// </summary>
+    /// <param name="filter">Параметры фильтрации и пагинации.</param>
+    /// <param name="cancellationToken">Токен отмены для асинхронной операции.</param>
+    /// <returns>ActionResult со списком владельцев справочников или соответствующим статусом ошибки.</returns>
+    [HttpGet]
+    [SwaggerOperation(
+        Summary = "Получение списка владельцев справочников с фильтрацией",
+        Description =
+            "Возвращает список владельцев справочников с возможностью фильтрации по Telegram ID и роли, а также пагинации")]
+    [SwaggerResponse(200, "Список владельцев справочников успешно получен", typeof(ICollection<RegistryHolderDto>))]
+    [SwaggerResponse(400, "Некорректные параметры фильтрации")]
+    [SwaggerResponse(500, "Внутренняя ошибка сервера")]
+    public async Task<ActionResult<ICollection<RegistryHolderDto>>> Get(
+        [FromQuery] RegistryHolderFilterDto filter,
+        CancellationToken cancellationToken = default)
+    {
+        logger.Information("Запрос списка владельцев справочников с фильтрацией: {@Filter}", filter);
+
+        var result = await registryHolderService.GetPagedAsync(filter, cancellationToken);
 
         return result.ToActionResult(this);
     }
@@ -87,15 +112,15 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
         CancellationToken cancellationToken = default)
     {
         logger.Information("Запрос на создание владельца справочника: {@CreateDto}", dto);
-        
+
         var result = await registryHolderService.CreateAsync(dto, cancellationToken);
 
         if (result.IsSuccess)
         {
-            logger.Information("Владелец справочника {RegistryHolderId} успешно создан с ролью '{Role}'", 
+            logger.Information("Владелец справочника {RegistryHolderId} успешно создан с ролью '{Role}'",
                 result.Value.Id, result.Value.Role);
         }
-        
+
         return result.ToActionResult(this);
     }
 
@@ -145,14 +170,14 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
         CancellationToken cancellationToken = default)
     {
         logger.Information("Запрос на обновление владельца справочника: {@UpdateDto}", dto);
-        
+
         var result = await registryHolderService.UpdateAsync(dto, cancellationToken);
 
         if (result.IsSuccess)
         {
             logger.Information("Владелец справочника {RegistryHolderId} успешно обновлен", dto.Id);
         }
-        
+
         return result.ToActionResult(this);
     }
 
@@ -174,14 +199,14 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
     public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         logger.Information("Запрос на удаление владельца справочника по Id: {RegistryHolderId}", id);
-        
+
         var result = await registryHolderService.DeleteAsync(id, cancellationToken);
 
         if (result.IsSuccess)
         {
             logger.Information("Владелец справочника {RegistryHolderId} успешно удален", id);
         }
-        
+
         return result.ToActionResult(this);
     }
 }
