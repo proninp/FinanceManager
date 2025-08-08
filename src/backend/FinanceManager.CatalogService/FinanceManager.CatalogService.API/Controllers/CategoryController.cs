@@ -52,4 +52,34 @@ public class CategoryController(ICategoryService categoryService, ILogger logger
 
         return result.ToActionResult(this);
     }
+    
+    /// <summary>
+    /// Получение списка категорий с фильтрацией и пагинацией.
+    /// </summary>
+    /// <param name="filter">Параметры фильтрации и пагинации.</param>
+    /// <param name="cancellationToken">Токен отмены для асинхронной операции.</param>
+    /// <returns>ActionResult со списком категорий или соответствующим статусом ошибки.</returns>
+    /// <example>
+    /// Пример запроса:
+    /// <code>
+    /// GET /api/category?ItemsPerPage=10&amp;Page=1&amp;RegistryHolderId=%7BGuid%7D&amp;NameContains=Food
+    /// </code>
+    /// </example>
+    [HttpGet]
+    [SwaggerOperation(
+        Summary = "Получение списка категорий с фильтрацией и пагинацией",
+        Description = "Возвращает список категорий с возможностью фильтрации по различным параметрам")]
+    [SwaggerResponse(200, "Список категорий успешно получен", typeof(ICollection<CategoryDto>))]
+    [SwaggerResponse(400, "Некорректные параметры фильтрации")]
+    [SwaggerResponse(500, "Внутренняя ошибка сервера")]
+    public async Task<ActionResult<ICollection<CategoryDto>>> Get(
+        [FromQuery] CategoryFilterDto filter,
+        CancellationToken cancellationToken)
+    {
+        logger.Information("Запрос списка категорий с фильтрацией: {@Filter}", filter);
+
+        var result = await categoryService.GetPagedAsync(filter, cancellationToken);
+
+        return result.ToActionResult(this);
+    }
 }
