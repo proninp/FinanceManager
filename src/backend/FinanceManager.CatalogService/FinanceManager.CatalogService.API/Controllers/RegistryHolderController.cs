@@ -27,6 +27,12 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
     /// <param name="id">Идентификатор пользователя.</param>
     /// <param name="cancellationToken">Токен отмены для асинхронной операции.</param>
     /// <returns>ActionResult с данными пользователя или соответствующим статусом ошибки.</returns>
+    /// <example>
+    /// Пример запроса:
+    /// <code>
+    /// GET /api/RegistryHolder/{id}
+    /// </code>
+    /// </example>
     [HttpGet("{id:guid}")]
     [SwaggerOperation(
         Summary = "Получение пользователя по идентификатору",
@@ -50,6 +56,12 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
     /// <param name="filter">Параметры фильтрации и пагинации.</param>
     /// <param name="cancellationToken">Токен отмены для асинхронной операции.</param>
     /// <returns>ActionResult со списком владельцев справочников или соответствующим статусом ошибки.</returns>
+    /// <example>
+    /// Пример запроса:
+    /// <code>
+    /// GET /api/RegistryHolder?role=User&amp;page=1&amp;pageSize=10
+    /// </code>
+    /// </example>
     [HttpGet]
     [SwaggerOperation(
         Summary = "Получение списка владельцев справочников с фильтрацией",
@@ -182,11 +194,33 @@ public class RegistryHolderController(IRegistryHolderService registryHolderServi
     }
 
     /// <summary>
-    /// Удаляет владельца справочника по идентификатору.
+    /// Удаление владельца справочника по идентификатору.
     /// </summary>
     /// <param name="id">Идентификатор владельца справочника.</param>
     /// <param name="cancellationToken">Токен отмены для асинхронной операции.</param>
-    /// <returns>ActionResult с результатом операции или соответствующим статусом ошибки.</returns>
+    /// <returns>
+    /// Результат выполнения операции:
+    /// <list type="bullet">
+    ///     <item><description>200 OK - если владелец успешно удален</description></item>
+    ///     <item><description>400 Bad Request - если идентификатор некорректен</description></item>
+    ///     <item><description>404 Not Found - если владелец не найден</description></item>
+    ///     <item><description>409 Conflict - если владелец не может быть удален, так как используется в других сущностях</description></item>
+    ///     <item><description>500 Internal Server Error - при внутренних ошибках сервера</description></item>
+    /// </list>
+    /// </returns>
+    /// <remarks>
+    /// Логирует:
+    /// <list type="bullet">
+    ///     <item><description>Запрос на удаление владельца (с указанным идентификатором)</description></item>
+    ///     <item><description>Факт успешного удаления владельца (с ID)</description></item>
+    /// </list>
+    /// </remarks>
+    /// <example>
+    /// Пример запроса:
+    /// <code>
+    /// DELETE /api/RegistryHolder/{id}
+    /// </code>
+    /// </example>
     [HttpDelete("{id:guid}")]
     [SwaggerOperation(
         Summary = "Удаление владельца справочника по идентификатору",
